@@ -157,82 +157,22 @@ function Get-JarvisMobileUrl {
     return "https://${LanIp}:$Port"
 }
 
-function Initialize-JarvisCertBypass {
-    <#
-    .SYNOPSIS
-        Install a certificate-validation callback that trusts our self-signed cert.
-    .DESCRIPTION
-        PS 5.1 (.NET Framework) invokes ServerCertificateValidationCallback on a
-        network thread with no PowerShell runspace, so a scriptblock like
-        { $true } throws "There is no Runspace available to run scripts in this
-        thread" and aborts the request. Compile a static C# delegate instead.
-
-        PS 6+ callers should use Invoke-WebRequest -SkipCertificateCheck and
-        never touch the shared callback. Returns the previous callback (or
-        $null) so the caller can restore it in a finally block.
-    #>
-    if ($PSVersionTable.PSVersion.Major -ge 6) { return $null }
-    if (-not ('Jarvis.SelfSignedTrust' -as [type])) {
-        Add-Type -TypeDefinition @"
-using System.Net;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-
-namespace Jarvis
-{
-    public static class SelfSignedTrust
-    {
-        public static bool Validate(
-            object sender,
-            X509Certificate certificate,
-            X509Chain chain,
-            SslPolicyErrors sslPolicyErrors)
-        {
-            return true;
-        }
-    }
-}
-"@
-    }
-    $previous = [System.Net.ServicePointManager]::ServerCertificateValidationCallback
-    # PS cannot assign a PSMethod to a delegate-typed property; build the
-    # RemoteCertificateValidationCallback explicitly from the MethodInfo.
-    $method = [Jarvis.SelfSignedTrust].GetMethod('Validate')
-    $delegate = [System.Delegate]::CreateDelegate(
-        [System.Net.Security.RemoteCertificateValidationCallback], $method)
-    [System.Net.ServicePointManager]::ServerCertificateValidationCallback = $delegate
-    return $previous
-}
-
-function Restore-JarvisCertBypass {
-    param($PreviousCallback)
-    if ($PSVersionTable.PSVersion.Major -lt 6) {
-        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = $PreviousCallback
-    }
-}
-
 function Test-JarvisBackendHealth {
     param(
         [Parameter(Mandatory = $true)][string]$Url,
         [int]$TimeoutSeconds = 3
     )
-    # Self-signed certificate: verification must be bypassed because we are
-    # only probing our own machine's loopback/LAN endpoint.
+    # This is a health-only probe to our own LAN endpoint. Use curl's
+    # per-request --insecure option rather than installing a process-wide
+    # certificate callback that would silently trust every HTTPS host.
     try {
-        if (Get-Command Invoke-WebRequest -ErrorAction SilentlyContinue) {
-            # PS 6+ has -SkipCertificateCheck; PS 5.1 needs the delegate above.
-            $params = @{ Uri = "$Url/health"; TimeoutSec = $TimeoutSeconds; UseBasicParsing = $true }
-            if ($PSVersionTable.PSVersion.Major -ge 6) { $params["SkipCertificateCheck"] = $true }
-            $previous = Initialize-JarvisCertBypass
-            try {
-                $response = Invoke-WebRequest @params
-                return ($response.StatusCode -eq 200)
-            } finally {
-                Restore-JarvisCertBypass -PreviousCallback $previous
-            }
-        }
-    } catch { }
-    return $false
+        $curl = Get-Command curl.exe -CommandType Application -ErrorAction SilentlyContinue
+        if (-not $curl) { return $false }
+        $status = & $curl.Source --insecure --silent --show-error --max-time $TimeoutSeconds --output NUL --write-out "%{http_code}" "$Url/health" 2>$null
+        return ($LASTEXITCODE -eq 0 -and "$status".Trim() -eq "200")
+    } catch {
+        return $false
+    }
 }
 
 function Wait-JarvisBackendHealth {
