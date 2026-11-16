@@ -133,3 +133,13 @@ resume rewrite or proof of the latest correct resume: modification time is merel
 filesystem metadata. Semantic summaries and approved file organization are still
 separate work. Tests use synthetic temporary files and mocked UI responses; a
 sample generated DOCX was rendered to PDF and visually checked for layout.
+
+## Optional signed GitHub workflow failure inbox adapter
+
+[GitHub workflow alerts](GITHUB-WORKFLOW-ALERTS.md) describes a disabled-by-default
+HMAC-verified inbound workflow_run route and exact repository allowlist. It queues
+only a bounded historical failure summary in the existing notification inbox; no
+GitHub API/model/log call or remediation occurs. Localhost cannot receive hosted
+GitHub webhooks. No tunnel, deployment, webhook registration or actual device
+delivery was performed; HTTPS architecture/account setup and end-to-end delivery
+acceptance remain separately gated.
