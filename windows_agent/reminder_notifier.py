@@ -1,4 +1,4 @@
-"""Opt-in Windows toast worker for reminders stored by the local JARVIS backend."""
+"""Opt-in Windows toast worker for reminders stored by the local AETHER backend."""
 import json
 import os
 import tempfile
@@ -24,7 +24,7 @@ def fetch_due():
 def show_toast(title: str, message: str):
     # Imported lazily so non-Windows CI can import/test this module.
     from winotify import Notification
-    Notification(app_id="JARVIS Personal AI", title=title, msg=message[:240]).show()
+    Notification(app_id="AETHER Personal AI", title=title, msg=message[:240]).show()
 
 
 def _load_state(path: Path = STATE_PATH) -> dict:
@@ -66,7 +66,7 @@ def process_due(items: list[dict], state: dict, notify=show_toast, now: float | 
             continue
         attempts = int(previous.get("attempts", 0)) + 1
         try:
-            notify("JARVIS reminder", item["title"])
+            notify("AETHER reminder", item["title"])
         except Exception as exc:
             delay = min(30 * (2 ** (attempts - 1)), MAX_RETRY_SECONDS)
             message = str(exc).replace("\r", " ").replace("\n", " ")[:300]
@@ -90,7 +90,7 @@ def run():
     if len(TOKEN) < 32:
         raise SystemExit("Set JARVIS_API_TOKEN to the same random token configured in the local backend.")
     state = _load_state()
-    print(f"JARVIS reminder notifier polling {API_BASE}; Ctrl+C stops it.")
+    print(f"AETHER reminder notifier polling {API_BASE}; Ctrl+C stops it.")
     print(f"Delivery state is saved in {STATE_PATH.resolve()}")
     while True:
         try:
