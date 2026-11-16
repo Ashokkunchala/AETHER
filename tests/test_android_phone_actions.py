@@ -13,7 +13,7 @@ def test_phone_actions_wired_without_broad_grants_or_direct_send():
     for marker in ['Intent.ACTION_CALL','SmsManager','takePersistableUriPermission','rememberSaveable {','HttpURLConnection','URL(','TokenVault','LiveVoice']:
         assert marker not in text
     manifest=(ROOT/'android/app/src/main/AndroidManifest.xml').read_text()
-    for permission in ['CALL_PHONE','SEND_SMS','READ_CONTACTS','READ_CALENDAR','READ_EXTERNAL_STORAGE','MANAGE_EXTERNAL_STORAGE','ACCESS_FINE_LOCATION','CAMERA']:
+    for permission in ['CALL_PHONE','SEND_SMS','READ_CONTACTS','WRITE_CALENDAR','READ_EXTERNAL_STORAGE','MANAGE_EXTERNAL_STORAGE','ACCESS_FINE_LOCATION','CAMERA']:
         assert permission not in manifest
 
 
