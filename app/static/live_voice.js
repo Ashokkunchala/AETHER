@@ -1,4 +1,4 @@
-/* JARVIS Live Voice client. Captures mono PCM16/16 kHz and plays PCM16/24 kHz. */
+/* AETHER Live Voice client. Captures mono PCM16/16 kHz and plays PCM16/24 kHz. */
 (() => {
   const $ = id => document.getElementById(id);
   if (!$("liveVoiceConnect")) return;
@@ -10,7 +10,7 @@
   const setUi=(state,detail,title)=>{
     document.body.dataset.liveState=active?"active":reconnecting?"reconnecting":"off";
     if(typeof window.jarvisSetVoiceState==="function") window.jarvisSetVoiceState(state,
-      title||(state==="listening"?"Listening to you":state==="thinking"?"JARVIS is thinking":state==="speaking"?"JARVIS is speaking":"JARVIS is ready"),detail);
+      title||(state==="listening"?"Listening to you":state==="thinking"?"AETHER is thinking":state==="speaking"?"AETHER is speaking":"AETHER is ready"),detail);
     const dictationStop=$("voiceStop");if(dictationStop)dictationStop.hidden=true; // dictation is not running during live voice
     $("liveVoiceConnect").hidden=active;
     $("liveVoiceStop").hidden=!(active||reconnecting);
@@ -44,11 +44,11 @@
     // Bound queued playback to 20 s so a slow device cannot build unbounded lag.
     if(outputNextTime-outputContext.currentTime>20)return;
     const start=Math.max(outputContext.currentTime+0.01,outputNextTime);outputNextTime=start+buffer.duration;outputNodes.add(node);node.onended=()=>outputNodes.delete(node);node.start(start);
-    setUi("speaking","JARVIS audio is streaming. Speak to interrupt.");
+    setUi("speaking","AETHER audio is streaming. Speak to interrupt.");
   }
   function showTranscript(source,text){
     const el=$("liveVoiceTranscript");if(!el||!text)return;
-    const line=(source==="user"?"You: ":"JARVIS: ")+text;
+    const line=(source==="user"?"You: ":"AETHER: ")+text;
     el.textContent+=(el.textContent?"\n":"")+line;el.scrollTop=el.scrollHeight;
   }
   // Approval prompt for state-changing voice tools. Text is set with textContent
@@ -63,14 +63,14 @@
   function showApproval(m){
     clearApproval();
     const slot=$("approvalSlot"),anchor=slot||$("liveVoiceStatus");if(!anchor||typeof m.id!=="string")return;
-    const box=document.createElement("div");box.setAttribute("role","alertdialog");box.setAttribute("aria-label","Approve JARVIS action");box.setAttribute("aria-live","assertive");
+    const box=document.createElement("div");box.setAttribute("role","alertdialog");box.setAttribute("aria-label","Approve AETHER action");box.setAttribute("aria-live","assertive");
     if(!slot)box.style.cssText="margin:.4rem 0;padding:.5rem;border:1px solid var(--muted,#888);border-radius:8px;font-size:.85rem";
-    const label=document.createElement("div");label.textContent="JARVIS asks to: "+String(m.summary||m.name||"make a change").slice(0,300);
+    const label=document.createElement("div");label.textContent="AETHER asks to: "+String(m.summary||m.name||"make a change").slice(0,300);
     const cd=document.createElement("span");cd.className="cd";
     const yes=document.createElement("button");yes.type="button";yes.className="primary";yes.textContent="Approve";
     const no=document.createElement("button");no.type="button";no.textContent="Deny";
     const stop=document.createElement("button");stop.type="button";stop.textContent="Stop voice";
-    const answer=approve=>{send({type:"approval",id:m.id,approve:approve===true});clearApproval();status(approve?"Approved. Waiting for JARVIS to finish.":"Denied. Nothing was changed.");};
+    const answer=approve=>{send({type:"approval",id:m.id,approve:approve===true});clearApproval();status(approve?"Approved. Waiting for AETHER to finish.":"Denied. Nothing was changed.");};
     yes.addEventListener("click",()=>answer(true));no.addEventListener("click",()=>answer(false));
     stop.addEventListener("click",()=>{clearApproval();$("liveVoiceStop").click();}); // closing the session is a denial on the server
     box.append(label,cd,yes,no,stop);(slot?slot.append(box):anchor.after(box));approvalBox=box;
@@ -84,12 +84,12 @@
   async function onMessage(event){
     let m;try{m=JSON.parse(event.data);}catch(_){return;}
     switch(m.type){
-      case "ready":attempt=0;reconnecting=false;if(wasReconnect){wasReconnect=false;const t=$("liveVoiceTranscript");if(t)t.textContent+=(t.textContent?"\n":"")+"-- reconnected. JARVIS does not remember what was said before the drop. --";}status("Live audio connected · "+m.model);setUi("listening","Microphone active by your request. Speak naturally.");break;
+      case "ready":attempt=0;reconnecting=false;if(wasReconnect){wasReconnect=false;const t=$("liveVoiceTranscript");if(t)t.textContent+=(t.textContent?"\n":"")+"-- reconnected. AETHER does not remember what was said before the drop. --";}status("Live audio connected · "+m.model);setUi("listening","Microphone active by your request. Speak naturally.");break;
       case "audio":try{await playAudio(m.data);}catch(e){status("Audio playback failed: "+e.message,true);}break;
       case "text":showTranscript("assistant",m.text);break;
       case "transcript":showTranscript(m.source,m.text);break;
       case "turn_complete":endStaleAudioWindow();status("Reply complete · live session remains open.");setUi("listening","Ready for your next utterance.");break;
-      case "interrupted":endStaleAudioWindow();stopPlayback();status("JARVIS audio interrupted.");setUi("listening","Listening for your next instruction.");break;
+      case "interrupted":endStaleAudioWindow();stopPlayback();status("AETHER audio interrupted.");setUi("listening","Listening for your next instruction.");break;
       case "tool":status("Tool "+String(m.name)+(m.ok?" finished.":" did not run."),!m.ok);break;
       case "approval_request":showApproval(m);break;
       case "error":status(m.message||"Live voice error.",true);break;
@@ -119,7 +119,7 @@
         send({type:"audio",data:toBase64(toPcm16(event.data))});
       }finally{try{processor?.port.postMessage({type:"credit"});}catch(_){}}
     };
-    active=true;setUi("listening","Microphone is on. Audio is streaming to your JARVIS server.");status("Live microphone active. Select Stop Live Voice to disconnect.");
+    active=true;setUi("listening","Microphone is on. Audio is streaming to your AETHER server.");status("Live microphone active. Select Stop Live Voice to disconnect.");
   }
   function releaseCapture(sendEnd=true){
     active=false;clearApproval();endStaleAudioWindow();
@@ -146,7 +146,7 @@
   }
   async function connect(){
     const token=$("deviceToken")?.value?.trim()||"";
-    if(token.length<32)throw new Error("Enter your JARVIS API token and click Save settings first.");
+    if(token.length<32)throw new Error("Enter your AETHER API token and click Save settings first.");
     if(socket&&socket.readyState===WebSocket.OPEN){await startCapture();return;}
     // Keep the long-lived bearer token in an Authorization header. Only the
     // short-lived, single-use ticket is placed in the WebSocket URL.
@@ -157,14 +157,14 @@
     const ticketData=await ticketResponse.json();
     if(typeof ticketData.ticket!=="string"||!ticketData.ticket)throw new Error("Server did not return a live voice ticket.");
     const scheme=location.protocol==="https:"?"wss:":"ws:";
-    socket=new WebSocket(scheme+"//"+location.host+"/api/live-voice?ticket="+encodeURIComponent(ticketData.ticket));
+    socket=new WebSocket(scheme+"//"+location.host+"/api/live-voice?ticket="+encodeURIComponent(ticketData.ticket)+"&mode="+encodeURIComponent($("personalityMode")?.value||"assistant")+"&language="+encodeURIComponent($("language")?.value||"auto"));
     socket.addEventListener("message",onMessage);
     socket.addEventListener("open",async()=>{try{reconnecting=false;reconnectAttempts=0;await startCapture();}catch(e){status(e.message,true);releaseCapture(false);socket?.close(1000,"microphone unavailable");}});
     socket.addEventListener("error",()=>status("Live connection failed. Check API token, backend config and model access.",true));
     socket.addEventListener("close",event=>{
       releaseCapture(false);socket=null;
       if(!userStopped&&!event.wasClean&&![4401,4403,1013].includes(event.code)){scheduleReconnect();return;}
-      if(event.code===4401)status("Live authorization failed. Check your JARVIS token.",true);
+      if(event.code===4401)status("Live authorization failed. Check your AETHER token.",true);
       else if(event.code===4403)status("This page origin is not allowed for live voice.",true);
       else if(event.code===4429)status("Live Voice session limit reached. Stop another active session and try again.",true);
       else if(event.code===1013)status("Live voice is unavailable: configure a supported Gemini Live model and API key.",true);
@@ -180,6 +180,6 @@
   }
   $("liveVoiceConnect").addEventListener("click",()=>{userStopped=false;attempt=0;reconnecting=false;connect().catch(e=>status(e.message,true));});
   $("liveVoiceStop").addEventListener("click",()=>{userStopped=true;reconnecting=false;wasReconnect=false;clearTimeout(retryTimer);releaseCapture();status("Live voice stopped.");if(socket&&socket.readyState===WebSocket.OPEN)socket.close(1000,"user stopped live voice");});
-  $("liveVoiceInterrupt").addEventListener("click",()=>{dropStaleAudio();stopPlayback();send({type:"stop"});status("Playback interrupted. Speak your next instruction.");setUi("listening","JARVIS response interrupted.");});
+  $("liveVoiceInterrupt").addEventListener("click",()=>{dropStaleAudio();stopPlayback();send({type:"stop"});status("Playback interrupted. Speak your next instruction.");setUi("listening","AETHER response interrupted.");});
   window.addEventListener("pagehide",()=>{userStopped=true;clearTimeout(retryTimer);releaseCapture(false);if(socket){socket.close(1000,"page closed");socket=null;}if(outputContext)outputContext.close().catch(()=>{});});
 })();
