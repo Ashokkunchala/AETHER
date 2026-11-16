@@ -72,3 +72,8 @@ A separate native Android request/result path now exists for one fixed memory
 snapshot with laptop-local interactive review, requester-bound results and local
 revocation/stop. It does not add HTTP execution approval, a shell or authorize LAN
 exposure. See [read-only protocol and acceptance limits](../docs/ANDROID-WINDOWS-READONLY.md).
+
+The remote-read protocol also supports owner-bound cancellation/result clearing.
+It never approves or dispatches a read: pending requests cannot start, running
+reads may finish but cannot publish that result, completed results are cleared.
+Already returned copies are not recalled and OS cancellation is not guaranteed.
