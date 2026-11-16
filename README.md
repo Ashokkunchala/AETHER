@@ -196,7 +196,7 @@ Run tests:
 - `GET /` — browser chat UI.
 - `POST /api/chat` — Gemini chat returning JSON; requires the configured bearer token.
 - `POST /api/chat/stream` — Gemini chat streamed as server-sent events for the browser; uses the same bearer token. Keep the service local until production security is completed.
-- `WS /ws?token=…` — realtime brain: streamed text, tool lifecycle events, and interactive tool confirmation over JSON frames (see `app/ws.py` for the protocol).
+- `POST /api/ws-ticket` + `WS /ws?ticket=…` — exchange a bearer token for a 60-second, single-use WebSocket ticket, then use it for realtime streamed text, tool lifecycle events, and interactive tool confirmation. Remote clients cannot self-approve sensitive actions.
 - Token-protected APIs: `/api/memories`, `/api/reminders`, `/api/workouts`, `/api/research`, `/api/coach/workout`, and `/api/coach/nutrition`.
 - `GET /docs` — local API reference.
 
