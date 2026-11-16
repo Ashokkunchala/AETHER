@@ -137,6 +137,16 @@ def preview_document(item: PreviewRequest):
             'notice': 'Text preview only, not a semantic summary or verified resume version. At most 80 PDF pages and 60000 characters. Images, scanned text without OCR, comments, headers and embedded objects may be missing. No AI provider used and no source file changed.'}
 
 
+@router.post('/summary')
+def summarize_document(item: PreviewRequest):
+    from app.document_summary import summarize_extracted_text
+    preview = preview_document(item)
+    summary = summarize_extracted_text(preview['text'])
+    return {**summary, 'path': preview['path'], 'partial_source': preview['partial'],
+            'characters_extracted': preview['characters_extracted'], 'saved': False,
+            'source_notice': preview['notice'], 'ai_provider_used': False}
+
+
 class DocumentDraft(BaseModel):
     model_config = ConfigDict(extra='forbid')
     title: str = Field(min_length=1, max_length=200)
