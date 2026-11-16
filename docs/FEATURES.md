@@ -74,3 +74,10 @@ See [Python review scope and evidence](MENTOR-PYTHON-REVIEW.md).
 and bounded output hashing. It runs arbitrary trusted backend code, not a sandbox,
 and does not install dependencies, publish, deploy or certify the resulting file.
 See [wheel builder boundaries and evidence](PYTHON-WHEEL-BUILDER.md).
+
+### Supplied Kubernetes RBAC structure
+
+`review_k8s_rbac_json` joins bounded supplied RBAC v1 JSON roles/bindings by exact
+namespace/kind/name, reports selected per-rule patterns with source indexes and
+keeps effective permissions/live cluster state unknown. No cluster call/change.
+See [RBAC structural scope and evidence](KUBERNETES-RBAC-SNAPSHOT.md).
