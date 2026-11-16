@@ -30,7 +30,12 @@ current reachability or proof the selected row's content is trustworthy.
 A valid candidate is shown locally with "not verified identity" and requires
 explicit review plus "Use this candidate in number field" before it replaces the
 existing field. Discard leaves that field alone. Selection errors/cancellation
-also leave it unchanged. The dialer/SMS buttons remain separate, and Call/Send
+also leave it unchanged. Dialer/SMS buttons are disabled while a candidate awaits use/discard so an old
+number cannot be mistaken for that candidate. Selecting a contact in the separate
+generic contact picker clears the prior number field on successful selection
+because that picker does not supply a specific number. Its cancellation leaves
+the field unchanged, and starting either picker discards an older candidate.
+The dialer/SMS buttons remain separate, and Call/Send
 remain in the destination application. Selecting or copying a number never
 confirms a communication, its words or its recipient identity.
 
