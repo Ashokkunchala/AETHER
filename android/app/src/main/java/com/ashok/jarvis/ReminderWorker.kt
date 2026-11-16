@@ -55,10 +55,10 @@ class ReminderWorker(context: Context, parameters: WorkerParameters) : Coroutine
             if (statusCode == 401 || statusCode == 403) return@withContext Result.failure()
             if (statusCode !in 200..299) return@withContext Result.retry()
 
-            val items = JSONObject(body).optJSONArray("items") ?: return@withContext Result.success()
+            val items = JSONObject(body).optJSONArray("items") ?: org.json.JSONArray()
             val preferences = context.getSharedPreferences(STATE_STORE, Context.MODE_PRIVATE)
             manager.createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "JARVIS reminders", NotificationManager.IMPORTANCE_DEFAULT)
+                NotificationChannel(CHANNEL_ID, "AETHER reminders", NotificationManager.IMPORTANCE_DEFAULT)
             )
             if (manager.getNotificationChannel(CHANNEL_ID)?.importance == NotificationManager.IMPORTANCE_NONE) {
                 return@withContext Result.success()
@@ -131,8 +131,8 @@ class ReminderWorker(context: Context, parameters: WorkerParameters) : Coroutine
     }
 
     companion object {
-        private const val WORK_NAME = "jarvis_due_reminder_poll"
-        private const val CHANNEL_ID = "jarvis_reminders"
+        private const val WORK_NAME = "aether_due_reminder_poll"
+        private const val CHANNEL_ID = "aether_reminders"
         private const val STATE_STORE = "jarvis_reminder_delivery_state"
         private const val POLL_MINUTES = 15L
 
