@@ -90,3 +90,24 @@ all Google calls and do not verify a real OAuth deployment/account.
 Official API grounding:
 - https://developers.google.com/people/api/rest/v1/people/searchContacts
 - https://developers.google.com/people/v1/contacts
+
+## Travel and shopping source research
+
+The life-manager travel/shopping forms now run public source searches rather than
+only preparing a text request. `POST /api/research/travel` accepts explicit origin,
+destination, optional travel date and preferences. `POST /api/research/shopping`
+accepts product query, market/country (required), budget/currency text and
+preferences. Both require a valid device/API token. Three bounded DuckDuckGo
+searches group transport/accommodation/destination sources or
+manufacturer/seller/warranty sources. Only submitted form fields are sent to the
+search service; no saved records or AI provider are used by these endpoints.
+
+This is a source shortlist, not verified trip availability, an authoritative
+side-by-side product evaluation or a purchase quote. Returned source URLs and
+snippets can be stale, wrong or unavailable. Every source is marked
+`page_verified=false`; no inferred numeric price/stock is returned. Search failures
+remain explicit per group; empty results never mean sold out. Check exact models,
+providers, taxes, fees, policies and final availability on the provider's page.
+Nothing is booked or paid. The UI renders outside text as text, rejects non-HTTP
+links and never follows instructions found in snippets. Automated checks use
+mocked search responses; search-site availability still needs runtime acceptance.
