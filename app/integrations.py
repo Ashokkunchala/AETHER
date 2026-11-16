@@ -9,6 +9,7 @@ import hashlib
 import json
 import secrets
 import sqlite3
+from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Literal
@@ -38,7 +39,8 @@ GOOGLE_SCOPES = (
 )
 
 
-def _connect() -> sqlite3.Connection:
+@contextmanager
+def _connect():
     path = Path(settings.jarvis_db_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(path, timeout=10)
@@ -63,7 +65,14 @@ def _connect() -> sqlite3.Connection:
         read_at TEXT, created_at TEXT NOT NULL
       );
     """)
-    return db
+    try:
+        yield db
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
 
 
 def _fernet() -> Fernet:
