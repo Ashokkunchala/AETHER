@@ -1,26 +1,26 @@
-# JARVIS real-time voice and interface
+# AETHER real-time voice and interface
 
 ## What is implemented on the feature branch
 
-- Browser dashboard with responsive JARVIS orb, ready/listening/thinking/speaking states, text chat, transcript view, and explicit live voice start/stop/interruption controls.
+- Browser dashboard with responsive AETHER orb, ready/listening/thinking/speaking states, text chat, transcript view, and explicit live voice start/stop/interruption controls.
 - Browser Live Voice client that requests microphone access after a user click, down-samples audio to 16 kHz PCM16, streams frames to the backend, and plays returned 24 kHz PCM audio.
-- Default Live Voice profile uses Gemini's `Charon` prebuilt voice for a composed, lower-register assistant style. Override with `GEMINI_LIVE_VOICE` in `.env` if your enabled model supports another prebuilt voice. This is an original JARVIS-inspired voice profile, not a copy of a film actor's exact voice.
-- FastAPI WebSocket route at `/api/live-voice`. It authenticates the configured bearer token, checks browser Origin against configured CORS origins, keeps the Gemini API key on the server, validates payload sizes, opens a Gemini Live session, forwards audio/text/transcripts, and closes the session on disconnect.
-- Typed chat remains available as a fallback. The voice session can call three read-only tools (current time, open reminders, saved memories; see `app/live_tools.py`). Any other tool call is refused, and nothing in voice can change data or device state.
+- Default Live Voice profile uses Gemini's `Charon` prebuilt voice for a composed, lower-register assistant style. Override with `GEMINI_LIVE_VOICE` in `.env` if your enabled model supports another prebuilt voice. This is a configured prebuilt voice, not a copy of a film actor's voice.
+- FastAPI WebSocket route at `/api/live-voice`. It consumes a credential-bound, single-use ticket minted using bearer authentication, checks browser Origin against configured CORS origins, keeps the Gemini API key on the server, validates payload sizes, opens a Gemini Live session, forwards audio/text/transcripts, and closes the session on disconnect.
+- Typed chat remains available as a fallback. The voice session can call three read-only tools (current time, open reminders, saved memories) plus `create_reminder` only after its visible, credential-bound approval succeeds (see `app/live_tools.py`). Other tools are refused.
 
 - Server-side guardrails on each live session: session length, idle timeout, audio volume per minute and a concurrent-session cap (see CHANGELOG for the environment variables). Covered by tests with a fake provider client; not exercised against the real Live API.
 - The server also caps cumulative input per session at 16 MiB and permits at most two simultaneous Live Voice provider sessions per client IP in a single process; excess sessions are rejected with a clear limit status. This is a local guardrail, not a distributed or provider-account usage quota.
 
-- Browser wake word ("Hey Jarvis" checkbox) is opt-in and session-only. It uses the browser's built-in speech recognition, which in Chrome and Edge sends audio to the vendor speech service - it is not an offline wake word. The fully local wake word is `jarvis start` with the openWakeWord model (install `requirements-jarvis.txt`). The browser listener stops while a Live Voice session is active.
+- Browser wake word ("Hey Aether" checkbox) is opt-in and session-only. It uses the browser's built-in speech recognition, which in Chrome and Edge sends audio to the vendor speech service - it is not an offline wake word. The separate local detector used by `jarvis start` retains the legacy `jarvis` model selection and original trigger "hey jarvis" (install `requirements-voice.txt`). A product rename does not train an AETHER neural wake model; `jarvis call` skips wake words. The browser listener stops while a Live Voice session is active.
 
 ## Not yet proven / not production-ready
 
-- The configured model `gemini-3.8-live` is listed as a stable Gemini Live model. The owner's API account still needs a real handshake test; model listing alone does not prove account access ([official model page](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-live)).
+- The configured `GEMINI_LIVE_MODEL` still needs a real handshake test with the owner's account. A default or model name in this repository does not prove current availability, account access, price or compatibility.
 - The browser exchanges its bearer token for a single-use, 60-second WebSocket ticket because browser WebSocket APIs cannot attach an Authorization header. The in-memory ticket store is process-local; keep the server private and logs free of query strings.
 - The audio client and server protocol are served through the backend's `/static` route and have bounded per-frame and per-session input budgets. They still require a live API-key smoke test and browser microphone/playback tests; they have not been confirmed on a physical Android phone.
 - Browser capture uses an AudioWorklet to resample into bounded 40 ms PCM blocks; the Android client sends 40 ms blocks. The browser and Android clients cap their outbound audio queues, and the server caps total session audio. Google recommends 20–40 ms Live API audio chunks; current browser/device quality, backpressure under sustained congestion, and audio focus still need hands-on verification ([Live API best practices](https://ai.google.dev/gemini-api/docs/live-api/best-practices)).
 - Browser input/output transcripts are shown in the Live Voice transcript panel. Unexpected transport/server disconnects (1006/1011/1012) trigger at most two delayed reconnect attempts with fresh one-time tickets; authentication, origin, normal stop, and provider-configuration failures do not auto-retry. The visible Stop control cancels a pending retry. This recovery path still needs browser/device testing.
-- User speech may interrupt model playback only after the backend/model reports interruption or the user taps **Interrupt JARVIS**. The current stop control sends an interrupt instruction; confirm actual barge-in behavior with the Live API session.
+- User speech may interrupt model playback only after the backend/model reports interruption or the user taps **Interrupt AETHER**. The current stop control sends an interrupt instruction; confirm actual barge-in behavior with the Live API session.
 - Live audio responses and transcripts are streamed to the page. The raw audio is not explicitly saved by the client, but audio is sent to the configured Gemini API as part of the Live session.
 - The Android client now has an explicit start/stop/interrupt Live Voice controller using a one-time ticket, `AudioRecord` 16 kHz PCM input, and `AudioTrack` 24 kHz output. It runs only while the visible activity is active; its build, permission flows, and audio behavior still need device verification.
 
@@ -31,9 +31,9 @@
 
 - Never expose the Gemini key in browser JS or Android resources.
 - Do not expose this shared-token prototype through a public tunnel.
-- Before a remote deployment, implement per-device pairing/revocation, rate/time/token budgets, request quotas, session limits, safe error responses, audit logs with token redaction, TLS, allowed origins, and backup/restore.
+- Per-device pairing/revocation, one-use tickets and local session/approval limits now have implementation and automated tests. They do not establish production readiness. Before any remote deployment, review the whole threat model, quotas, TLS, origins, logging, backups and multi-process behavior. Deployment is not authorized by this document.
 - No hidden microphone or automatic background recording. Show when audio is being captured and provide an obvious stop button.
-- The live audio route executes only the read-only allow-list in `app/live_tools.py`. Changes and device actions require the separate JARVIS confirmation workflow; a voice-side approval step is not built yet.
+- The live route uses only `app/live_tools.py` declarations: three read-only tools plus visibly approved reminder creation. Its approval path checks credential/device validity and stop state. It does not gain arbitrary desktop or provider-send tools.
 
 ## Acceptance checklist
 
