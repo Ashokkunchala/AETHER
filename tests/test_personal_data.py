@@ -1,9 +1,12 @@
 import sqlite3
 from datetime import UTC, datetime, timedelta
 
+import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+
+pytestmark = pytest.mark.usefixtures("manual_scheduler")
 
 
 def setup_client(monkeypatch, tmp_path):
