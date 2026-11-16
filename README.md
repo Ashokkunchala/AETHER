@@ -2,7 +2,7 @@
 
 A multi-provider personal assistant prototype for Indian English and Telugu, supporting Gemini, OpenRouter, and Groq for text chat. The intended personality is adaptive: friendly and witty for everyday chat, calm for serious topics, and energetic for coaching.
 
-> **Status: multi-component prototype, not a complete JARVIS yet.** This repository contains a local Gemini chat UI, authenticated SQLite APIs for explicit memories/reminders/workout logs, a first live web-search adapter, a restricted Windows helper, and a native Android starter screen. An earlier Android revision built successfully in GitHub Actions; the latest voice/language changes are awaiting their CI build and a physical-device end-to-end test. Public cloud deployment is not safe yet.
+> **Status: multi-component prototype, not a complete JARVIS yet.** This repository contains a local Gemini chat UI, authenticated SQLite APIs for explicit memories/reminders/workout logs, a first live web-search adapter, a restricted Windows helper, and a native Android starter screen. The branch has automated Python, Windows installer, static-analysis, and Android build checks. A CI build does not replace physical-device acceptance testing. Public cloud deployment is not safe yet.
 
 ## One-file Windows installer
 
