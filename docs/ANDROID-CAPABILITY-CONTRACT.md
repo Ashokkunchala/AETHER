@@ -10,7 +10,8 @@ user grants and distribution policies all affect availability.
 
 The new [local phone actions](ANDROID-LOCAL-PHONE-ACTIONS.md) card adds explicit
 ACTION_DIAL, SMS ACTION_SENDTO and calendar ACTION_INSERT composers, a system
-contact picker without number extraction, selected document display metadata,
+contact picker without number extraction, a separate [specific-number picker](ANDROID-SELECTED-PHONE-NUMBER.md)
+with selected-row-only access and explicit candidate review, selected document display metadata,
 image selection without analysis/upload, plain-text foreground clipboard buttons,
 and battery/app-volume/keyguard/own-permission snapshots. These composer/picker
 paths add no new manifest grant. The separate [foreground network snapshot](ANDROID-NETWORK-SNAPSHOT.md)
@@ -20,7 +21,7 @@ or provider disclosure is added. Source/JVM/build tests are distinct from missin
 Android runtime and visual acceptance. The capability matrix below records the
 original reviewed baseline; this addendum supersedes its "not implemented" cells
 only for the narrow routes just named. It does not turn selection into analysis,
-phone-number resolution, file organization or confirmed communication delivery.
+verified person/phone identity, file organization or confirmed communication delivery.
 
 ## Original reviewed source baseline
 
