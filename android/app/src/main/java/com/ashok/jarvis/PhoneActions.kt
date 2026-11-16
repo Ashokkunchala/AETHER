@@ -1,5 +1,6 @@
 package com.ashok.jarvis
 
+import android.app.Activity
 import android.app.KeyguardManager
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -10,6 +11,7 @@ import android.net.Uri
 import android.os.BatteryManager
 import android.os.StatFs
 import android.provider.CalendarContract
+import android.provider.ContactsContract
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -54,6 +56,7 @@ fun PhoneActionsCard() {
     // No rememberSaveable or backend/client call: selection/clipboard/composer data stays transient.
     var expanded by remember { mutableStateOf(false) }
     var number by remember { mutableStateOf("") }
+    var selectedPhoneCandidate by remember { mutableStateOf<String?>(null) }
     var message by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var begin by remember { mutableStateOf("") }
@@ -64,6 +67,18 @@ fun PhoneActionsCard() {
     val contact = rememberLauncherForActivityResult(ActivityResultContracts.PickContact()) { uri ->
         // PickContact selects a contact, not necessarily a specific phone number. Do not infer a recipient.
         status = if (uri == null) "Contact selection cancelled." else "Contact selected in system UI. Open Contacts to review its numbers; enter the exact number below. No contact directory was read or recipient inferred."
+    }
+    val phoneNumber = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        selectedPhoneCandidate = null
+        if (result.resultCode != Activity.RESULT_OK) {
+            status = "Phone-number selection cancelled or unavailable. Existing number field unchanged."
+        } else {
+            val uri = result.data?.data
+            val candidate = if (uri == null) null else readSelectedPhoneNumber(context, uri)
+            selectedPhoneCandidate = candidate
+            status = if (candidate == null) "No single usable international +number returned. The grant/row may be missing, revoked, ambiguous or locally formatted. Existing field unchanged; no country inferred. Enter the exact number manually."
+                else "One specific phone-number row selected. ASCII visual separators removed only. Review the candidate and intended person, then explicitly copy it into the number field. No recipient identity verified, call, draft or send."
+        }
     }
     val document = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         status = if (uri == null) "File selection cancelled." else try {
@@ -83,6 +98,20 @@ fun PhoneActionsCard() {
             if (expanded) {
                 Text("System composers, selected items and local device status. Call/Send/Save stay in the destination app. Missing handlers are normal.", style = MaterialTheme.typography.bodySmall)
                 Button(onClick = { try { contact.launch(null) } catch (_: Exception) { status = "Contact picker unavailable; no contacts read." } }) { Text("Choose contact (system picker)") }
+                Button(onClick = {
+                    selectedPhoneCandidate = null
+                    try { phoneNumber.launch(Intent(Intent.ACTION_PICK).setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE)) }
+                    catch (_: Exception) { status = "Specific-number picker unavailable; no directory fallback or number-field change." }
+                }) { Text("Choose one phone number (system picker)") }
+                selectedPhoneCandidate?.let { candidate ->
+                    Text("Selected candidate: $candidate. Check the intended person; not verified identity.", style = MaterialTheme.typography.bodySmall)
+                    Button(onClick = {
+                        number = candidate
+                        selectedPhoneCandidate = null
+                        status = "Copied only the reviewed candidate into the local number field. Dial/SMS still require their separate buttons and system review."
+                    }) { Text("Use this candidate in number field") }
+                    TextButton(onClick = { selectedPhoneCandidate = null }) { Text("Discard selected candidate") }
+                }
                 OutlinedTextField(value = number, onValueChange = { number = it.take(16) }, label = { Text("Exact international number, e.g. +919876543210") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                 Button(onClick = {
                     if (!validPhoneTarget(number)) status = "Enter one exact international +number (7-15 digits), no codes or separators."
@@ -124,7 +153,7 @@ fun PhoneActionsCard() {
                     } catch (_: Exception) { status = "Clipboard copy unavailable." }
                 }) { Text("Copy this field to clipboard") }
                 Button(onClick = {
-                    number = ""; message = ""; title = ""; begin = ""; end = ""; clipboard = ""
+                    number = ""; selectedPhoneCandidate = null; message = ""; title = ""; begin = ""; end = ""; clipboard = ""
                     status = "Local fields cleared. This does not erase system clipboard, destination-app drafts, logs or backups."
                 }) { Text("Clear local fields") }
                 Button(onClick = { status = localDeviceStatus(context) }) { Text("Read battery, volume and lock status now") }
