@@ -72,7 +72,7 @@ if (-not $SkipFirewall) {
 }
 
 # ------------------------------------------------------------- 4. print handoff
-# Printed before the (blocking) server start so the URL and token are visible
+# Print the backend URL before the blocking server start; never print credentials.
 # on first run, while uvicorn keeps the window open below.
 Write-Host ""
 Write-Host "Phone connection details" -ForegroundColor Cyan
