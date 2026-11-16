@@ -273,6 +273,14 @@ def _run_robot(
     )
 
 
+@app.command("command-center")
+def command_center():
+    """Open the cinematic JARVIS terminal dashboard and interactive assistant."""
+    from jarvis.terminal.command_center import run
+
+    raise typer.Exit(code=run())
+
+
 @app.command()
 def robot(
     frames: int | None = typer.Option(
