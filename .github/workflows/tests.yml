@@ -89,10 +89,10 @@ jobs:
             }
           }
 
-      - name: Set up Python 3.11 for supported Windows voice wheels
+      - name: Set up current Python 3.14 for Windows installation validation
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.14"
 
       - name: Exercise a clean Windows setup and verify voice imports
         shell: pwsh
@@ -101,6 +101,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "Windows setup failed with exit code $LASTEXITCODE." }
           .\\.venv\\Scripts\\python.exe -c "import sounddevice, webrtcvad, openwakeword, scipy; print('Windows voice stack imports passed')"
           if ($LASTEXITCODE -ne 0) { throw "Windows voice dependency smoke test failed." }
+
+      - name: Verify mobile helpers and secret-safe output
+        shell: pwsh
+        run: |
+          .\scripts\verify-mobile-common.ps1
+          if ($LASTEXITCODE -ne 0) { throw "Mobile helper verification failed." }
+          $mobileScripts = Get-Content scripts/setup-mobile.ps1, scripts/start-mobile.ps1 -Raw
+          if ($mobileScripts -match 'Write-Host[^\r\n]*\$token') { throw "A mobile setup script appears to print a token." }
+          $mobileCommon = Get-Content scripts/mobile-common.ps1 -Raw
+          if ($mobileCommon -match 'ServerCertificateValidationCallback') { throw "A process-wide TLS validation callback is forbidden." }
 
   android-build:
     runs-on: ubuntu-latest
