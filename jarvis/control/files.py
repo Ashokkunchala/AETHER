@@ -223,14 +223,8 @@ def create_folder(path: str) -> dict[str, Any]:
 
 
 def open_path(path: str) -> dict[str, Any]:
-    target = resolve(path)
-    if not target.exists():
-        return {"success": False, "error": f"Not found: {target}"}
-    try:
-        os.startfile(str(target))  # type: ignore[attr-defined]
-        return {"success": True, "path": str(target)}
-    except Exception as exc:
-        return {"success": False, "error": str(exc)}
+    """Legacy default-handler launch is not a scoped approved-app workflow."""
+    return {"success": False, "error": "Default-handler path opening is disabled: files, shortcuts and scripts can launch programs outside the exact approved-app policy. Use data preview/read tools, or a separately reviewed exact execution workflow. No path opened."}
 
 
 def file_info(path: str) -> dict[str, Any]:
