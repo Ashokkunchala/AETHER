@@ -247,6 +247,62 @@ class RemoteReadStore(LocalApprovalStore):
                 state = "result_unavailable"
         return {"state": state, "executed": True, "result_disclosed_locally": False}
 
+    def cancel_request(self, token, request_id):
+        _id(request_id)
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            # Stop blocks reads/new work, but authenticated privacy cancellation remains available.
+            device = self._device(db, token)
+            row = db.execute(
+                "SELECT action,state,expires,result_expires FROM remote_read_requests WHERE id=? AND device_id=?",
+                (request_id, device),
+            ).fetchone()
+            if not row or row[0] != ACTION:
+                raise ValueError("Request unavailable for this device.")
+            previous, expires, result_expires = row[1:]
+            known = {
+                "pending_local_review",
+                "running_local_read",
+                "completed",
+                "denied",
+                "failed",
+                "stopped",
+                "revoked",
+                "cancelled_before_read",
+                "cancelled_result_suppressed",
+                "result_cleared",
+            }
+            if previous not in known:
+                raise ValueError("Unsupported stored request state.")
+            if previous == "pending_local_review":
+                state = "cancelled_before_read"
+            elif previous == "running_local_read":
+                state = "cancelled_result_suppressed"
+            elif previous == "completed":
+                state = "result_cleared"
+            else:
+                state = previous
+            # Idempotent, owner-bound and irreversible for this request. Never dispatch a collector.
+            db.execute(
+                "UPDATE remote_read_requests SET state=?,result=NULL,result_expires=? WHERE id=? AND device_id=?",
+                (
+                    state,
+                    result_expires if result_expires is not None else expires,
+                    request_id,
+                    device,
+                ),
+            )
+        return {
+            "request_id": request_id,
+            "action": ACTION,
+            "state": state,
+            "result": None,
+            "cancel_acknowledged": True,
+            "collection_prevented": state == "cancelled_before_read",
+            "running_operation_termination_verified": False,
+            "notice": "Pending cancellation prevents this request from starting; if already dispatched, only result publication/access is suppressed. A read may already have happened. No OS/process kill, undo, secure erasure or recall of an already returned/displayed copy. No retry or approval is created.",
+        }
+
     def read_result(self, token, request_id):
         _id(request_id)
         with self.connect() as db:
