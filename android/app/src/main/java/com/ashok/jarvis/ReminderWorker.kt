@@ -86,6 +86,44 @@ class ReminderWorker(context: Context, parameters: WorkerParameters) : Coroutine
                 manager.notify(id, notification)
                 preferences.edit().putString("due_$id", dueAt).apply()
             }
+            val cursor = preferences.getLong("aether_notification_cursor", 0L)
+            val inboxConnection = URL("${backendUrl.trimEnd('/')}/api/integrations/notifications?after_id=$cursor")
+                .openConnection() as HttpURLConnection
+            val inboxBody = try {
+                inboxConnection.connectTimeout = 8_000
+                inboxConnection.readTimeout = 15_000
+                inboxConnection.requestMethod = "GET"
+                inboxConnection.setRequestProperty("Accept", "application/json")
+                inboxConnection.setRequestProperty("Authorization", "Bearer $token")
+                val code = inboxConnection.responseCode
+                val stream = if (code in 200..299) inboxConnection.inputStream else inboxConnection.errorStream
+                if (code !in 200..299) return@withContext Result.retry()
+                stream?.bufferedReader()?.use { it.readText() } ?: "{}"
+            } finally {
+                inboxConnection.disconnect()
+            }
+            val inboxItems = JSONObject(inboxBody).optJSONArray("items") ?: org.json.JSONArray()
+            var newest = cursor
+            for (index in 0 until inboxItems.length()) {
+                val entry = inboxItems.optJSONObject(index) ?: continue
+                val id = entry.optLong("id", -1L)
+                if (id <= cursor) continue
+                val openApp = PendingIntent.getActivity(
+                    context, (100_000L + id).toInt(), Intent(context, MainActivity::class.java),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+                val notification = Notification.Builder(context, CHANNEL_ID)
+                    .setSmallIcon(android.R.drawable.ic_popup_reminder)
+                    .setContentTitle(entry.optString("title", "AETHER notification"))
+                    .setContentText(entry.optString("body", "You have an update."))
+                    .setVisibility(Notification.VISIBILITY_PRIVATE)
+                    .setContentIntent(openApp)
+                    .setAutoCancel(true)
+                    .build()
+                manager.notify((100_000L + id).toInt(), notification)
+                if (id > newest) newest = id
+            }
+            preferences.edit().putLong("aether_notification_cursor", newest).apply()
             Result.success()
         } catch (_: Exception) {
             Result.retry()
