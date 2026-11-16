@@ -12,7 +12,7 @@ from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-app = FastAPI(title="JARVIS Windows Companion Agent", version="0.1.0")
+app = FastAPI(title="AETHER Windows Companion Agent", version="0.1.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://127.0.0.1:8000", "http://localhost:8000"],
