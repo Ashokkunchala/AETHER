@@ -1,6 +1,6 @@
 # Floating robot on Windows
 
-JARVIS detects when your terminal cannot draw its Unicode box art and falls
+AETHER detects when your terminal cannot draw its Unicode box art and falls
 back to plain ASCII automatically, so the default Windows console works out of
 the box - no tofu squares.
 
@@ -55,7 +55,7 @@ Press `v` in the robot, or run:
 This is a normal two-way Gemini Live call: speak immediately, no "Hey JARVIS"
 wake word, barge-in and laptop tools work the same as `jarvis start`. The call
 runs in a background thread so the robot keeps animating, and the speech line
-shows `You:` / `JARVIS:` transcripts.
+shows `You:` / `AETHER:` transcripts.
 
 It needs `GEMINI_API_KEY` and the realtime audio stack
 (`sounddevice`, `webrtcvad`, `openwakeword`, `numpy`, `scipy`,
@@ -76,7 +76,7 @@ the network.
 For the full box art (rounded borders) use
 [Windows Terminal](https://aka.ms/terminal) with a
 [Nerd Font](https://www.nerdfonts.com/) such as CaskaydiaCove NF, selected in
-Settings -> Profiles -> Appearance -> Font. JARVIS detects the UTF-8 code
+Settings -> Profiles -> Appearance -> Font. AETHER detects the UTF-8 code
 page and switches to Unicode automatically.
 
 - `--ascii` / `--unicode` force a rendering mode (`JARVIS_ROBOT_ASCII=1`
@@ -84,3 +84,7 @@ page and switches to Unicode automatically.
 - `--no-color`, `JARVIS_ROBOT_NO_COLOR=1` or `NO_COLOR` disable colour.
 - `--frames N --dump` prints frames without redrawing, for logs and
   screenshots.
+
+The display name is AETHER. Compatibility commands, `JARVIS.lnk`, environment
+variables and the local legacy neural wake trigger remain unchanged. The browser
+wake phrase is Hey Aether; `jarvis call` needs no wake phrase.
