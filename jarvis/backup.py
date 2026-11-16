@@ -119,3 +119,6 @@ def register_backup_tools(registry):
                            parameters={'type': 'object', 'properties': {**properties, 'expected_manifest': {'type': 'string', 'description': 'Exact token from the reviewed backup preview.'}}, 'required': ['files', 'destination', 'expected_manifest']},
                            handler=create_backup, risk=Risk.MEDIUM, category='files', requires_confirmation=True,
                            allow_always=False, allow_auto_approve=False, never_auto_approve=True))
+
+    from jarvis.backup_verify import register_backup_verifier
+    register_backup_verifier(registry)
