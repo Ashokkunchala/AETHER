@@ -55,7 +55,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting JARVIS Personal AI v0.4.0")
+    logger.info("Starting AETHER Personal AI v0.4.0")
     gemini_service._init_client()
     schedule_runner = ScheduleRunner()
     app.state.schedule_runner = schedule_runner
@@ -64,11 +64,11 @@ async def lifespan(app: FastAPI):
         yield
     finally:
         await schedule_runner.stop()
-        logger.info("Shutting down JARVIS Personal AI")
+        logger.info("Shutting down AETHER Personal AI")
 
 
 app = FastAPI(
-    title="JARVIS Personal AI API",
+    title="AETHER Personal AI API",
     description="Enhanced Gemini-powered personal assistant with advanced features.",
     version="0.4.0",
     lifespan=lifespan,
