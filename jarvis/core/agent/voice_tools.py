@@ -28,7 +28,7 @@ TOOL_DECLARATIONS: list[dict[str, Any]] = [
     },
     {
         "name": "open_app",
-        "description": "Open an application on this computer (e.g. chrome, notepad, calculator, vscode, explorer).",
+        "description": "Legacy direct app launch is disabled. Use the desktop exact local approved-app registry with fresh confirmation.",
         "parameters": {
             "type": "object",
             "properties": {
