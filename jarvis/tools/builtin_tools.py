@@ -717,10 +717,12 @@ def _register_files(r: ToolRegistry) -> None:
     ))
     r.register(Tool(
         name="open_path",
-        description="Open a file or folder with its default Windows application.",
-        parameters=_obj({"path": _str("File or folder path.")}, ["path"]),
+        description="Legacy default-handler launch is disabled. It could launch executables/scripts outside the exact approved-app policy. Use data preview/read or a separately reviewed exact execution workflow; no path is opened.",
+        parameters=_obj({"path": _str("Legacy path parameter; this route always refuses launch.")}, ["path"]),
         handler=lambda path: get_laptop().open_path(path),
-        risk=Risk.LOW, category="files",
+        confirmation_preview=lambda **args: {"success": False, "error": "Default-handler path opening is disabled; no launch or approval prompt. Use scoped data preview/read or a separately reviewed exact execution workflow."},
+        risk=Risk.HIGH, category="files", requires_confirmation=True,
+        never_auto_approve=True, allow_auto_approve=False, allow_always=False,
     ))
     r.register(Tool(
         name="file_info",
