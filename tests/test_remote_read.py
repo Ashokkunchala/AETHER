@@ -284,3 +284,170 @@ def test_tokens_and_device_capacity(setup):
         store.provision_local()
     with pytest.raises(ValueError):
         store.provision_local()
+
+
+def test_authenticated_pending_cancel_prevents_collection_and_review(setup, monkeypatch):
+    store, device, token, client = setup
+    key = store.request_read(token, mod.ACTION)["request_id"]
+    monkeypatch.setattr(
+        mod, "memory_snapshot", lambda: pytest.fail("cancelled pending read must not collect")
+    )
+    result = client.post(
+        "/v1/remote-read/requests/" + key + "/cancel", headers=auth(token), json={}
+    )
+    assert result.status_code == 200
+    assert (
+        result.json()["collection_prevented"] and result.json()["state"] == "cancelled_before_read"
+    )
+    assert not result.json()["running_operation_termination_verified"]
+    assert (
+        client.get("/v1/remote-read/requests/" + key, headers=auth(token)).json()["result"] is None
+    )
+    with pytest.raises(ValueError):
+        store.review_local(key, device, True)
+    assert (
+        client.post(
+            "/v1/remote-read/requests/" + key + "/cancel", headers=auth(token), json={}
+        ).json()["state"]
+        == "cancelled_before_read"
+    )
+
+
+def test_cancel_is_owner_bound_and_extra_fields_refused(setup):
+    store, device, token, client = setup
+    other, other_token = store.provision_local()
+    key = store.request_read(token, mod.ACTION)["request_id"]
+    for bad in [other_token, "wrong", "legacy-token-" + "a" * 48]:
+        assert (
+            client.post(
+                "/v1/remote-read/requests/" + key + "/cancel", headers=auth(bad), json={}
+            ).status_code
+            == 409
+        )
+    assert client.post("/v1/remote-read/requests/" + key + "/cancel", json={}).status_code == 409
+    assert (
+        client.post(
+            "/v1/remote-read/requests/" + key + "/cancel",
+            headers=auth(token),
+            json={"approved": True},
+        ).status_code
+        == 422
+    )
+    assert store.inspect_local(key)["device_id"] == device
+
+
+def test_running_cancel_suppresses_publication_not_collector_termination(setup, monkeypatch):
+    import threading
+
+    store, device, token, client = setup
+    key = store.request_read(token, mod.ACTION)["request_id"]
+    entered = threading.Event()
+    finish = threading.Event()
+    calls = []
+
+    def collect():
+        calls.append(1)
+        entered.set()
+        assert finish.wait(3)
+        return {"total_bytes": 1000, "available_bytes": 500, "used_percent_reported": 50}
+
+    monkeypatch.setattr(mod, "memory_snapshot", collect)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+        running = pool.submit(store.review_local, key, device, True)
+        try:
+            assert entered.wait(2)
+            result = client.post(
+                "/v1/remote-read/requests/" + key + "/cancel", headers=auth(token), json={}
+            ).json()
+            assert (
+                result["state"] == "cancelled_result_suppressed"
+                and not result["collection_prevented"]
+            )
+            assert not result["running_operation_termination_verified"]
+        finally:
+            finish.set()
+        assert running.result()["state"] == "result_unavailable"
+    result = store.read_result(token, key)
+    assert (
+        result["state"] == "cancelled_result_suppressed"
+        and result["result"] is None
+        and calls == [1]
+    )
+    with pytest.raises(ValueError):
+        store.review_local(key, device, True)
+
+
+def test_completed_result_clear_no_recall_and_idempotent(setup):
+    store, device, token, client = setup
+    key = store.request_read(token, mod.ACTION)["request_id"]
+    store.review_local(key, device, True)
+    old = store.read_result(token, key)
+    assert old["result"]["total_bytes"] == 1000
+    assert isinstance(old["captured_at_unix"], float)
+    cleared = store.cancel_request(token, key)
+    assert cleared["state"] == "result_cleared" and not cleared["collection_prevented"]
+    assert store.read_result(token, key)["result"] is None
+    assert store.cancel_request(token, key)["state"] == "result_cleared"
+    assert old["result"]["total_bytes"] == 1000  # an already returned copy cannot be recalled
+    with store.connect() as db:
+        assert (
+            db.execute("SELECT result FROM remote_read_requests WHERE id=?", (key,)).fetchone()[0]
+            is None
+        )
+
+
+def test_cancel_during_local_stop_and_revoked_device_refusal(setup):
+    store, device, token, client = setup
+    key = store.request_read(token, mod.ACTION)["request_id"]
+    store.set_stop(True)
+    assert store.cancel_request(token, key)["state"] == "stopped"
+    store.set_stop(False)
+    assert store.read_result(token, key)["result"] is None
+    store.revoke_local(device)
+    with pytest.raises(ValueError):
+        store.cancel_request(token, key)
+
+
+def test_concurrent_cancel_review_never_republishes_cancelled_result(setup, monkeypatch):
+    store, device, token, client = setup
+    for _ in range(10):
+        key = store.request_read(token, mod.ACTION)["request_id"]
+
+        def review_once():
+            try:
+                return store.review_local(key, device, True)
+            except ValueError:
+                return None
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+            a = pool.submit(review_once)
+            b = pool.submit(store.cancel_request, token, key)
+            a.result()
+            b.result()
+        result = store.read_result(token, key)
+        assert result["result"] is None
+        assert result["state"] in {
+            "cancelled_before_read",
+            "cancelled_result_suppressed",
+            "result_cleared",
+        }
+
+
+def test_result_schema_and_owner_action_tamper_fail_closed(setup):
+    store, device, token, client = setup
+    key = store.request_read(token, mod.ACTION)["request_id"]
+    store.review_local(key, device, True)
+    with store.connect() as db:
+        db.execute(
+            "UPDATE remote_read_requests SET result=? WHERE id=?",
+            (json.dumps({"private": "DO_NOT_LEAK"}), key),
+        )
+    response = client.get("/v1/remote-read/requests/" + key, headers=auth(token))
+    assert response.status_code == 409 and "DO_NOT_LEAK" not in response.text
+    assert store.cancel_request(token, key)["state"] == "result_cleared"
+    with store.connect() as db:
+        db.execute("UPDATE remote_read_requests SET action=? WHERE id=?", ("run_shell", key))
+    with pytest.raises(ValueError):
+        store.cancel_request(token, key)
+    with pytest.raises(ValueError):
+        store.read_result(token, key)
