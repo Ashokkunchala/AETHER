@@ -9,12 +9,12 @@ ROOT=Path(__file__).resolve().parents[1]
 
 def test_helper_has_only_narrow_business_endpoints():
     routes={(r.path,method) for r in app.routes for method in getattr(r,'methods',set()) if r.path not in {'/openapi.json','/docs','/docs/oauth2-redirect','/redoc'}}
-    assert routes=={('/health','GET'),('/v1/status','GET'),('/v1/open-url','POST')}
+    assert routes=={('/health','GET'),('/v1/status','GET'),('/v1/open-url','POST'),('/v1/request-url','POST')}
 
 
 def test_source_contract_does_not_claim_remote_enforcement():
     text=(ROOT/'docs/WINDOWS-CAPABILITY-CONTRACT.md').read_text()
-    for phrase in ['No real laptop','not proof','not utilization','not an approved-app allowlist',"isn't task cancellation",'explicitly requested','remaining gaps','not a newly implemented API','unknown/still running','PID reuse','loopback-only']:
+    for phrase in ['No real laptop','not proof','not utilization','empty by default',"isn't task cancellation",'explicitly requested','remaining gaps','not a newly implemented API','unknown/still running','PID reuse','loopback-only']:
         assert phrase.lower() in text.lower()
 
 
