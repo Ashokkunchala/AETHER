@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field, field_validator
 
 from app.config import Settings, get_settings
@@ -136,7 +137,10 @@ class ExpenseInput(BaseModel):
     def finite_amount(cls, value):
         if not math.isfinite(value):
             raise ValueError("amount must be finite")
-        return round(value, 2)
+        value = round(value, 2)
+        if value <= 0:
+            raise ValueError("amount must be at least 0.01 after rounding")
+        return value
 
     @field_validator("category", "spent_on")
     @classmethod
@@ -149,8 +153,14 @@ class ExpenseInput(BaseModel):
     @field_validator("spent_on")
     @classmethod
     def valid_date(cls, value):
-        datetime.strptime(value, "%Y-%m-%d")
+        if datetime.strptime(value, "%Y-%m-%d").date().isoformat() != value:
+            raise ValueError("spent_on must use YYYY-MM-DD")
         return value
+
+
+class ExpenseCorrection(ExpenseInput):
+    currency: str = Field(default="INR", pattern=r"^[A-Z]{3}$")
+    expected_revision: str = Field(pattern=r"^[a-f0-9]{64}$")
 
 
 class EventInput(BaseModel):
@@ -256,30 +266,41 @@ def delete_note(note_id: int):
 
 @router.get("/expenses", dependencies=[Depends(require_device_token)])
 def list_expenses(month: str | None = None):
-    if month and (len(month) != 7 or month[4] != "-"):
-        raise HTTPException(422, "month must use YYYY-MM.")
+    from app.expense_records import listing
+
     with _db() as db:
-        query = "SELECT * FROM life_expenses"
-        params = ()
-        if month:
-            query += " WHERE substr(spent_on,1,7)=?"
-            params = (month,)
-        rows = db.execute(query + " ORDER BY spent_on DESC, id DESC LIMIT 1000", params).fetchall()
-        totals = db.execute("SELECT category,SUM(amount) total,COUNT(*) count FROM life_expenses" +
-                            (" WHERE substr(spent_on,1,7)=?" if month else "") +
-                            " GROUP BY category ORDER BY total DESC", params).fetchall()
-        total = db.execute("SELECT COALESCE(SUM(amount),0) FROM life_expenses" +
-                           (" WHERE substr(spent_on,1,7)=?" if month else ""), params).fetchone()[0]
-    return {"items": [dict(row) for row in rows], "total": round(total, 2),
-            "by_category": [dict(row) for row in totals], "currency": "INR"}
+        return listing(db, month)
+
+
+def create_expense(item: ExpenseInput):
+    """Keep the confirmed local-chat call path independent of HTTP request objects."""
+    from app.expense_records import create
+
+    with _db() as db:
+        result, _ = create(db, item, _now())
+        return result
 
 
 @router.post("/expenses", status_code=201, dependencies=[Depends(require_device_token)])
-def create_expense(item: ExpenseInput):
+def create_expense_request(item: ExpenseInput, request: Request):
+    from app.core.ws_sessions import SessionIdentity
+    from app.expense_records import create
+
+    key = request.headers.get('Idempotency-Key')
+    if key is None:
+        return create_expense(item)
+    actor = SessionIdentity.authenticate(request.headers.get('Authorization'))
     with _db() as db:
-        cur = db.execute("INSERT INTO life_expenses(amount,currency,category,note,spent_on,created_at) VALUES(?,?,?,?,?,?)",
-                         (item.amount, item.currency, item.category, item.note, item.spent_on, _now()))
-        return dict(db.execute("SELECT * FROM life_expenses WHERE id=?", (cur.lastrowid,)).fetchone())
+        result, replayed = create(db, item, _now(), key, actor.credential_hash)
+    return JSONResponse(result, status_code=201, headers={'Idempotency-Replayed': str(replayed).lower()})
+
+
+@router.put("/expenses/{expense_id}", dependencies=[Depends(require_device_token)])
+def correct_expense(expense_id: int, item: ExpenseCorrection):
+    from app.expense_records import correct
+
+    with _db() as db:
+        return correct(db, expense_id, item)
 
 
 @router.delete("/expenses/{expense_id}", status_code=204, dependencies=[Depends(require_device_token)])
