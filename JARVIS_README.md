@@ -1,137 +1,47 @@
-# JARVIS - Iron Man Style AI Assistant
+# AETHER - legacy entry-point guide
 
-The ultimate real-time AI assistant with full system control, terminal UI, voice interaction, and Android device management.
+The assistant is named AETHER. This filename remains for existing links.
+The active repository is https://github.com/Ashokkunchala/AETHER and the current
+feature branch is `jarvis-cinematic-local-voice`.
 
-## Features
+## Start here
 
-### ??? Real-Time Voice
-- **Always-on listening** with wake word "Hey JARVIS"
-- **Voice Activity Detection** (VAD) for natural conversations
-- **Gemini Live API** for bidirectional audio streaming
-- **Low-latency responses** with barge-in support
-- **Natural conversation flow**
+- [Main README](README.md): current setup and project overview.
+- [Windows setup](docs/SETUP-WINDOWS.md): local backend and browser setup.
+- [Terminal guide](docs/INSTALLATION-AND-LIVE-TERMINAL.md): checkout, dependencies,
+  direct terminal chat and voice.
+- [Floating robot](docs/WINDOWS-TERMINAL.md): terminal display and controls.
+- [Abilities blueprint](docs/ABILITIES.md): intended scope with implemented
+  foundations and remaining limits. A blueprint is not acceptance evidence.
+- [Verification checklist](docs/VERIFICATION-CHECKLIST.md): device checks and limits.
+- [Companion styles](docs/COMPANION-STYLE.md): conversation, voice controls and
+  memory boundaries.
 
-### Terminal & UI
-- **Floating robot** terminal animation (`jarvis`) with laptop gauges
-- **Live voice calls** from the robot (`v`) or `jarvis call` - no wake word
-- **CLI interface** with Rich formatting
-- **System tray support** (coming soon)
-- **HUD Overlay** - Iron Man style circular indicator
-- **Multi-mode**: Voice, Text, Hybrid
+## Names and voice
 
-### ??? Full System Control
-- **Application control** - Open/close any app
-- **Window management** - Focus, minimize, maximize, close
-- **Volume control** - Set, mute, unmute
-- **Mouse & Keyboard** - Automate anything
-- **Screenshots** - Capture screen on demand
-- **Power control** - Shutdown, restart, lock
-- **Process management** - View and kill processes
+Existing `jarvis` commands, Python packages, environment variables, installer
+filenames, local data paths and scheduled-task names remain for compatibility.
+Do not rename these paths manually or create a second set of credentials.
+`INSTALL_JARVIS.bat`, `START-JARVIS.bat` and `INSTALL-JARVIS.ps1` keep their names.
 
-### ?? Android Control
-- **ADB Integration** - Full control via ADB
-- **App management** - Install, launch, uninstall
-- **Touch control** - Tap, swipe, type
-- **Navigation** - Home, back, recent
-- **Screenshots & Recording** - Capture Android screen
-- **File transfer** - Push/pull files
-- **Shell access** - Run commands
+The local neural wake detector still uses its legacy jarvis model and spoken
+trigger. It has not been replaced with a trained AETHER detector. The browser
+wake phrase is Hey Aether. `jarvis call` and the robot's `v` control start a live
+call without a wake phrase. The microphone and provider must be explicitly
+started; actual Windows/Android audio still needs testing on the target device.
 
-### ?? Intelligence
-- **Vector memory** - Long-term recall with ChromaDB
-- **Context awareness** - Remembers everything
-- **Tool use** - Can execute actions autonomously
-- **Proactive** - Suggests and helps
-- **Natural language** - Just speak naturally
+## Honest capability limits
 
-## Quick Start
+System/device actions depend on the selected interface, installed libraries,
+permissions and the existing approval/stop controls. This is not unrestricted
+system access. Do not bypass approval prompts or use administrator privileges
+by default. Music media keys are global key signals, not verified app/track
+playback; absolute play/pause is refused when playback state is unknown.
 
-### Installation
-`ash
-# Run installer
-INSTALL_JARVIS.bat
-`
-
-### Usage
-
-#### CLI Commands
-`ash
-# Start real-time voice mode (wake word: "Hey JARVIS")
-python jarvis_cli.py start
-
-# Start a live voice call: speak immediately, no wake word
-python jarvis_cli.py call
-
-# Launch the floating robot (the default command; press v to call)
-python jarvis_cli.py
-python jarvis_cli.py robot
-
-# Chat in the terminal
-python jarvis_cli.py ask "what is my battery level?"
-
-# System control
-python jarvis_cli.py open chrome
-python jarvis_cli.py volume 50
-python jarvis_cli.py screenshot
-python jarvis_cli.py lock
-
-# Android control
-python jarvis_cli.py android
-python jarvis_cli.py android-screenshot
-
-# Status
-python jarvis_cli.py status
-`
-
-#### Voice Commands (Examples)
-- "Hey JARVIS, open Chrome"
-- "Hey JARVIS, set volume to 70"
-- "Hey JARVIS, take a screenshot"
-- "Hey JARVIS, what's the time?"
-- "Hey JARVIS, lock the computer"
-- "Hey JARVIS, show Android screenshot"
-
-## Configuration
-
-Edit .env file:
-`env
-GEMINI_API_KEY=your_key_here
-OPENROUTER_API_KEY=your_key_here
-GROQ_API_KEY=your_key_here
-JARVIS_AI_PROVIDER=auto
-USE_GEMINI_LIVE=true
-WAKEWORD_ENABLED=true
-SYSTEM_CONTROL_ENABLED=true
-ANDROID_BRIDGE_ENABLED=true
-`
-
-## Architecture
-
-`
-JARVIS
-+-- Voice Layer (Wakeword + VAD + Gemini Live)
-+-- Terminal UI (floating robot + live call toggle)
-+-- System Controller (Full Windows Control)
-+-- Android Bridge (ADB)
-+-- Tool Registry (Extensible)
-+-- Vector Memory (ChromaDB)
-+-- Agent Core (Reasoning + Planning)
-`
-
-## Requirements
-
-- Windows 10/11
-- Python 3.11+
-- Microphone
-- Speakers
-- Gemini API key with Live access
-- Android device with USB debugging (optional)
-
-## Tips
-
-- Use in a quiet environment for better wake word detection
-- For Android, enable USB debugging in Developer Options
-- Grant necessary permissions for system control
-- Run as administrator for some advanced features
-
-**Built for the Iron Man experience. Just say "Hey JARVIS" and you're in control.**
+Conversation context is bounded, not a recording of everything. Backend saved
+memories are separate from browser chat history and live voice sessions.
+External mail/calendar/WhatsApp actions require configured providers and their
+own reviewed approvals. Do not infer connection or successful delivery from a
+screen or test. Keep secrets in the local configuration and the backend private.
+No deployment, provider subscription or remote account connection is performed
+by this documentation change.
