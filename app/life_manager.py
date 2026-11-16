@@ -122,7 +122,7 @@ class NoteInput(BaseModel):
 
 class ExpenseInput(BaseModel):
     amount: float = Field(gt=0, le=100000000)
-    currency: Literal["INR", "USD", "EUR", "GBP"] = "INR"
+    currency: Literal["INR"] = "INR"
     category: str = Field(min_length=1, max_length=80)
     note: str = Field(default="", max_length=500)
     spent_on: str = Field(min_length=10, max_length=10)
