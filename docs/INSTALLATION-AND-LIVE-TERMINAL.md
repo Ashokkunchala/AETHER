@@ -1,15 +1,17 @@
 # Windows Installation and Live Terminal Guide
 
-This guide is for the `improve/security-quality-gates` branch. It covers setup, the realtime terminal, and the optional one-shot microphone input. Do not paste API keys or tokens into chat, issues, screenshots, or Git.
+This guide is for AETHER on the `jarvis-cinematic-local-voice` branch. It covers setup, the realtime terminal, and the optional one-shot microphone input. Do not paste API keys or tokens into chat, issues, screenshots, or Git.
 
 ## 1. Update the local checkout
 
 Open PowerShell in your existing repository folder:
 
 ```powershell
-cd "$env:USERPROFILE\Desktop\Jarvis-Personal-AI"
-git switch improve/security-quality-gates
-git pull origin improve/security-quality-gates
+# Open your existing checkout folder first. Keep its current folder name.
+# For example, if cloned with the new repository name:
+cd "$env:USERPROFILE\Desktop\AETHER"
+git switch jarvis-cinematic-local-voice
+git pull origin jarvis-cinematic-local-voice
 ```
 
 If Git reports local changes or a merge conflict, stop and resolve those changes before proceeding. Do not run `git reset --hard`.
@@ -18,8 +20,8 @@ For a new checkout:
 
 ```powershell
 cd "$env:USERPROFILE\Desktop"
-git clone --branch improve/security-quality-gates https://github.com/Ashokkunchala/Jarvis-Personal-AI.git
-cd Jarvis-Personal-AI
+git clone --branch jarvis-cinematic-local-voice https://github.com/Ashokkunchala/AETHER.git
+cd AETHER
 ```
 
 ## 2. Check Python and create the virtual environment
@@ -55,7 +57,7 @@ This installs the project in editable mode and its Windows extras, including its
 .\.venv\Scripts\python.exe -m pip install "SpeechRecognition[audio]"
 ```
 
-If installation reports a TOML parsing error, first confirm that `git pull origin improve/security-quality-gates` succeeded and that `pyproject.toml` does not contain a literal `\n` inside a dependency line. Then retry the installation command. Do not manually paste escaped newline characters into TOML.
+If installation reports a TOML parsing error, first confirm that `git pull origin jarvis-cinematic-local-voice` succeeded and that `pyproject.toml` does not contain a literal `\n` inside a dependency line. Then retry the installation command. Do not manually paste escaped newline characters into TOML.
 
 ## 4. Configure an AI provider key
 
@@ -112,7 +114,7 @@ a browser. Use `-NoLaptop` to start without the gauge.
 
 `jarvis ask` streams model text as it arrives, displays tool calls and their
 outcomes, and asks before running risky tools. Try a read-only request first,
-such as “Check my laptop battery and system status.”
+such as "Check my laptop battery and system status."
 
 Other useful commands:
 
@@ -128,9 +130,11 @@ The floating robot animation does not touch the microphone. Press `v` inside the
 robot (or run `jarvis call`) to open a live Gemini call in a background thread:
 it starts awake, so you can speak immediately without the wake word. Run
 `jarvis start` if you prefer the local `Hey JARVIS` wake word, or use the Live
-Voice controls in the browser UI.
+Voice controls in the browser UI. The local neural wake detector retains its
+legacy model and trigger; the browser phrase is Hey Aether. Renaming the app
+does not train a new neural wake model.
 
-- Allow microphone access in Windows Settings → Privacy & security → Microphone.
+- Allow microphone access in Windows Settings -> Privacy & security -> Microphone.
 - Use a working default recording device in Windows Sound settings.
 - The browser Live Voice session is explicit: it starts when you press the
   button and stops when you press Stop. It is not a hidden always-on recorder.
