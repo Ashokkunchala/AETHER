@@ -239,8 +239,8 @@ def _headers(settings: Settings, provider: str) -> dict[str, str]:
     endpoint, key_field, _ = _PROVIDER_DETAILS[provider]
     headers = {"Authorization": "Bearer " + getattr(settings, key_field), "Content-Type": "application/json"}
     if provider == "openrouter":
-        headers["HTTP-Referer"] = "https://github.com/Ashokkunchala/Jarvis-Personal-AI"
-        headers["X-Title"] = "JARVIS Personal AI"
+        headers["HTTP-Referer"] = "https://github.com/Ashokkunchala/AETHER"
+        headers["X-Title"] = "AETHER Personal AI"
     return headers
 
 
