@@ -350,8 +350,6 @@ def complete_reminder(reminder_id: int):
             columns = {column[1] for column in db.execute("PRAGMA table_info(reminders)")}
             if "notification_sent_at" in columns:
                 db.execute("UPDATE reminders SET notification_sent_at=NULL WHERE id=?", (reminder_id,))
-            # Return below with the newly scheduled recurrence.
-            )
             return {
                 "id": reminder_id,
                 "completed": False,
