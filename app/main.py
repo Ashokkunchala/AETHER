@@ -72,7 +72,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="JARVIS Personal AI API",
+    title="AETHER Personal AI API",
     description="A Gemini-powered personal assistant prototype.",
     version="0.4.0",
     lifespan=lifespan,
