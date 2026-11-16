@@ -339,6 +339,17 @@ async def gmail_messages(q: str = "newer_than:14d", max_results: int = Query(def
     return {"items": messages, "result_size_estimate": listing.get("resultSizeEstimate", 0)}
 
 
+@router.get("/gmail/messages/{message_id}", dependencies=[Depends(require_device_token)])
+async def gmail_message_detail(message_id: str):
+    if not message_id or len(message_id) > 200 or any(ch not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_." for ch in message_id):
+        raise HTTPException(422, "Invalid Gmail message ID.")
+    message = await _google("GET", f"/gmail/v1/users/me/messages/{message_id}", params={"format": "full"})
+    headers = {h["name"].lower(): h["value"] for h in message.get("payload", {}).get("headers", [])}
+    return {"id": message_id, "from": headers.get("from", ""),
+            "subject": headers.get("subject", ""), "date": headers.get("date", ""),
+            "body": _gmail_text(message.get("payload", {}))}
+
+
 class GmailSummaryRequest(BaseModel):
     query: str = Field(default="is:unread newer_than:7d", max_length=500)
     max_results: int = Field(default=10, ge=1, le=20)
