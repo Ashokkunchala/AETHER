@@ -269,15 +269,19 @@ def _register_system(r: ToolRegistry) -> None:
 
 # -------------------------------------------------------------------- apps
 def _register_apps(r: ToolRegistry) -> None:
+    from jarvis.control.approved_apps import launch_approved_app, preview_approved_app
+
     r.register(Tool(
         name="open_app",
-        description="Launch a Windows application (by name like 'chrome', 'vscode', or an exact path).",
-        parameters=_obj(
-            {"app_name": _str("Application name or path, e.g. 'chrome', 'notepad', 'spotify'.")},
-            ["app_name"],
-        ),
-        handler=lambda app_name: get_laptop().open_app(app_name),
-        risk=Risk.LOW, category="apps",
+        description="Launch only an exact locally approved app ID/executable/SHA256, no shell/PATH/alias/URI/argument fallback. Fresh confirmation every launch; no elevation or application-ready claim. Local allowlist empty by default.",
+        parameters={"type": "object", "properties": {
+            "app_name": _str("Exact local approved app ID."),
+            "expected_executable": _str("Exact canonical absolute approved .exe path."),
+            "expected_sha256": _str("Exact lower-case SHA256 approved locally for this executable.")},
+            "required": ["app_name", "expected_executable", "expected_sha256"], "additionalProperties": False},
+        handler=launch_approved_app, confirmation_preview=preview_approved_app,
+        risk=Risk.MEDIUM, category="apps", requires_confirmation=True,
+        never_auto_approve=True, allow_always=False, allow_auto_approve=False,
     ))
     r.register(Tool(
         name="open_website",
