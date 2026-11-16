@@ -105,6 +105,11 @@ No generic wrapper authorizes deployment, destructive operations or spending.
   invokes fixed pytest argv in a trusted selected project using the current
   interpreter. It discards output and reports direct exit status only, not
   test counts or product readiness. It is not a sandbox or general CI executor.
+  A separate fresh-approved [local Python wheel builder](PYTHON-WHEEL-BUILDER.md)
+  invokes fixed build --wheel --no-isolation argv in a trusted project with a
+  selected empty output folder, then hashes one bounded wheel-named file. It
+  executes backend code without a sandbox. No dependency install, wheel-format/
+  safety verification, publication, deployment or general CI lifecycle is added.
 - SRE helpers review supplied logs, telemetry windows, SLO inputs and incident
   timestamps and create postmortem drafts. They do not continuously detect live
   outages, collect/correlate arbitrary metrics/traces, prove root causes, measure
