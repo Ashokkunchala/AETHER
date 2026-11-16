@@ -10,8 +10,8 @@ all requested laptop abilities work. Python test hosts are not the user's laptop
 The desktop registry uses jarvis/control/laptop.py and its module adapters.
 Other older controllers also exist; they are not interchangeable acceptance
 paths. windows_agent/agent.py is a separate experimental loopback HTTP helper:
-health, bearer-token platform/Python status, and confirmed allow-listed HTTPS URL
-opening only. It does not expose the desktop registry, shell, screenshot, app
+health, bearer-token platform/Python status, pending exact HTTPS URL requests
+and laptop-locally approved single-use URL opening only. It does not expose the desktop registry, shell, screenshot, app
 control, telemetry, jobs or file APIs. Native Android backend chat/pairing is a
 third route and does not make the narrow helper a safe remote-control service.
 Do not merge stores/authentication or expose loopback ports to claim integration.
@@ -28,11 +28,11 @@ app permission, bearer token, shell classifier or confirmation boolean.
 | GPU usage | gpu_info invokes legacy WMIC Win32_VideoController for adapter/driver text. | Not utilization, VRAM, temperature or health. WMIC is deprecated/disabled/removed on some Windows installations; future collector should use supported CIM/vendor APIs and return explicit unavailable state. Empty list is not proof no GPU. |
 | Battery/temperature | sensors_battery data if exposed, absent otherwise. | No temperature collector here. psutil sensor support varies by OS/hardware; standard Windows temperature probe often does not expose current temperature. Do not equate plugged-in with actual charging or estimate remaining time as a guarantee. No hardware driver installation assumed. |
 | Running processes | List/details/top-by-memory functions. | Privilege/access-denied/exiting processes make inventory partial. Details include cmdline/executable/user and can contain secrets. Do not forward raw process details remotely by default. PID alone can be reused; bind future action to PID+creation identity+exact executable. |
-| Start/stop approved apps | Aliases/search plus launch/focus/typing and name-based terminate/kill. VS Code/PowerShell/browser aliases exist. | Not an approved-app allowlist: launch has shell fallback and accepts arbitrary names/paths/URIs. Termination uses substrings and does not wait for exit; close_app lacks the separate critical-process guard used by terminate_process. Success means signal/request issued, not verified app exit. No exact-instance safe remote adapter accepted. Docker Desktop/Android Studio discovery/start/readiness is not verified. |
+| Start/stop approved apps | Exact local ID/executable/SHA256 launch allowlist, empty by default; exact PID/create_time/executable stop with exit wait. Fresh confirmation every action, legacy broad routes fail closed. | Launch PID is not app readiness; stop verifies only selected-process exit, not saved work/children/service state. Windows terminate is forceful. No default app approvals, real-device acceptance or remote adapter. Generic shell/process command primitives remain separate, not approved-app launch. Docker Desktop/Android Studio discovery/start/readiness is not verified. |
 | Startup apps | Start Menu discovery includes Startup folder. | Discovery is not startup management. No reviewed typed registry/Startup/scheduled-task adapter, before/after diff, rollback or scope/owner handling. Never infer safe deletion from a shortcut. |
 | Windows services | Generic shell can express Get-Service. | No typed service inspection adapter in this reviewed registry; no service mutation approval/recovery contract. Service/process security descriptors and user/UAC rights still apply. Do not elevate, bypass protected services or infer complete inventory. |
 | Internet connectivity | Local/public IP, ping/netsh/socket inspection adapters exist. | Some perform real external requests/probes; not all are passive reads. Local link/IP, ICMP success and an open port do not prove internet/DNS/TLS/backend/application health. No scheduled connectivity monitor accepted. Exact targets/cadence/authorization needed before live probes. |
-| Browser/repository opening | Desktop URL/app paths; narrow helper accepts credential-free HTTPS plus host allowlist. | Allowed host/subdomain is not trust of URL content, redirects or downloads; browser launching does not prove page loaded. No credential-bearing URL or arbitrary command transport. |
+| Browser/repository opening | Desktop URL/app paths; narrow helper accepts credential-free HTTPS plus host allowlist. | An exact allowed host is not trust of URL content, redirects or downloads; browser launching does not prove page loaded. No credential-bearing URL or arbitrary command transport. |
 | Installs/updates | Generic shell/process primitives could invoke installers. | Not a reviewed installation manager. Need exact package/publisher/version/source/hash/signature/license/cost/admin consent, effect/restart requirements and rollback. Never install/update through a generic 'approved app' name. |
 | Projects/source/tests/logs/debug/docs/Git/PR | File/shell/review tools are separate foundations; offline reviewers and draft generators exist. | Exact trusted workspace/repository/branch/source baseline and edit diff matter. Tests/builds/hooks/dependencies can execute code/network even without deploy. Git commit/push/PR affect external audiences and require grounded authority; not accepted merely because shell can express them. Debug hypotheses are not root-cause proof. |
 | Android-to-Windows commands | Android HTTPS pairing/chat/activity and narrow loopback helper exist. | No accepted end-to-end typed, device-bound, replay-safe remote-job protocol with local approval and cancellation. Never expose broad registry/shell as a shortcut. OS permission/authentication is not per-action authority. |
@@ -52,18 +52,26 @@ app permission, bearer token, shell classifier or confirmation boolean.
   is an execution primitive, not an authority boundary or sandbox. Its text
   classifier/dry_run do not establish safety, scope, credential or no-side-effect
   properties. Other callers/older modules need separate review.
-- The narrow helper's confirmed=true is supplied by its caller. It is not a
-  laptop-local reviewed, single-use approval record, and its token is not a
-  per-command grant. CORS is not authentication, device pairing or CSRF defense
-  by itself. Keep the helper loopback-only; no LAN/router/public exposure.
-- Broad aliases, name matching and protected-name lists are not sufficient
-  security for exact app/process control. Protected process lists are incomplete
-  and UAC/permissions are not bypassed. An approval prompt cannot repair an
-  ambiguous target or command.
+- The helper now queues an exact URL for a trusted local interactive terminal
+  decision. Its token-bound120second approval is consumed once before opening;
+  caller confirmed booleans are rejected. Queueing/CORS/token possession are not
+  authority. No HTTP approval endpoint exists. Local stop revokes outstanding
+  requests. Keep it loopback-only; no LAN/router exposure or device-pairing claim.
+- The exact app allowlist has no defaults; ID/path/hash and current executable
+  bytes are rechecked. No shell/PATH/alias/URI/argument fallback exists in that
+  launch route. Local config/account and executable dependencies must be trusted;
+  hash matching is not signature/malware validation or an OS sandbox.
+- Exact process stop rechecks PID reuse/create_time/executable and waits up to
+  five seconds. A timeout remains unverified; no force escalation, recursive
+  stop or authority to lose unsaved work is inferred. Protected-name lists are
+  incomplete and UAC/permissions are never bypassed.
 
-Only the scoped screenshot change above is implemented; the remaining gaps
-are not fixed by this contract. Source-regression tests record the narrow helper boundary and
-existing registry gates; they are not live Windows validation.
+All four named hardenings have offline source/mock tests, not live Windows/device
+acceptance. Details: [screenshot](SCOPED-SCREENSHOT.md),
+[app launch](APP-LAUNCH-ALLOWLIST.md), [process stop](EXACT-PROCESS-STOP.md) and
+[local companion review](../windows_agent/README.md). Other remaining gaps in the
+matrix are not fixed by this contract. Generic commands, continuous monitors,
+remote jobs/output and actual Android-to-laptop execution remain separate work.
 
 ## Required future remote-job contract
 
