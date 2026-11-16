@@ -53,31 +53,7 @@ def find_process(name: str) -> list[dict[str, Any]]:
 
 
 def terminate_process(name: str, force: bool = False) -> dict[str, Any]:
-    import psutil
-
-    name_l = name.lower().strip()
-    if name_l in CRITICAL_PROCESSES:
-        return {"success": False, "error": f"Refusing to terminate critical process {name!r}"}
-    killed: list[dict[str, Any]] = []
-    failed: list[str] = []
-    for proc in psutil.process_iter(["pid", "name"]):
-        try:
-            pname = (proc.info["name"] or "").lower()
-            if name_l != pname and name_l not in pname:
-                continue
-            if pname in CRITICAL_PROCESSES:
-                failed.append(f"{pname} (protected)")
-                continue
-            if force:
-                proc.kill()
-            else:
-                proc.terminate()
-            killed.append({"pid": proc.info["pid"], "name": proc.info["name"]})
-        except (psutil.NoSuchProcess, psutil.AccessDenied) as exc:
-            failed.append(f"{proc.info.get('name')}: {exc}")
-    if killed:
-        return {"success": True, "terminated": killed, "failed": failed}
-    return {"success": False, "error": f"No matching process for {name!r}", "failed": failed}
+    return {"success": False, "error": "Name-based stop disabled. Use exact PID/create_time/executable process-stop registry with fresh confirmation."}
 
 
 def start_process(command: str, elevated: bool = False) -> dict[str, Any]:
