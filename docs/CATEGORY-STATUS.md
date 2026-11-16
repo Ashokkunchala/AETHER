@@ -100,6 +100,10 @@ No generic wrapper authorizes deployment, destructive operations or spending.
   joins exact role/binding references, distinguishes namespace/cluster binding
   scope and reports selected per-rule signals without reflecting names. It
   does not establish live/effective permissions, aggregation or complete audit.
+  A [Service/EndpointSlice supplied-data correlator](KUBERNETES-SERVICE-CORRELATION.md)
+  now compares namespace/service label, owner UID and selected explicit port
+  fields, keeping missing/default/named-target states unknown. No live
+  association, connectivity or backend health is verified.
 - CI/CD now has a functional manual Python verification workflow/Jenkinsfile text
   generator in addition to inert scaffold and heuristic review tools. Generation
   does not install/run tests, build Docker images, scan live dependencies, publish
