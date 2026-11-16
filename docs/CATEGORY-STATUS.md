@@ -118,6 +118,13 @@ No generic wrapper authorizes deployment, destructive operations or spending.
   selected empty output folder, then hashes one bounded wheel-named file. It
   executes backend code without a sandbox. No dependency install, wheel-format/
   safety verification, publication, deployment or general CI lifecycle is added.
+- The registered [typed lifecycle proposal design](TYPED-LIFECYCLE-DESIGN.md)
+  validates exact EC2 start/stop, one Deployment scale or no-input GitHub workflow
+  dispatch scope, returns a canonical digest and required approval/live-verification
+  gates, and tests a pure no-effect state graph. Every response remains design-only,
+  unverified and unauthorized. There are no effect adapters, approval receipts,
+  persistent claims or live identity/cost checks. It does not retrofit or authorize
+  the older generic tools, deploy anything or complete typed cloud/K8s/CI execution.
 - SRE helpers review supplied logs, telemetry windows, SLO inputs and incident
   timestamps and create postmortem drafts. They do not continuously detect live
   outages, collect/correlate arbitrary metrics/traces, prove root causes, measure
