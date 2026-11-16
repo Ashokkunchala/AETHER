@@ -277,9 +277,15 @@ async def approve_action(approval_id: int):
         row = db.execute("SELECT * FROM approval_requests WHERE id=?", (approval_id,)).fetchone()
         if not row or row["status"] != "pending":
             raise HTTPException(404, "Pending approval not found.")
+        claim = db.execute("UPDATE approval_requests SET status='executing' WHERE id=? AND status='pending'",
+                           (approval_id,))
+        if not claim.rowcount:
+            raise HTTPException(409, "This approval is already being processed.")
         payload = json.loads(row["payload_json"])
         provider, action = row["provider"], row["action"]
-    if provider == "google_calendar":
+    try:
+        result = None
+        if provider == "google_calendar":
         event_id = payload.get("event_id")
         if action == "delete":
             result = await _google("DELETE", f"/calendar/v3/calendars/primary/events/{event_id}")
@@ -290,16 +296,21 @@ async def approve_action(approval_id: int):
             result = await _google("POST" if action == "create" else "PATCH",
                                    "/calendar/v3/calendars/primary/events" if action == "create"
                                    else f"/calendar/v3/calendars/primary/events/{event_id}", body=event)
-    elif provider == "gmail":
-        result = await _send_gmail(payload)
-    elif provider == "whatsapp":
-        result = await _send_whatsapp(payload)
-    else:
-        raise HTTPException(400, "Unknown approval provider.")
-    with _connect() as db:
-        db.execute("UPDATE approval_requests SET status='approved',result_json=?,decided_at=? WHERE id=? AND status='pending'",
-                   (json.dumps({"id": result.get("id") or result.get("message_id")}), _now(), approval_id))
-    return {"status": "approved", "result": result}
+        elif provider == "gmail":
+            result = await _send_gmail(payload)
+        elif provider == "whatsapp":
+            result = await _send_whatsapp(payload)
+        else:
+            raise HTTPException(400, "Unknown approval provider.")
+        with _connect() as db:
+            db.execute("UPDATE approval_requests SET status='approved',result_json=?,decided_at=? WHERE id=? AND status='executing'",
+                       (json.dumps({"id": result.get("id") or result.get("message_id")}), _now(), approval_id))
+        return {"status": "approved", "result": result}
+    except Exception:
+        with _connect() as db:
+            db.execute("UPDATE approval_requests SET status='failed',decided_at=? WHERE id=? AND status='executing'",
+                       (_now(), approval_id))
+        raise
 
 
 @router.post("/approvals/{approval_id}/reject", dependencies=[Depends(require_device_token)])
