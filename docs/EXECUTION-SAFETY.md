@@ -57,3 +57,21 @@ emergency stop before and during approval, argument substitution, global bypass,
 MEDIUM tools missing a flag, malformed truthy approvals, unavailable storage,
 redacted audit and audit failure after a completed action. Existing registry,
 brain, orchestrator and file-preview regression tests also run unchanged.
+
+## WebSocket session boundary
+
+The enhanced backend exchanges bearer credentials for 60-second, single-use
+WebSocket tickets. Tickets store a credential hash and device identity, never the
+bearer secret. Handshake, incoming frames, new turns and approval completion
+recheck token rotation/device revocation. Approvals belong to one socket, require
+an explicit JSON boolean, expire after 60 seconds, and cannot be reused. Invalid
+or missing decisions never mean approval. Clients cannot self-grant auto approval.
+
+This is not a role system or a universal execution boundary. Existing API routes,
+local voice tools and provider integrations keep their separate policies. Idle
+sockets are checked on their next frame; revocation does not undo completed work
+or reliably stop an already-running thread/process. Tickets are in-process and
+require a single backend worker (a restart loses outstanding tickets). Paired
+devices still inherit the existing broad tool catalogue; do not expose this
+prototype on the public internet. No device-control or provider-send tool was
+added by this change.
