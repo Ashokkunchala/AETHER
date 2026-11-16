@@ -227,7 +227,7 @@ async def test_wake_stream_tool_sleep_cycle(patched):
 
     result = await agent._on_tool_call(FakeCall("open_app", {"name": "chrome"}))
     assert result["success"] is True
-    assert machine.calls == [("open_app", {"name": "chrome"})]
+    assert machine.calls == []  # legacy voice launch fails closed; scoped desktop launch required
     assert any(kind == "tool" for kind, _ in events)
 
     # 5. Idle timeout returns JARVIS to sleep and clears playback.
@@ -266,7 +266,7 @@ async def test_tool_failure_is_reported_to_model(patched):
     await agent.initialize()
     result = await agent._on_tool_call(FakeCall("open_app", {"name": "chrome"}))
     assert result["success"] is False
-    assert "boom" in result["error"]
+    assert "approved-app" in result["error"]
     await agent.stop()
 
 
