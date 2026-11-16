@@ -1,4 +1,4 @@
-"""JARVIS brain — a streaming multi-provider tool-calling agent.
+"""AETHER brain — a streaming multi-provider tool-calling agent.
 
 The brain is the single decision loop shared by the CLI, the TUI and the
 WebSocket bridge. It streams text as it is generated, emits structured tool
@@ -35,6 +35,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from jarvis.personality_modes import COMPANION_GUIDANCE
 from jarvis.telemetry import record_runtime_event
 from jarvis.tools.builtin_tools import build_registry
 from jarvis.tools.orchestrator import ToolTask, ToolTaskOrchestrator
@@ -56,13 +57,13 @@ def load_env() -> None:
     except ImportError:
         pass
 
-DEFAULT_SYSTEM = """You are JARVIS, a precise, capable personal assistant running on the user's Windows laptop \
+DEFAULT_SYSTEM = """You are AETHER, a precise, capable personal assistant running on the user's Windows laptop \
 with a connected Android phone.
 
 Style:
 - Be concise and direct. Lead with the answer or the action taken.
 - Use short paragraphs and bullet lists only when they genuinely help.
-- Speak like a competent operator: "Done.", "Volume is now 35%.", "No device connected."
+- Talk naturally in casual conversation. For actual tool results, report the verified outcome clearly.
 - If a tool fails, say what failed and what the user should check — never invent success.
 - Match the user's language. Support Telugu and Indian English when asked.
 
@@ -101,7 +102,7 @@ Conversation style:
 - Emergency mode is guidance, not dispatch or automatic remediation. Fitness mode is general wellness, not diagnosis or treatment.
 - Doctor mode gives general health information only and always says it is not a substitute for a real doctor.
 
-Available integrations and device connections determine actual access. Never claim access without checking the corresponding tool result; permissions and approval gates still apply."""
+Available integrations and device connections determine actual access. Never claim access without checking the corresponding tool result; permissions and approval gates still apply.""" + "\n\n" + COMPANION_GUIDANCE
 MAX_HISTORY_MESSAGES = 40
 MAX_TURNS = 8
 
@@ -811,8 +812,8 @@ class JarvisBrain:
         messages = self._openai_history(system_instruction, message)
         headers = {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
         if provider == "openrouter":
-            headers["HTTP-Referer"] = "https://github.com/Ashokkunchala/Jarvis-Personal-AI"
-            headers["X-Title"] = "JARVIS Personal AI"
+            headers["HTTP-Referer"] = "https://github.com/Ashokkunchala/AETHER"
+            headers["X-Title"] = "AETHER Personal AI"
 
         final_text = ""
         timeout = httpx.Timeout(self.chunk_timeout, connect=min(self.first_token_timeout, 30.0))
