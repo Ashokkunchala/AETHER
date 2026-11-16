@@ -19,6 +19,8 @@ def test_preview_preserves_exact_syntax_and_cwd():
     preview = command_preview(command, 30, 'C:\\reviewed folder')
     assert preview['command'] == command
     assert preview['cwd'] == 'C:\\reviewed folder'
+    assert preview['cwd_policy'] == 'explicit supplied path'
+    assert 'inherit' in command_preview('echo check')['cwd_policy']
     assert preview['shell'] is True
     assert 'model provider' in preview['notice']
     assert 'cancellation' in preview['notice']
