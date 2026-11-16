@@ -54,8 +54,6 @@ migrate:
 upgrade:
 	alembic upgrade head
 
+# Cross-platform cleanup (works in PowerShell, cmd.exe, and POSIX shells).
 clean:
-	find . -type d -name __pycache__ -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
-	find . -type f -name "*.pyo" -delete
-	rm -rf .pytest_cache .mypy_cache .ruff_cache
+	python -c "import pathlib, shutil; root=pathlib.Path('.'); excluded={'.venv','venv','.git','node_modules','android/.gradle'}; [shutil.rmtree(p, ignore_errors=True) for p in root.rglob('__pycache__') if not any(part in excluded for part in p.parts)]; [p.unlink(missing_ok=True) for p in root.rglob('*.py[co]') if not any(part in excluded for part in p.parts)]; [shutil.rmtree(root/p, ignore_errors=True) for p in ('.pytest_cache','.pytest-tmp','.mypy_cache','.ruff_cache','build','dist')]"
