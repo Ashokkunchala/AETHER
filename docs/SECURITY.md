@@ -46,9 +46,9 @@ requests.
   the Android debug APK. CI compilation is not a substitute for physical-device
   acceptance testing.
 - Configure GitHub branch protection or a repository ruleset for
-  jarvis-cinematic-local-voice in repository Settings. Require the test,
-  static-checks, windows-installer-check, and android-build checks before
-  merging. The connected GitHub integration cannot change repository
+  jarvis-cinematic-local-voice in repository Settings. Require both Python test matrix checks (test (3.11) and test (3.14)),
+  static-checks, windows-installer-check, container-build, and android-build
+  before merging. The connected GitHub integration cannot change repository
   administration settings, so an owner must enable this in GitHub.
 
 ## Before remote deployment
