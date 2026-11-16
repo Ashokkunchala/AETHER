@@ -24,15 +24,30 @@ original reviewed baseline; this addendum supersedes its "not implemented" cells
 only for the narrow routes just named. It does not turn selection into analysis,
 verified person/phone identity, file organization or confirmed communication delivery.
 
+## Native data addendum
+
+The [native data card](ANDROID-NATIVE-DATA.md) adds READ_CALENDAR and
+ACCESS_COARSE_LOCATION declarations, separately requested at runtime and never
+used automatically on permission approval. It can read at most 20 visible event
+occurrences in a seven-day window, hand a selected event to the system editor,
+process one selected image into bounded local pixel statistics, and obtain one
+foreground approximate location on Android11+ with an optional explicit-check
+proximity reminder. There is no direct calendar write, semantic image analysis,
+precise/background location, automatic geofence or backend/model upload. Current
+manifest checks cover exactly six declarations. Older composer/picker cards
+retain their narrower behavior. These additions do not establish device/runtime
+acceptance or complete the ability matrix below.
+
 ## Original reviewed source baseline
 
 The native app has minSdk 26, targetSdk/compileSdk 35. The manifest declares
 only INTERNET, RECORD_AUDIO and POST_NOTIFICATIONS and one launcher activity
 at the original baseline. The network-snapshot addendum adds ACCESS_NETWORK_STATE;
-current source checks cover those four declarations.
+the native data addendum accounts for the two further scoped declarations.
 No foreground microphone service, boot receiver, accessibility service,
 notification listener, default-assistant implementation, SMS/call-log/contact/
-calendar/location/storage/camera permission is declared. Permission declaration
+calendar/location/storage/camera permission was declared at that original baseline.
+Current read-calendar/coarse-location declarations are described above. Permission declaration
 is not proof of an actual runtime grant.
 
 Implemented source paths, not real-device acceptance:
