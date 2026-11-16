@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""JARVIS floating robot - a tiny, dependency-free terminal animation.
+"""AETHER floating robot - a tiny, dependency-free terminal animation.
 
 This replaces the old Textual command-centre UI with one self-contained
 standard-library module. It draws a small robot that hovers up and down,
@@ -101,7 +101,7 @@ _ANTENNA_OFF_UNICODE = "\u00b7"  # ·
 _ANTENNA_ON_ASCII = "*"
 _ANTENNA_OFF_ASCII = "."
 
-_TITLE = "J A R V I S"
+_TITLE = "A E T H E R"
 
 _CAPTIONS = (
     "All systems nominal",
@@ -487,7 +487,7 @@ def render_frame(
         message, message_color = "Dialing voice call...", palette.call
     elif voice_state == "live":
         if voice_reply:
-            message = f"JARVIS: {voice_reply}"
+            message = f"AETHER: {voice_reply}"
         elif voice_user:
             message = f"You: {voice_user}"
         elif voice_tool:
@@ -725,7 +725,7 @@ def run(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="jarvis-robot",
-        description="JARVIS floating robot: a tiny animated terminal robot.",
+        description="AETHER floating robot: a tiny animated terminal robot.",
     )
     parser.add_argument(
         "--frames",
