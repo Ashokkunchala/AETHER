@@ -1,8 +1,8 @@
-# JARVIS Personal AI
+# AETHER Personal AI
 
 A multi-provider personal assistant prototype for Indian English and Telugu, supporting Gemini, OpenRouter, and Groq for text chat. The intended personality is adaptive: friendly and witty for everyday chat, calm for serious topics, and energetic for coaching.
 
-> **Status: multi-component prototype, not a complete JARVIS yet.** This repository contains a local Gemini chat UI, authenticated SQLite APIs for explicit memories/reminders/workout logs, a first live web-search adapter, a restricted Windows helper, and a native Android starter screen. The branch has automated Python, Windows installer, static-analysis, and Android build checks. A CI build does not replace physical-device acceptance testing. Public cloud deployment is not safe yet.
+> **Status: multi-component prototype, not a complete AETHER yet.** This repository contains a local Gemini chat UI, authenticated SQLite APIs for explicit memories/reminders/workout logs, a first live web-search adapter, a restricted Windows helper, and a native Android starter screen. The branch has automated Python, Windows installer, static-analysis, and Android build checks. A CI build does not replace physical-device acceptance testing. Public cloud deployment is not safe yet.
 
 ## One-file Windows installer
 
@@ -33,7 +33,7 @@ Then double-click **`dist\JARVIS-Setup.exe`** — it embeds `INSTALL-JARVIS.ps1`
 
 In the browser, enter your generated `JARVIS_API_TOKEN` from the installed `.env` file once. If you choose **Remember device token on this browser**, it is stored in browser local storage for convenience; this is less secure than session-only entry. Then click **Start Live Voice** and grant microphone permission. Voice is not silently activated on boot; the explicit start control is intentional.
 
-**Android is a separate APK**, not installable by the Windows script. Build it on this machine with `.\scripts\setup-android.ps1` (add `-Install` to push it to a USB-connected phone), or get the debug APK from the successful [Android build artifact](https://github.com/Ashokkunchala/Jarvis-Personal-AI/actions). Install it on Android and configure your private HTTPS backend. Android 14 restricts starting microphone foreground services from boot, so the phone app cannot safely promise automatic always-listening voice after reboot; launch the app and start voice explicitly.
+**Android is a separate APK**, not installable by the Windows script. Build it on this machine with `.\scripts\setup-android.ps1` (add `-Install` to push it to a USB-connected phone), or get the debug APK from the successful [Android build artifact](https://github.com/Ashokkunchala/AETHER/actions). Install it on Android and configure your private HTTPS backend. Android 14 restricts starting microphone foreground services from boot, so the phone app cannot safely promise automatic always-listening voice after reboot; launch the app and start voice explicitly.
 
 ## One-click setup files (Windows + phone)
 
@@ -157,7 +157,7 @@ To launch the robot automatically at sign-in, run `.\scripts\install-jarvis-star
 - [Windows setup](docs/SETUP-WINDOWS.md)
 - [Installation and live terminal microphone guide](docs/INSTALLATION-AND-LIVE-TERMINAL.md)
 - [Features and known limitations](docs/FEATURES.md)
-- [JARVIS Command Center dashboard](app/static/dashboard.html) — responsive live performance dashboard
+- [AETHER Command Center dashboard](app/static/dashboard.html) — responsive live performance dashboard
 - [Milestone plan](docs/NEXT-MILESTONES.md)
 - [Personal data APIs and AI coaching](docs/PERSONAL-DATA-API.md)
 - [Live web research](docs/WEB-RESEARCH.md)
@@ -211,8 +211,8 @@ To launch the robot automatically at sign-in, run `.\scripts\install-jarvis-star
 Requirements: Python 3.11+ and a Gemini API key from [Google AI Studio](https://aistudio.google.com/).
 
 ```powershell
-git clone https://github.com/Ashokkunchala/Jarvis-Personal-AI.git
-cd Jarvis-Personal-AI
+git clone https://github.com/Ashokkunchala/AETHER.git
+cd AETHER
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\setup-windows.ps1
 notepad .env
@@ -232,7 +232,7 @@ Keep `HOST=127.0.0.1`. Save `.env`, then start:
 .\scripts\start-windows.ps1
 ```
 
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000). Open the responsive [JARVIS Command Center dashboard](http://127.0.0.1:8000/dashboard) for live authenticated CPU/RAM/disk/battery telemetry and charts (enter your local device token). API docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000). Open the responsive [AETHER Command Center dashboard](http://127.0.0.1:8000/dashboard) for live authenticated CPU/RAM/disk/battery telemetry and charts (enter your local device token). API docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
 The local assistant (robot, `ask`, laptop/android control) works without starting the backend — only one provider key (`GEMINI_API_KEY`, `OPENROUTER_API_KEY` or `GROQ_API_KEY`) is required:
 
@@ -271,3 +271,17 @@ Run tests:
 - Check Google model availability, quotas, and pricing for your account; do not assume every request is free.
 
 See [docs/NEXT-MILESTONES.md](docs/NEXT-MILESTONES.md) for the staged acceptance criteria.
+
+## Naming and compatibility
+
+The assistant is **AETHER**. The repository is now
+[ashokkunchala/AETHER](https://github.com/Ashokkunchala/AETHER). Internal `jarvis`
+commands/packages, configuration variable names, stored settings, installer filenames
+and Windows scheduled-task identities remain unchanged so existing installations keep
+working. Product display names are being updated without moving saved data.
+
+The browser wake phrase is **Hey Aether**. The separate local neural wake detector still
+uses the legacy `jarvis` detector selection, with its original spoken trigger
+"hey jarvis". Renaming the assistant does not train a new wake model. Use `jarvis call`
+for immediate voice without a wake word. No custom AETHER neural model is bundled or
+claimed. See [companion styles and memory/voice boundaries](docs/COMPANION-STYLE.md).
