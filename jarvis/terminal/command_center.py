@@ -1,4 +1,4 @@
-"""Cinematic JARVIS command centre for an interactive terminal session.
+"""Cinematic AETHER command centre for an interactive terminal session.
 
 The dashboard is intentionally a terminal UI: it keeps the user's normal shell
 available, uses the existing brain/tool approval flow, and does not open audio
@@ -7,7 +7,6 @@ devices until the user explicitly requests a voice call.
 from __future__ import annotations
 
 import asyncio
-import os
 import platform
 from datetime import datetime
 
@@ -50,7 +49,7 @@ def _system_panel() -> Panel:
 
 
 def render_dashboard(transcript: str = "Good day. All systems are ready. How may I help?",
-                     activity: str = "JARVIS core online") -> Layout:
+                     activity: str = "AETHER core online") -> Layout:
     layout = Layout()
     layout.split_column(
         Layout(name="header", size=3),
@@ -83,7 +82,7 @@ def render_dashboard(transcript: str = "Good day. All systems are ready. How may
     right.split_column(
         Layout(Panel(transcript, title="[bold cyan]TRANSCRIPT[/]", border_style="cyan"), ratio=3),
         Layout(Panel(f"[yellow]ϟ[/]  {activity}\n[green]$[/] Ready for command",
-                     title="[bold cyan]jarvis://activity[/]", border_style="cyan"), ratio=3),
+                     title="[bold cyan]aether://activity[/]", border_style="cyan"), ratio=3),
     )
     layout["right"].update(right)
     layout["header"].update(Panel(Text("J  ·  A  ·  R  ·  V  ·  I  ·  S", justify="center",
@@ -94,7 +93,7 @@ def render_dashboard(transcript: str = "Good day. All systems are ready. How may
 
 
 async def _confirm(tool, args) -> bool:
-    console.print(Panel(f"[yellow]JARVIS requests approval[/]\n[bold]{tool.name}[/] · {tool.risk.name}\n{args}",
+    console.print(Panel(f"[yellow]AETHER requests approval[/]\n[bold]{tool.name}[/] · {tool.risk.name}\n{args}",
                         title="Sensitive action", border_style="yellow"))
     return console.input("Approve? [y/N] ").strip().lower() in {"y", "yes"}
 
@@ -125,13 +124,13 @@ def run() -> int:
     if not brain.configured:
         console.print("[yellow]No AI provider configured. Add a provider key to .env first.[/]")
     transcript = "Good day. All systems are online. How may I help?"
-    activity = "JARVIS core online"
+    activity = "AETHER core online"
     console.clear()
     console.print(render_dashboard(transcript, activity))
     console.print("[dim]Commands: /help  /status  /clear  /quit · Ctrl+C to exit[/]")
     try:
         while True:
-            prompt = console.input("[bold bright_cyan]JARVIS › [/]").strip()
+            prompt = console.input("[bold bright_cyan]AETHER › [/]").strip()
             if not prompt:
                 continue
             command = prompt.lower()
@@ -157,7 +156,7 @@ def run() -> int:
             console.print(f"\n[bold cyan]YOU[/]  {prompt}")
             try:
                 reply = asyncio.run(_run_turn(brain, prompt))
-                transcript = f"You: {prompt}\n\nJARVIS: {reply[-1200:]}"
+                transcript = f"You: {prompt}\n\nAETHER: {reply[-1200:]}"
                 activity = "Request completed"
             except KeyboardInterrupt:
                 activity = "Request cancelled"
@@ -166,5 +165,5 @@ def run() -> int:
             console.print(render_dashboard(transcript, activity))
             console.print("[dim]Commands: /help  /status  /clear  /quit · Sensitive actions require approval[/]")
     except (KeyboardInterrupt, EOFError):
-        console.print("\n[dim]JARVIS session closed.[/]")
+        console.print("\n[dim]AETHER session closed.[/]")
         return 0
