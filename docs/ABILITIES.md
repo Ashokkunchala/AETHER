@@ -1,7 +1,7 @@
-# JARVIS Abilities Blueprint
+# AETHER Abilities Blueprint
 
 Source: the shared planning conversation (2026-11-13) where the full ability
-set for Jarvis-Personal-AI was defined. Jarvis is one unified intelligence with
+set for Jarvis-Personal-AI was defined. AETHER is one unified intelligence with
 four identities - Personal Assistant, Friend, Mentor, and DevOps Professional -
 across the Windows laptop and the Android phone.
 
@@ -81,7 +81,7 @@ across the Windows laptop and the Android phone.
   conflict detection, correction, export, review and deletion,
   retention controls; secrets never stored in memory
 
-## 8. Proactive Jarvis
+## 8. Proactive AETHER
 - Morning briefing; low battery, high CPU and disk-full alerts
 - Failed GitHub workflow notification with analysis
 - AWS cost-spike investigation; vulnerability alerts
@@ -124,7 +124,7 @@ Laptop control, Mobile control, Automation, Memory, Security, Settings.
 - Deployment: hybrid - local agents + cloud AI
 - Autonomy: automatic safe tasks; approval for sensitive actions
 - Voice: Indian English + Telugu
-- Scope: complete Jarvis platform on branch `jarvis-cinematic-local-voice`
+- Scope: complete AETHER platform on branch `jarvis-cinematic-local-voice`
 - Milestones: P0 stabilise -> P1 security/approval -> P2 orchestrator ->
   P3 personal + friend -> P4 mentor -> P5 DevOps agent ->
   P6 Windows + Android integration -> P7 hybrid hardening
@@ -140,7 +140,7 @@ existing tool registry. Remote actor/device authorization is not implemented.
 
 The existing brain/CLI/TUI tool registry includes six mentor tools:
 `mentor_catalog`, `mentor_lesson`, `mentor_quiz`, `mentor_submit`,
-`mentor_plan` and `mentor_progress`. Ask Jarvis to list mentor lessons, then
+`mentor_plan` and `mentor_progress`. Ask AETHER to list mentor lessons, then
 choose the lesson IDs and a local YYYY-MM-DD start date for a study plan.
 
 Each of the twelve domains has one introductory lesson, a manual practice
@@ -193,7 +193,7 @@ Reference formats checked against provider documentation:
 
 `proactive_configure(metric, threshold, enabled=false)` saves a resource rule.
 Metrics are `cpu`, `memory`, `disk` (system volume) and `battery`. New rules
-are disabled. To opt in, ask Jarvis to enable the chosen rule. Enabled rules
+are disabled. To opt in, ask AETHER to enable the chosen rule. Enabled rules
 are checked roughly once a minute while the backend is running. Battery
 alerts fire below the chosen percentage when unplugged; other metrics fire
 at or above the threshold. Unknown or unavailable samples are ignored.
