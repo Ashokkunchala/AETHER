@@ -232,6 +232,8 @@ interactive review, single-consume queue and requester-bound expiring results.
 HTTP integration tests simulate Android protocol; native validators/source wiring
 are tested separately. No real TLS/device/native-pixel acceptance is claimed.
 Direct HTTPS reachability needs separate review/setup, not a port/tunnel opened
-by this code. Scoped cancellation and wider commands/results remain unimplemented.
+by this code. Owner-bound scoped cancellation now prevents pending reads, suppresses running
+result publication or clears completed results, without promising OS termination,
+undo or recall. Wider commands/results remain unimplemented.
 The earlier broad missing-work paragraphs remain applicable beyond this narrow
 source stage; do not interpret them as denying that this one tested path exists.
