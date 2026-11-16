@@ -20,7 +20,7 @@ from cryptography.fernet import Fernet, InvalidToken
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from itsdangerous import BadSignature, URLSafeTimedSerializer
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.config import get_settings
 from app.personal_data import require_device_token
@@ -163,6 +163,16 @@ class CalendarProposal(BaseModel):
     start: str | None = None
     end: str | None = None
 
+    @field_validator("start", "end")
+    @classmethod
+    def validate_event_time(cls, value):
+        if value is None:
+            return value
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            raise ValueError("Calendar event times must include a timezone.")
+        return parsed.isoformat()
+
 
 class EmailDraft(BaseModel):
     to: str = Field(min_length=3, max_length=320)
@@ -171,7 +181,7 @@ class EmailDraft(BaseModel):
 
 
 class WhatsAppDraft(BaseModel):
-    to: str = Field(min_length=8, max_length=20)
+    to: str = Field(min_length=8, max_length=16, pattern=r"^\\+?[1-9]\\d{7,14}$")
     body: str = Field(min_length=1, max_length=4096)
 
 
@@ -223,6 +233,13 @@ async def google_callback(code: str, state: str, error: str | None = None):
         "scope": token.get("scope", ""),
     })
     return RedirectResponse("/life?google=connected", status_code=303)
+
+
+@router.post("/google/disconnect", dependencies=[Depends(require_device_token)])
+def google_disconnect():
+    with _connect() as db:
+        db.execute("DELETE FROM integration_secrets WHERE provider='google'")
+    return {"status": "disconnected"}
 
 
 @router.get("/status", dependencies=[Depends(require_device_token)])
@@ -448,7 +465,7 @@ async def _send_whatsapp(payload: dict):
         response = await client.post(f"{META_GRAPH}/{settings.whatsapp_phone_number_id}/messages",
             headers={"Authorization": f"Bearer {settings.whatsapp_access_token}"},
             json={"messaging_product": "whatsapp", "recipient_type": "individual",
-                  "to": payload["to"], "type": "text", "text": {"preview_url": False, "body": payload["body"]}})
+                  "to": payload["to"].lstrip("+"), "type": "text", "text": {"preview_url": False, "body": payload["body"]}})
     if response.status_code >= 400:
         raise HTTPException(502, "WhatsApp message delivery failed.")
     return response.json()
