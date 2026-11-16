@@ -316,8 +316,8 @@ def delete_event(event_id: int):
 class AIPlanRequest(BaseModel):
     plan_date: str = Field(min_length=10, max_length=10)
     timezone: str = Field(default="Asia/Kolkata", min_length=1, max_length=80)
-    work_start: str = Field(default="09:00", pattern=r"^([01]\\d|2[0-3]):[0-5]\\d$")
-    work_end: str = Field(default="18:00", pattern=r"^([01]\\d|2[0-3]):[0-5]\\d$")
+    work_start: str = Field(default="09:00", pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
+    work_end: str = Field(default="18:00", pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
     commitments: list[str] = Field(default_factory=list, max_length=20)
     focus_notes: str = Field(default="", max_length=1000)
 
