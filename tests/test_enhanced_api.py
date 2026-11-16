@@ -44,9 +44,12 @@ def test_health_reports_configured_providers(monkeypatch):
 def test_enhanced_app_serves_dashboard_and_static_voice_assets():
     with TestClient(app) as client:
         dashboard = client.get("/dashboard")
+        life_manager = client.get("/life")
         voice_script = client.get("/static/live_voice.js")
     assert dashboard.status_code == 200
     assert 'id="runtimeFeed"' in dashboard.text
+    assert life_manager.status_code == 200
+    assert "AETHER · Personal Life Manager" in life_manager.text
     assert voice_script.status_code == 200
     assert "liveVoiceConnect" in voice_script.text
 
