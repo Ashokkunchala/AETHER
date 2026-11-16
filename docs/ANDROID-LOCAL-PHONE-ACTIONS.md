@@ -18,7 +18,10 @@ upload. Missing handlers and query/permission failures remain visible failures.
   A selected contact can have multiple numbers; this implementation does not read
   the directory or infer a recipient/phone number. The user must review numbers
   in Contacts and enter the exact intended one. A full contact search/extraction
-  workflow is still not implemented.
+  workflow is still not implemented. A separate [specific-number picker](ANDROID-SELECTED-PHONE-NUMBER.md)
+  now queries only its selected number row and presents a local candidate requiring
+  explicit review before copying into the number field. No country is inferred,
+  directory queried, recipient identity verified or communication started.
 - Calendar: explicit title and ISO8601 start/end including timezone offsets open
   ACTION_INSERT on Events.CONTENT_URI. End must be later. Calendar account,
   recipients and Save remain in the calendar UI. No read/edit/cancel adapter,
