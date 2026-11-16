@@ -57,18 +57,14 @@ def terminate_process(name: str, force: bool = False) -> dict[str, Any]:
 
 
 def start_process(command: str, elevated: bool = False) -> dict[str, Any]:
-    """Start a program. elevated=true requests UAC elevation."""
+    """Legacy shell primitive. The registry owns fresh exact-command approval."""
+    from jarvis.control.command_preview import process_start_preview
+    preview = process_start_preview(command, elevated)
+    if not preview.get('success'):
+        return preview
     import subprocess
 
     try:
-        if elevated:
-            import ctypes  # noqa: F401
-
-            result = subprocess.Popen(  # noqa: S602
-                ["powershell", "-Command", f"Start-Process -FilePath '{command}' -Verb RunAs"],
-                shell=False,
-            )
-            return {"success": True, "command": command, "elevated": True, "pid": result.pid}
         proc = subprocess.Popen(command, shell=True)  # noqa: S602
         return {"success": True, "command": command, "pid": proc.pid}
     except Exception as exc:
