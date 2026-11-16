@@ -276,7 +276,7 @@ def calendar_proposal(item: CalendarProposal):
         raise HTTPException(422, "event_id is required for update/delete.")
     if item.action != "delete" and (not item.title or not item.start or not item.end):
         raise HTTPException(422, "title, start and end are required.")
-    if item.start and item.end and item.end <= item.start:
+    if item.start and item.end and datetime.fromisoformat(item.end) <= datetime.fromisoformat(item.start):
         raise HTTPException(422, "Event end must be after start.")
     return _approval("google_calendar", item.action, item.model_dump())
 
