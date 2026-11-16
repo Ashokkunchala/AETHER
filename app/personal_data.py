@@ -5,6 +5,7 @@ Keep the server bound to localhost until TLS and device pairing are deployed.
 """
 import json
 import sqlite3
+import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Literal
@@ -28,8 +29,20 @@ def _connect():
     path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(path, timeout=10)
     conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.executescript("""
+    try:
+        # Simultaneous first WAL setup can return BUSY without waiting for the
+        # connection timeout. Retry only lock contention, with a finite budget.
+        deadline = time.monotonic() + 10
+        while True:
+            try:
+                conn.execute("PRAGMA journal_mode=WAL").fetchall()
+                break
+            except sqlite3.OperationalError as exc:
+                code = (getattr(exc, 'sqlite_errorcode', 0) or 0) & 0xFF
+                if code not in (sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED) or time.monotonic() >= deadline:
+                    raise
+                time.sleep(.05)
+        conn.executescript("""
       CREATE TABLE IF NOT EXISTS memories (
         id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT NOT NULL,
         category TEXT NOT NULL DEFAULT 'general', created_at TEXT NOT NULL
@@ -69,6 +82,9 @@ def _connect():
         created_at TEXT NOT NULL
       );
     """)
+    except Exception:
+        conn.close()
+        raise
     # Serialize inspection and upgrade under SQLite's cross-connection write
     # lock. A Python lock would not protect a second backend process.
     try:
