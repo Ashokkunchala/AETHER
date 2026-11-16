@@ -939,6 +939,8 @@ def _register_devops(r: ToolRegistry) -> None:
     register_rbac_review(r)
     from jarvis.devops.service_snapshot import register_service_review
     register_service_review(r)
+    from jarvis.devops.lifecycle_design import register_lifecycle_design
+    register_lifecycle_design(r)
 
     r.register(Tool(
         name="review_k8s",
