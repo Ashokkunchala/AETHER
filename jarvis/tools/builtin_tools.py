@@ -887,6 +887,16 @@ def _register_devops(r: ToolRegistry) -> None:
     """AWS / DevOps tools. Reviews are offline; AWS calls use the user's own CLI profile."""
     from jarvis.devops import awscli, review, runbooks
 
+    from jarvis.devops.python_tests import preview_python_tests, run_python_tests
+    r.register(Tool(
+        name="run_python_tests",
+        description="Run one freshly approved fixed pytest command with current AETHER Python in an explicit trusted project/tests selection. Executes project code, not a sandbox. Discards output; returns direct exit status only. No install, deploy, retry or elevation.",
+        parameters=_obj({"project": _str("Canonical local absolute trusted project root with tests directory."), "selection": _str("tests or exact slash-separated file/directory inside tests; no flags."), "timeout": _int("Direct test-process timeout in seconds, 5-300.", 5, 300)}, ["project"]),
+        handler=run_python_tests, confirmation_preview=preview_python_tests,
+        risk=Risk.HIGH, category="devops", requires_confirmation=True,
+        never_auto_approve=True, allow_auto_approve=False, allow_always=False,
+    ))
+
     r.register(Tool(
         name="review_terraform",
         description="Scan Terraform (.tf) files under a local path for risky patterns (open security groups, public S3, hardcoded secrets, missing backend). Read-only, offline.",
