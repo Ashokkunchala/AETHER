@@ -32,6 +32,7 @@ from app.ai_providers import (
 from app.config import get_settings
 from app.core.auth import require_api_token
 from app.live_voice import router as live_voice_router
+from app.life_manager import router as life_manager_router
 from app.middleware.rate_limit import ApiRateLimitMiddleware
 from app.middleware.request_size import DEFAULT_API_BODY_LIMIT, RequestBodyLimitMiddleware
 from app.middleware.security import SecurityHeadersMiddleware
@@ -74,6 +75,7 @@ app = FastAPI(
 )
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.include_router(personal_data_router)
+app.include_router(life_manager_router)
 app.include_router(live_voice_router)
 # Add first so security headers and CORS still wrap early 413 responses.
 app.add_middleware(RequestBodyLimitMiddleware, max_bytes=DEFAULT_API_BODY_LIMIT)
@@ -106,6 +108,11 @@ def live_voice_client():
 @app.get("/dashboard", include_in_schema=False)
 def dashboard():
     return FileResponse(STATIC_DIR / "dashboard.html")
+
+
+@app.get("/life", include_in_schema=False)
+def life_manager():
+    return FileResponse(STATIC_DIR / "life-manager.html")
 
 
 @app.get("/health")
