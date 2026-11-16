@@ -106,6 +106,20 @@ The cinematic terminal command centre is a separate, on-demand interface. It doe
 
 The shortcut is installed in the current user's Start Menu Programs folder. Windows resolves the shortcut hotkey globally; if another application already uses Ctrl+Alt+A, choose another combination with `-Hotkey "CTRL+ALT+B"`. The microphone remains off until you explicitly start a voice session in a voice-enabled client. Sensitive AETHER tools continue to require approval. This is a Windows shortcut integration, not a replacement shell or a background keylogger/hotkey service.
 
+### AETHER personal life manager
+
+Open `http://127.0.0.1:8000/life` after starting the authenticated AETHER server. The responsive workspace includes:
+
+- Today dashboard with open/overdue task counts, notes, monthly expenses and priority snapshot.
+- Persistent tasks with priority, timezone-aware deadlines, completion and one-day postponement.
+- Reminders using the existing reminder API, plus calendar event drafts stored locally.
+- Personal, meeting, work and voice-transcript notes.
+- Expense capture and monthly category totals (INR, USD, EUR and GBP).
+- Travel and shopping request preparation, with live research handed to the AETHER assistant.
+- Email, WhatsApp and contacts panels that clearly show integrations are not connected yet.
+
+All life-manager API routes require the authenticated device token. The token is held in browser `sessionStorage` for the current tab only. Calendar entries are drafts; they do not change Google/Outlook. Email and WhatsApp are not read or sent by this page. Booking, purchases, sending and other external side effects remain disabled until the relevant provider is connected and explicit approval is implemented. Documents are not scanned without an authorized workspace.
+
 ### Terminal clients
 
 There are two independent terminal chat clients. The default one needs **any one** of `GEMINI_API_KEY`, `OPENROUTER_API_KEY` or `GROQ_API_KEY` — it drives the same local tool-calling brain the browser uses, with no backend process, and automatically falls back through every configured provider (`JARVIS_AI_PROVIDER` controls the order, default `auto`). The floating robot animation itself needs no key. Press `v` in the robot (or run `jarvis call`) to add a live Gemini voice call, which needs `GEMINI_API_KEY`.
