@@ -338,10 +338,7 @@ def _status(system, args) -> dict[str, Any]:
 
 
 def _open_app(system, args) -> dict[str, Any]:
-    name = str(args.get("name", "")).strip()
-    if not name:
-        return {"success": False, "error": "app name is required"}
-    return system.open_app(name)
+    return {"success": False, "error": "Use the desktop approved-app tool with exact local allowlist ID/executable/hash and fresh confirmation. Legacy voice launch disabled."}
 
 
 def _set_volume(system, args) -> dict[str, Any]:
