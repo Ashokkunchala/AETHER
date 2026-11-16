@@ -14,7 +14,7 @@ def test_helper_has_only_narrow_business_endpoints():
 
 def test_source_contract_does_not_claim_remote_enforcement():
     text=(ROOT/'docs/WINDOWS-CAPABILITY-CONTRACT.md').read_text()
-    for phrase in ['No real laptop','not proof','not utilization','not an approved-app allowlist',"isn't task cancellation",'explicitly requested','not yet enforced','not a newly implemented API','unknown/still running','PID reuse','loopback-only']:
+    for phrase in ['No real laptop','not proof','not utilization','not an approved-app allowlist',"isn't task cancellation",'explicitly requested','remaining gaps','not a newly implemented API','unknown/still running','PID reuse','loopback-only']:
         assert phrase.lower() in text.lower()
 
 
@@ -24,9 +24,9 @@ def test_registry_sensitive_execution_gates_without_controller_calls(tmp_path,mo
     for name in ['run_shell','kill_process','start_process','close_app']:
         assert registry.get(name).confirm_required
     # Existing gap is named explicitly, never misrepresented as enforcement.
-    assert not registry.get('screenshot').confirm_required
+    assert registry.get('screenshot').confirm_required
     text=(ROOT/'docs/WINDOWS-CAPABILITY-CONTRACT.md').read_text()
-    assert 'screenshot is currently Risk.LOW' in text
+    assert 'fresh scoped confirmation' in text
 
 
 def test_stop_contract_does_not_claim_thread_cancellation():
