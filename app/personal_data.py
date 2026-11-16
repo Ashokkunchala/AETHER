@@ -630,7 +630,7 @@ def delete_workout(workout_id: int):
 
 @router.get("/export", dependencies=[Depends(require_device_token)])
 def export_personal_data():
-    """Export personal data owned by this local JARVIS instance for user review/backup."""
+    """Export personal data owned by this local AETHER instance for user review/backup."""
     with _connect() as db:
         memories = [dict(row) for row in db.execute("SELECT * FROM memories ORDER BY id").fetchall()]
         reminders = [dict(row) for row in db.execute("SELECT * FROM reminders ORDER BY due_at").fetchall()]
@@ -641,7 +641,7 @@ def export_personal_data():
         schedule_history = [dict(row) for row in db.execute("SELECT * FROM schedule_history ORDER BY id").fetchall()]
     return {
         "exported_at": _now(),
-        "scope": "local JARVIS SQLite database",
+        "scope": "local AETHER SQLite database",
         "memories": memories,
         "reminders": reminders,
         "workouts": workouts,
