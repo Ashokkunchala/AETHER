@@ -173,6 +173,7 @@ def register_evidence_tools(registry):
     from jarvis.devops.aws_backup_snapshot import register_aws_backup_tools
     from jarvis.devops.cost_snapshot import register_cost_tools
     from jarvis.devops.dependency_audit import register_audit_tools
+    from jarvis.devops.deployment_snapshot import register_deployment_tools
     from jarvis.devops.ebs_snapshot import register_ebs_tools
     from jarvis.devops.endpoint_snapshot import register_endpoint_tools
     from jarvis.devops.kubernetes_snapshot import review_pods_export
@@ -180,6 +181,7 @@ def register_evidence_tools(registry):
     from jarvis.devops.slo import register_slo_tools
     from jarvis.devops.storage_snapshot import register_storage_tools
 
+    register_deployment_tools(registry)
     register_endpoint_tools(registry)
     register_storage_tools(registry)
     register_node_tools(registry)
