@@ -134,13 +134,13 @@ Voice controls in the browser UI.
 - Use a working default recording device in Windows Sound settings.
 - The browser Live Voice session is explicit: it starts when you press the
   button and stops when you press Stop. It is not a hidden always-on recorder.
-- The current terminal transcription adapter uses Google Speech Recognition and
-  sends the captured speech audio to that service for transcription. Do not use
-  it for sensitive conversations if that data flow is unsuitable.
-- If the optional audio backend fails to install or cannot open the microphone,
-  inspect the full error and your Python architecture/version before trying a
-  compatible PyAudio wheel. Do not install random binaries from untrusted
-  websites.
+- Terminal microphone capture uses the sounddevice-based voice stack and
+  Gemini Live; the wake-word path also requires openwakeword and webrtcvad.
+  Audio is sent to the configured Gemini service during a live session.
+- Install or repair the stack with
+  `.\\.venv\\Scripts\\python.exe -m pip install -r requirements-voice.txt`.
+  Check Windows microphone privacy permissions and the selected input device.
+  The current voice stack does not require a separately downloaded PyAudio wheel.
 
 ## 7. Run checks
 
