@@ -3,7 +3,7 @@ package com.ashok.jarvis
 import java.net.URI
 
 internal const val REMOTE_READ_ACTION = "memory_snapshot"
-internal val REMOTE_READ_STATES = setOf("pending_local_review", "running_local_read", "completed", "denied", "failed", "expired", "result_expired", "stopped", "revoked")
+internal val REMOTE_READ_STATES = setOf("pending_local_review", "running_local_read", "completed", "denied", "failed", "expired", "result_expired", "stopped", "revoked", "cancelled_before_read", "cancelled_result_suppressed", "result_cleared")
 
 internal fun remoteReadBase(value: String): String {
     require(value.length in 9..2048 && value.none { it.code <= 32 || it.code == 127 } && '\\' !in value)
