@@ -116,6 +116,19 @@ if (-not $SkipDependencies) {
     if ($LASTEXITCODE -ne 0) { throw "pip upgrade failed." }
     & $venvPython -m pip install -r (Join-Path $RepoRoot "requirements-dev.txt")
     if ($LASTEXITCODE -ne 0) { throw "Dependency installation failed." }
+
+    # Install the desktop voice stack as part of the standard Windows setup.
+    # Keep it separate from requirements-dev.txt so Linux CI remains audio-free.
+    $voiceRequirements = Join-Path $RepoRoot "requirements-voice.txt"
+    if (-not (Test-Path -LiteralPath $voiceRequirements)) {
+        throw "Required voice dependency file is missing: $voiceRequirements"
+    }
+    Write-Host "Installing desktop voice and wake-word dependencies..."
+    & $venvPython -m pip install -r $voiceRequirements
+    if ($LASTEXITCODE -ne 0) { throw "Voice dependency installation failed." }
+
+    & $venvPython -c "import sounddevice, webrtcvad, openwakeword, scipy"
+    if ($LASTEXITCODE -ne 0) { throw "Voice dependency verification failed; inspect the pip output above." }
 } else {
     if (-not (Test-Path $venvPython)) { throw "-SkipDependencies was set but .venv is missing. Run without -SkipDependencies first." }
     Write-Warning "Dependency installation skipped by -SkipDependencies."
