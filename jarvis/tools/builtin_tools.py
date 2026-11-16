@@ -202,6 +202,10 @@ def build_registry(force: bool = False) -> ToolRegistry:
 
     register_wellness_tools(registry)
 
+    from jarvis.control.windows_inspection import register_windows_inspection_tools
+
+    register_windows_inspection_tools(registry)
+
     build_registry._instance = registry  # type: ignore[attr-defined]
     logger.info("Registered %d tools across %d categories", len(registry), len(registry.categories()))
     return registry
