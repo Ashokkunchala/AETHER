@@ -3,8 +3,9 @@
 The Android PHONE CONTROLS area now includes a collapsible LOCAL PHONE ACTIONS
 card. These paths use supported system UI and explicit buttons. They do not send
 selection, clipboard, phone number, SMS draft or event fields to a backend/model.
-No additional manifest permission, background service, accessibility, direct-call
-or direct-SMS capability is added. No permission granted by a picker approves an
+The original composer/picker/clipboard paths add no manifest permission. The
+separate foreground network snapshot adds normal ACCESS_NETWORK_STATE only. No
+background service, accessibility, direct-call or direct-SMS capability is added. No permission granted by a picker approves an
 upload. Missing handlers and query/permission failures remain visible failures.
 
 - Dialer: enter one exact international +number,7-15digits, then open ACTION_DIAL.
@@ -40,7 +41,9 @@ upload. Missing handlers and query/permission failures remain visible failures.
   Unsupported/read-error values remain unknown. Volume capacity is not app/file
   inventory, battery temperature is not CPU temperature, device credential is
   not a security audit, granted mic permission is not live recording authority.
-  No network/backend health or ongoing monitoring is claimed.
+  No backend health or ongoing monitoring is claimed. A separate explicit
+  [network capabilities snapshot](ANDROID-NETWORK-SNAPSHOT.md) reports OS flags
+  locally without probes or identifiers.
 
 Fields use transient Compose state, not persistent settings/chat history. They
 may remain while the activity is alive; lifecycle/process death is not guaranteed
