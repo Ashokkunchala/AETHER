@@ -722,6 +722,8 @@ private fun CommandCentreScreen() {
             }
         }
 
+        PhoneActionsCard()
+
         SectionCard(title = "REMINDERS & ROUTINES") {
             Text(
                 "Use an ISO-8601 date/time with timezone, for example 2026-10-27T08:00:00+05:30.",
