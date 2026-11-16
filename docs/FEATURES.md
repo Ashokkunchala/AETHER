@@ -88,3 +88,11 @@ See [RBAC structural scope and evidence](KUBERNETES-RBAC-SNAPSHOT.md).
 EndpointSlices by namespace/label/owner UID and explicit port fields, with source
 indexes and unknowns instead of live routing/health claims. No cluster/network call.
 See [Service correlation scope](KUBERNETES-SERVICE-CORRELATION.md).
+
+### Exact-name OS DNS lookup
+
+`lookup_dns_name` requires fresh review for one absolute lowercase ASCII dotted
+name, returns bounded OS IPv4/IPv6 records, and opens no application connection.
+Timeout stops waiting, not OS cancellation; one outstanding call gates later
+requests. No DNS authenticity/connectivity/health pass.
+See [DNS scope and privacy](EXACT-DNS-LOOKUP.md).
