@@ -74,8 +74,8 @@ class JarvisUnified:
                 return {"response": "Unmuted"}
 
         if "screenshot" in cmd_lower:
-            result = self.laptop.screenshot()
-            return {"response": "Screenshot taken", "result": result}
+            return {"response": "Screenshot needs explicit scope, destination and fresh confirmation in the desktop registry. No capture performed.",
+                    "result": {"success": False, "captured": False}}
 
         if "shutdown" in cmd_lower:
             self.laptop.shutdown(10)
