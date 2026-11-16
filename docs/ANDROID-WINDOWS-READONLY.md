@@ -78,8 +78,20 @@ hashes; no remote token administration route is added. The existing local
 invalidates remote-read requests/results. Resume never resurrects old approvals.
 Revocation/stop during a read suppresses result publication; it cannot undo the
 read or recall a result already obtained by the phone. Clear-local-fields does
-not cancel the server request. Scoped cancellation is the next source stage,
-not claimed here. No UI claim implies an already-running operation was cancelled.
+not cancel the server request. A separate explicit owner-bound cancellation button
+POSTs `/v1/remote-read/requests/REQUEST_ID/cancel` with an empty JSON object. It can
+only prevent/suppress/clear this request, never approve or dispatch an operation.
+Pending requests become cancelled_before_read and cannot pass later local review.
+A running read becomes cancelled_result_suppressed: it may already have read RAM,
+but its eventual result cannot be published back to this request. Completed
+results become result_cleared; stored result text is set NULL, but already returned
+copies cannot be recalled. Duplicate cancels are idempotent. Other device tokens,
+revoked tokens, extra caller fields and wrong request IDs cannot cancel it.
+Cancellation remains available to the authenticated owner while local stop is on;
+it cannot resume work. Revoked devices stay refused. A cancellation response lost
+in transit is not confirmed cancellation; the phone says so and never auto-retries.
+No UI claim implies that an already-running OS operation was terminated. Ordinary
+SQLite updates are not secure erasure of DB pages/WAL/backups or remote copies.
 
 At most 50 device records, 100 unexpired request/result rows and 5 pending/running
 requests per device are accepted. Capacity fails closed. This is bounded queue
@@ -103,8 +115,10 @@ any network change. CORS is not native-app authentication or execution permissio
 
 Tests exercise request creation through the real HTTP app, inert pending state,
 interactive/local review, fixed collector, requester-bound HTTP result, deny/replay/
-expiry/concurrency/revocation/stop/capacity failures and closed result disclosure.
-Android JVM tests cover pure origin/ID/token/result validators; source tests cover
+expiry/concurrency/revocation/stop/capacity/cancel-clear failures and closed result disclosure.
+Android JVM tests cover pure origin/ID/token/result validators; cancellation race
+tests exercise pending-prevention, running-suppression, completed-result clearing,
+owner binding, duplicate cancellation and stop/revocation without resurrection; source tests cover
 foreground wiring, fixed action/no redirects/no approval route/no fallback. The
 HTTP integration client simulates Android's protocol, not Android runtime or real
 TLS transport. No phone, emulator, laptop command, real metric collection, remote
