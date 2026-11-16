@@ -23,7 +23,7 @@ def test_home_serves_interface():
     with TestClient(app) as client:
         response = client.get("/")
     assert response.status_code == 200
-    assert "JARVIS" in response.text
+    assert "AETHER Command Center" in response.text
     assert "Speak" in response.text
     assert 'id="deviceToken"' in response.text
 
