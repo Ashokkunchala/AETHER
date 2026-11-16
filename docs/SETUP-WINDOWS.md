@@ -9,7 +9,7 @@ Set-ExecutionPolicy -Scope Process Bypass
 .\\INSTALL-JARVIS.ps1
 ```
 
-It installs the current branch under `%LOCALAPPDATA%\\Programs\\JarvisPersonalAI`, creates a private virtual environment and `.env`, and configures JARVIS to start the backend, browser UI, and terminal at Windows sign-in. The server stays bound to `127.0.0.1`. To stop auto-start, disable the **JARVIS Personal AI** task in Task Scheduler.
+It installs the current branch under `%LOCALAPPDATA%\\Programs\\JarvisPersonalAI`, creates a private virtual environment and `.env`, and configures AETHER to start the backend, browser UI, and terminal at Windows sign-in. The server stays bound to `127.0.0.1`. To stop auto-start, disable the **JARVIS Personal AI** task in Task Scheduler.
 
 ### Or the one-click .exe (no PowerShell)
 
@@ -22,7 +22,7 @@ Double-click `dist\JARVIS-Setup.exe`. It embeds the same `INSTALL-JARVIS.ps1` sh
 At first use, enter the `JARVIS_API_TOKEN` from the installed `.env` into the browser UI. The optional **Remember device token on this browser** setting stores it in local storage and is less secure than session-only entry. Start Live Voice and grant microphone access explicitly; Windows and browser privacy controls are not bypassed.
 
 
-This guide starts the JARVIS web interface and Gemini chat locally. Sections 7-8 are optional and add the phone (Android) setup over your LAN.
+This guide starts the AETHER web interface and Gemini chat locally. Sections 7-8 are optional and add the phone (Android) setup over your LAN.
 
 ## One-click shortcuts (skip sections 2-5)
 
@@ -30,8 +30,8 @@ Double-click these in the repository root; each sets its own execution policy, s
 
 | File | Purpose |
 | --- | --- |
-| `dist\JARVIS-Setup.exe` | **The one-click installer exe.** Build with `.\scripts\build-installer-exe.ps1`, then double-click; installs JARVIS from the published branch without opening PowerShell yourself. |
-| `INSTALL_JARVIS.bat` | Install everything (`.venv`, dependencies, `.env` with random secrets, `jarvis doctor`) and optionally start JARVIS right away. |
+| `dist\JARVIS-Setup.exe` | **The one-click installer exe.** Build with `.\scripts\build-installer-exe.ps1`, then double-click; installs AETHER from the published branch without opening PowerShell yourself. |
+| `INSTALL_JARVIS.bat` | Install everything (`.venv`, dependencies, `.env` with random secrets, `jarvis doctor`) and optionally start AETHER right away. |
 | `START-JARVIS.bat` | Start the already-installed backend at `http://127.0.0.1:8000`. |
 | `SETUP-MOBILE.bat` | Install + build the Android APK + HTTPS certificate + firewall rule + start the phone backend (section 8). |
 | `START-MOBILE.bat` | Start the already-installed phone HTTPS backend at `https://<LAN-IP>:8443`. |
@@ -48,8 +48,8 @@ Double-click these in the repository root; each sets its own execution policy, s
 - Open PowerShell and clone the repository:
 
 ```powershell
-git clone https://github.com/Ashokkunchala/Jarvis-Personal-AI.git
-cd Jarvis-Personal-AI
+git clone https://github.com/Ashokkunchala/AETHER.git
+cd AETHER
 ```
 
 If you already cloned it, update it:
@@ -93,7 +93,7 @@ JARVIS_DB_PATH=data/jarvis.sqlite3
 
 Generate a random token in PowerShell with `python -c "import secrets; print(secrets.token_urlsafe(48))"` and replace the placeholder `JARVIS_API_TOKEN` value with it. Never leave the example placeholder in place. The token protects memory, reminders, workout, research, and coaching APIs. The chat route now requires the configured bearer token. Keep the backend bound to localhost because shared-token authentication is not production device pairing. Do not include extra quotes unless required by the value. The suggested model is configurable; if Google changes model availability or your account cannot use it, select a currently supported model from Google's documentation. Keep the Gemini key and token only in this local file.
 
-## 5. Start JARVIS
+## 5. Start AETHER
 
 ```powershell
 .\scripts\start-windows.ps1
@@ -175,7 +175,7 @@ On the phone:
 2. One-time CA install: send `data\tls\jarvis-ca.crt` to the phone, then
    Settings > Security > Encryption & credentials > Install a certificate >
    **CA certificate**. Without it the app rejects the self-signed server cert.
-3. Open JARVIS > enter the backend URL and pairing token > **Pair device** >
+3. Open AETHER > enter the backend URL and pairing token > **Pair device** >
    **Connect securely**.
 
 Start it again later with `START-MOBILE.bat` (or `.\scripts\start-mobile.ps1`).
@@ -191,7 +191,7 @@ Keep the backend on the private LAN only - never port-forward 8443.
 - **VOICE ERR / "voice stack missing":** the robot's `v` call and `jarvis start`/`jarvis call` preflight need `sounddevice`, `webrtcvad`, `openwakeword`, `numpy` and `scipy` in the environment that runs the robot. Install them there with `.\.venv\Scripts\python.exe -m pip install -r requirements-voice.txt` (for the installed copy: `%LOCALAPPDATA%\Programs\JarvisPersonalAI\.venv\Scripts\python.exe -m pip install -r requirements-voice.txt` from the installed folder). Both `INSTALL-JARVIS.ps1` and `scripts\setup-windows.ps1` install and verify this file automatically; `jarvis doctor` shows the `voice-packages` row.
 - **502 / AI request failed:** verify key validity, model availability, internet connection, quotas, billing, and server logs. Do not share the key when requesting help.
 - **PowerShell blocks scripts:** use the process-scoped policy command above; do not change the machine-wide policy unnecessarily.
-- **Port 8000 busy:** `.\scripts\start-windows.ps1` now reports what holds the port. If it prints `[PASS] ... already running`, JARVIS is up - just open `http://127.0.0.1:8000`. If it prints `[FAIL] ... used by another program (PID ...)`, run the printed `Stop-Process -Id <pid> -Force`, or use another port with `.\scripts\start-windows.ps1 -Port 8001` and open `http://127.0.0.1:8001`.
+- **Port 8000 busy:** `.\scripts\start-windows.ps1` now reports what holds the port. If it prints `[PASS] ... already running`, AETHER is up - just open `http://127.0.0.1:8000`. If it prints `[FAIL] ... used by another program (PID ...)`, run the printed `Stop-Process -Id <pid> -Force`, or use another port with `.\scripts\start-windows.ps1 -Port 8001` and open `http://127.0.0.1:8001`.
 - **No microphone button support:** use a supported browser or type into the message box.
 - **Telugu voice unavailable:** the model can return Telugu text, but local spoken output depends on installed browser/OS voices.
 
