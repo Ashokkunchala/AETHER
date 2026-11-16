@@ -27,7 +27,7 @@ def _configured_token(monkeypatch):
     get_settings.cache_clear()
 
 
-def test_websocket_rejects_invalid_token():
+def test_websocket_rejects_invalid_ticket():
     with TestClient(app) as client:
         with pytest.raises(WebSocketDisconnect) as exc_info:
             with client.websocket_connect("/ws?ticket=invalid"):
@@ -68,6 +68,7 @@ def test_websocket_reports_provider_timeout(monkeypatch):
 
     assert response == {"type": "error", "error": "provider timed out"}
 
+
 def test_websocket_cannot_self_approve_sensitive_tools(monkeypatch):
     observed = {}
 
@@ -107,6 +108,7 @@ def test_websocket_cannot_self_approve_sensitive_tools(monkeypatch):
 
     assert callable(observed["confirm"])
     assert observed["auto_approve"] is False
+
 
 def test_websocket_ticket_is_one_time_use():
     with TestClient(app) as client:
