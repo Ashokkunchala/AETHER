@@ -56,3 +56,17 @@ No real application/device/OS launch occurs. The registry's trusted confirmation
 callback, single-use local approval store and frozen args own authority, not a
 caller `confirmed` field. Arbitrary Python code can call internal primitives;
 this is not a hostile-code sandbox.
+
+## Default-handler path launch closed
+
+Legacy `open_path`/`LaptopController.open_path` and old `open_file` now fail closed
+for every path, before filesystem resolution or OS launch. Previously the LOW-risk
+path route called `os.startfile` on any existing path, including executables and
+scripts, bypassing exact-app launch. The registry marks it HIGH/fresh-only and its
+preview refuses before asking for an unusable approval. This is an intentional
+compatibility change: no document/folder/default-association launch is claimed.
+Data list/search/read/preview and reviewed document creation remain unchanged.
+A safe document-handler workflow needs its own resolved handler/arguments/content
+review; a familiar extension or default association is not approved-app authority.
+Generic fresh-approved shell remains separate, not an automatic fallback or
+permission to bypass this policy. No real OS action was executed for the fix.
