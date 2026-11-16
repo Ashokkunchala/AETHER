@@ -89,9 +89,14 @@ private data class ChatTurn(val role: String, val content: String)
 private val PERSONALITY_MODES = listOf(
     "assistant" to "Assistant",
     "friend" to "Friend",
+    "friendly" to "Friendly",
+    "funny" to "Funny",
+    "professional" to "Professional",
+    "calm" to "Calm",
+    "motivational" to "Motivational",
     "teacher" to "Teacher",
     "storyteller" to "Storyteller",
-    "doctor" to "Doctor",
+    "doctor" to "Health guide",
 )
 
 private val QUICK_ACTIONS = listOf(
@@ -205,7 +210,7 @@ private fun CommandCentreScreen() {
                 val base = TokenVault.readBackendUrl(context) ?: endpoint.trim().trimEnd('/')
                 val activeToken = TokenVault.read(context) ?: token
                 liveVoiceActive = true
-                liveVoiceController.start(base, activeToken)
+                liveVoiceController.start(base, activeToken, personalityMode, language)
             } catch (error: Exception) {
                 liveVoiceActive = false
                 liveVoiceStatus = error.message ?: "Could not start Live Voice."
@@ -351,7 +356,7 @@ private fun CommandCentreScreen() {
             JarvisOrb(state = orbState, modifier = Modifier.size(96.dp))
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    "JARVIS",
+                    "AETHER",
                     style = MaterialTheme.typography.headlineLarge,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold,
@@ -529,12 +534,12 @@ private fun CommandCentreScreen() {
             Button(onClick = { language = when (language) { "auto" -> "en"; "en" -> "te"; else -> "auto" } }) { Text("Reply language: $language (tap to change)") }
         }
 
-        SectionCard(title = "TALK TO JARVIS") {
+        SectionCard(title = "TALK TO AETHER") {
             Text(
                 when (personalityMode) {
                     "doctor" -> "Doctor mode gives general health information only - it is not a doctor and not medical advice."
                     "storyteller" -> "Storyteller mode tells original stories on request."
-                    else -> "Choose how JARVIS talks to you."
+                    else -> "Choose how AETHER talks to you."
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
@@ -559,7 +564,7 @@ private fun CommandCentreScreen() {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     conversation.takeLast(6).forEach { turn ->
                         Text(
-                            (if (turn.role == "user") "YOU  " else "JARVIS  ") + turn.content,
+                            (if (turn.role == "user") "YOU  " else "AETHER  ") + turn.content,
                             style = MaterialTheme.typography.bodyMedium,
                             color = if (turn.role == "user") MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
                         )
@@ -571,7 +576,7 @@ private fun CommandCentreScreen() {
             OutlinedTextField(
                 value = message,
                 onValueChange = { message = it },
-                label = { Text("Message JARVIS") },
+                label = { Text("Message AETHER") },
                 modifier = Modifier.fillMaxWidth()
             )
             Row(
@@ -599,7 +604,7 @@ private fun CommandCentreScreen() {
                         permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                     }
                 }
-            ) { Text(if (voiceBusy) "Listening…" else "Speak to JARVIS") }
+            ) { Text(if (voiceBusy) "Listening…" else "Speak to AETHER") }
             Button(
                 enabled = !busy && phoneSettingsAction != null,
                 onClick = {
@@ -611,7 +616,7 @@ private fun CommandCentreScreen() {
                 }
             ) { Text("Run recognized phone command") }
             Text(
-                "Supported voice commands: open device settings, open Wi-Fi settings, open Bluetooth settings, open JARVIS app permissions.",
+                "Supported voice commands: open device settings, open Wi-Fi settings, open Bluetooth settings, open AETHER app permissions.",
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
@@ -642,7 +647,7 @@ private fun CommandCentreScreen() {
                             if (result.first !in 200..299) {
                                 throw IllegalStateException(parsed.optString("detail", "Chat failed with HTTP ${result.first}."))
                             }
-                            reply = parsed.optString("reply", "JARVIS returned no text.")
+                            reply = parsed.optString("reply", "AETHER returned no text.")
                             conversation = (conversation + ChatTurn("user", sent) + ChatTurn("model", reply)).takeLast(20)
                             message = ""
                             status = "Message sent securely over HTTPS."
@@ -656,7 +661,7 @@ private fun CommandCentreScreen() {
 
         SectionCard(title = "ACTIVITY & APPROVALS") {
             Text(
-                "Live feed from your JARVIS backend. JARVIS still asks before anything sensitive or irreversible - confirmations stay on your laptop; this feed shows you what it is doing.",
+                "Live feed from your AETHER backend. AETHER still asks before anything sensitive or irreversible - confirmations stay on your laptop; this feed shows you what it is doing.",
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
@@ -699,7 +704,7 @@ private fun CommandCentreScreen() {
 
         SectionCard(title = "PHONE CONTROLS") {
             Text(
-                "These open Android's own settings screens. JARVIS does not silently toggle protected settings.",
+                "These open Android's own settings screens. AETHER does not silently toggle protected settings.",
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
@@ -759,7 +764,7 @@ private fun CommandCentreScreen() {
                             val parsed = JSONObject(result.second)
                             if (result.first !in 200..299) throw IllegalStateException(parsed.optString("detail", "Reminder creation failed (${result.first})."))
                             reminderTitle = ""
-                            status = "Reminder saved to your authenticated JARVIS backend."
+                            status = "Reminder saved to your authenticated AETHER backend."
                         } catch (error: Exception) {
                             status = error.message ?: "Could not create reminder."
                         } finally { busy = false }
@@ -828,7 +833,7 @@ private fun CommandCentreScreen() {
             }
             Text("Android notifications", style = MaterialTheme.typography.titleSmall)
             Text(
-                "When enabled, JARVIS checks the backend about every 15 minutes while network access is available. Delivery may be delayed; this is not an alarm service.",
+                "When enabled, AETHER checks the backend about every 15 minutes while network access is available. Delivery may be delayed; this is not an alarm service.",
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
@@ -966,7 +971,7 @@ private fun launchSpeech(
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, if (language == "te") "te-IN" else "en-IN")
-            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to JARVIS")
+            putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to AETHER")
         }
         setBusy(true)
         launcher.launch(intent)
