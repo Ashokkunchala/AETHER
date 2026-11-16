@@ -14,6 +14,8 @@ def test_specific_number_picker_requires_local_review_before_number_field():
     assert 'Discard selected candidate' in source
     assert 'result.resultCode != Activity.RESULT_OK' in source
     assert 'No recipient identity verified' in source
+    assert source.count('Button(enabled = selectedPhoneCandidate == null, onClick = {') == 2
+    assert 'Previous number field cleared to avoid using another contact' in source
 
 
 def test_only_selected_content_uri_number_column_no_fallback_or_directory_grant():
