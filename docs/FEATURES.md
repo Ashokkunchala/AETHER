@@ -56,3 +56,5 @@ See [NEXT-MILESTONES.md](NEXT-MILESTONES.md), [REALTIME-VOICE-AND-INTERFACE.md](
 - Native Android local actions: dial/SMS/calendar system composers, selected-item pickers, foreground clipboard and device snapshot. These are not direct sends, saved-event verification, image analysis, broad file management or remote laptop control. See [phone actions](ANDROID-LOCAL-PHONE-ACTIONS.md).
 
 - Native Android foreground network snapshot: explicit local OS capabilities only, one additional normal ACCESS_NETWORK_STATE declaration; no identifier read, probe or backend-health claim. Runtime/layout acceptance remains unverified. See [network snapshot](ANDROID-NETWORK-SNAPSHOT.md).
+
+- Local Python test execution: fresh-approved fixed pytest argv, canonical project/tests selection, current interpreter, reduced environment and direct-process timeout. No install, output log, verified count, sandbox or readiness claim. See [test runner](PYTHON-TEST-RUNNER.md).
