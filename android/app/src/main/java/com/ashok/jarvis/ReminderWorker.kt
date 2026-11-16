@@ -77,7 +77,7 @@ class ReminderWorker(context: Context, parameters: WorkerParameters) : Coroutine
                 )
                 val notification = Notification.Builder(context, CHANNEL_ID)
                     .setSmallIcon(android.R.drawable.ic_popup_reminder)
-                    .setContentTitle(reminder.optString("title", "JARVIS reminder"))
+                    .setContentTitle(reminder.optString("title", "AETHER reminder"))
                     .setContentText("This reminder is due.")
                     .setVisibility(Notification.VISIBILITY_PRIVATE)
                     .setContentIntent(openApp)
