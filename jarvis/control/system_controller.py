@@ -101,15 +101,7 @@ class SystemController:
             return {"success": False, "error": str(e)}
 
     def screenshot(self, filename: str = None) -> dict[str, Any]:
-        try:
-            import mss
-            if not filename:
-                filename = f"screenshot_{int(time.time())}.png"
-            with mss.mss() as sct:
-                sct.shot(output=filename)
-            return {"success": True, "file": filename}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        return {"success": False, "error": "Direct screenshot disabled. Use the desktop registry with explicit scope, path and fresh confirmation."}
 
     def shutdown(self, delay: int = 0) -> dict[str, Any]:
         try:
