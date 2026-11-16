@@ -64,6 +64,29 @@ Prove the phone-facing stack end to end (boots uvicorn with TLS, verifies the ce
 
 The app never sends cleartext: `android/app/src/main/res/xml/network_security_config.xml` disables HTTP and opts in to user-installed CA certificates, so the phone trusts your laptop's self-signed certificate after you install `data\tls\jarvis-ca.crt` once. Full phone setup: [android/README.md](android/README.md).
 
+## Optional local Docker deployment
+
+Docker Compose is available for a local backend-only deployment. It binds the
+host port to `127.0.0.1:8000`, runs as a non-root user, drops Linux capabilities,
+uses a read-only container filesystem, and stores SQLite data in a named volume.
+It is not a public/cloud deployment profile and does not provide TLS termination.
+
+Create and configure the local `.env` first (for example with
+`scripts/setup-windows.ps1`), then run:
+
+```powershell
+docker compose build
+docker compose up -d
+docker compose ps
+docker compose logs -f jarvis
+docker compose down
+```
+
+The API is available at `http://127.0.0.1:8000`. Do not change the port binding
+to `0.0.0.0`, add a public tunnel, or expose this development container to the
+internet. For Android, use the dedicated private-LAN HTTPS flow in
+`scripts/setup-mobile.ps1`.
+
 ## Start here
 
 ### Terminal clients
