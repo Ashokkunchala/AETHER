@@ -65,3 +65,10 @@ Tests use temporary databases, expiry/state and mocked webbrowser only. No
 real browser was opened or laptop controlled. Pairing, remote rate limits,
 end-to-end Windows acceptance and safe remote output delivery remain unbuilt.
 See [Windows capability contract](../docs/WINDOWS-CAPABILITY-CONTRACT.md).
+
+## Dedicated per-device foreground read-only protocol
+
+A separate native Android request/result path now exists for one fixed memory
+snapshot with laptop-local interactive review, requester-bound results and local
+revocation/stop. It does not add HTTP execution approval, a shell or authorize LAN
+exposure. See [read-only protocol and acceptance limits](../docs/ANDROID-WINDOWS-READONLY.md).
