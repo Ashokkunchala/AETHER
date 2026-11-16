@@ -357,3 +357,28 @@ def test_client_reconnects_only_after_unclean_drops_and_never_leaves_mic_on():
     assert "attempt>4" in js and "1000*2**(attempt-1)" in js
     assert "const abandoned=()=>userStopped||!socket||socket.readyState!==WebSocket.OPEN" in js
     assert "does not remember what was said before the drop" in js
+
+
+@pytest.mark.parametrize(('mode', 'language', 'expected'), [
+    ('calm', 'te', 'Mode: CALM'), ('funny', 'en', 'Mode: FUNNY'),
+    ('unknown-untrusted-mode', 'unknown', 'Mode: ASSISTANT'),
+])
+def test_live_style_language_are_bounded_and_do_not_change_tools(fake_live, monkeypatch, mode, language, expected):
+    client, sent = fake_live
+    captured = {}
+
+    def connect(**kwargs):
+        captured.update(kwargs['config'])
+        return FakeConnect(sent)
+
+    fake_client = SimpleNamespace(aio=SimpleNamespace(live=SimpleNamespace(connect=connect)))
+    monkeypatch.setattr(lv.genai, 'Client', lambda api_key: fake_client)
+    with client.websocket_connect(f'/api/live-voice?ticket={lv._issue_live_ticket()}&mode={mode}&language={language}') as ws:
+        assert ws.receive_json()['type'] == 'ready'
+    prompt = captured['system_instruction']
+    assert expected in prompt and 'You are AETHER' in prompt
+    if language == 'te':
+        assert 'Reply in Telugu' in prompt
+    assert len(captured['tools']) == 1
+    assert captured['speech_config']['voice_config']['prebuilt_voice_config']['voice_name'] == 'Charon'
+    assert 'unknown-untrusted-mode' not in prompt
