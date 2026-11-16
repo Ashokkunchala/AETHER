@@ -67,6 +67,8 @@ def test_dashboard_uses_helper_and_preserves_legacy_board():
     assert html.index('src="/static/life-reports.js"') < html.index('const $=')
     assert 'new Date().toISOString().slice(0,' not in html
     assert 'await AetherReports.renderToday(api)' in html
-    assert 'AetherReports.monthReport(api,m)' in html
+    assert 'monthReport:AetherReports.monthReport' in html
+    assert 'await expensePanel.load' in html or 'return expensePanel.load()' in html
+    assert 'monthReport(api,month)' in (ROOT / 'app/static/expense-panel.js').read_text()
     assert 'Before today in browser timezone' in html
     assert 'data-done' in html and 'data-postpone' in html and 'data-delete-task' in html
