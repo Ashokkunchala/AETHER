@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     whatsapp_phone_number_id: str = ""
     document_allowed_roots: str = ""  # semicolon-separated absolute paths; no implicit home-folder scan
 
+    # Optional GitHub workflow-failure reports. Empty configuration disables route.
+    github_alert_webhook_secret: str = Field(default="", repr=False)
+    github_alert_repositories: str = ""  # exact numeric_id=owner/repo pairs separated by semicolons
+
     # Rate limiting
     rate_limit_enabled: bool = True
     rate_limit_default: str = "100/minute"
