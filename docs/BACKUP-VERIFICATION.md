@@ -8,7 +8,10 @@ Use the exact archive path and `archive_sha256` from its reviewed creation
 result, or a hash kept in a separately trusted record:
 
 ```text
-verify_document_backup(path="C:\\Backups\\notes.zip", expected_archive_sha256="<64 hexadecimal characters>")
+verify_document_backup(
+    path="C:\\Backups\\notes.zip",
+    expected_archive_sha256="<64 hexadecimal characters>"
+)
 ```
 
 The hash is required. A hash supplied alongside an untrusted archive does not
