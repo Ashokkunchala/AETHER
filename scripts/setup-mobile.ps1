@@ -13,7 +13,7 @@
       3. Builds the debug APK (scripts\setup-android.ps1) and, with -Install,
          pushes it to a USB-connected device over adb.
       4. Adds the inbound firewall rule for the HTTPS port.
-      5. Prints the exact phone-side steps (CA install, backend URL, token).
+      5. Prints the phone-side steps (CA install and backend URL) without exposing the master token.
 
     With -Start (the default when nothing fails) it then hands off to
     scripts\start-mobile.ps1, which serves https://<lan-ip>:8443 until Ctrl+C.
