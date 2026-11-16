@@ -2,28 +2,45 @@
 (() => {
   'use strict';
   const get = id => document.getElementById(id);
+  let records = [];
+  function renderLibrary() {
+    const list = get('documentLibraryList'); list.replaceChildren();
+    const grouped = get('documentGrouping').value === 'type';
+    const items = grouped ? [...records].sort((a,b) => a.name.split('.').pop().localeCompare(b.name.split('.').pop()) || a.name.localeCompare(b.name)) : records;
+    let previous = '';
+    for (const record of items) {
+      const kind = record.name.split('.').pop().toUpperCase();
+      if (grouped && kind !== previous) { const heading = document.createElement('h3'); heading.textContent = kind; list.append(heading); previous = kind; }
+      const row = document.createElement('div'); row.className = 'item';
+      const body = document.createElement('div'); body.className = 'item-main';
+      const title = document.createElement('div'); title.className = 'item-title'; title.textContent = record.name;
+      const detail = document.createElement('div'); detail.className = 'item-meta'; detail.textContent = record.path + ' · ' + record.modified_at;
+      body.append(title, detail);
+      for (const mode of ['preview', 'summary']) {
+        const button = document.createElement('button'); button.type = 'button';
+        button.textContent = mode === 'preview' ? 'Preview text' : 'Summarize locally (exact extracts)';
+        button.addEventListener('click', async () => {
+          button.disabled = true; const target = get('documentPreview'); target.classList.remove('hidden'); target.textContent = 'Reading authorized text locally...';
+          try {
+            const data = await api('/api/documents/' + mode, {method:'POST', body:JSON.stringify({path:record.path})});
+            if (mode === 'preview') target.textContent = (data.partial ? 'PARTIAL PREVIEW\n' : '') + data.notice + '\n\n' + data.text;
+            else target.textContent = (data.partial_source || data.candidate_scan_partial ? 'PARTIAL SOURCE / SCAN\n' : '') + data.notice + '\n\n' + data.source_notice + '\n\n' + (data.excerpts.length ? data.excerpts.map((x,i)=>'['+(i+1)+'] Extracted characters '+x.start+'-'+x.end+(x.excerpt_truncated ? ' (passage truncated)' : '')+'\n'+x.text).join('\n\n') : 'No suitable passages. Open the preview; the document may be short, scanned or missing extractable text.');
+          } catch (error) { target.textContent = error.message; }
+          finally { button.disabled = false; }
+        });
+        body.append(button);
+      }
+      row.append(body); list.append(row);
+    }
+  }
+  get('documentGrouping').addEventListener('change', renderLibrary);
   get('documentLibrary').addEventListener('click', async () => {
-    const button = get('documentLibrary'), list = get('documentLibraryList'), status = get('documentLibraryStatus');
-    button.disabled = true; list.replaceChildren(); get('documentPreview').classList.add('hidden');
+    const button = get('documentLibrary'), status = get('documentLibraryStatus');
+    button.disabled = true; records = []; renderLibrary(); get('documentPreview').classList.add('hidden');
     try {
       const data = await api('/api/documents/library'); status.textContent = (data.partial ? 'Partial listing. ' : '') + data.notice;
-      for (const record of data.items || []) {
-        const row = document.createElement('div'); row.className = 'item';
-        const body = document.createElement('div'); body.className = 'item-main';
-        const title = document.createElement('div'); title.className = 'item-title'; title.textContent = record.name;
-        const detail = document.createElement('div'); detail.className = 'item-meta'; detail.textContent = record.path + ' · ' + record.modified_at;
-        const preview = document.createElement('button'); preview.type = 'button'; preview.textContent = 'Preview text';
-        preview.addEventListener('click', async () => {
-          preview.disabled = true; const target = get('documentPreview'); target.classList.remove('hidden'); target.textContent = 'Reading authorized text...';
-          try {
-            const data = await api('/api/documents/preview', {method:'POST', body:JSON.stringify({path:record.path})});
-            target.textContent = (data.partial ? 'PARTIAL PREVIEW\n' : '') + data.notice + '\n\n' + data.text;
-          } catch (error) { target.textContent = error.message; }
-          finally { preview.disabled = false; }
-        });
-        body.append(title, detail, preview); row.append(body); list.append(row);
-      }
-      if (!data.items.length) status.textContent = 'No supported files found. ' + data.notice;
+      records = data.items || []; renderLibrary();
+      if (!records.length) status.textContent = 'No supported files found. ' + data.notice;
     } catch (error) { status.textContent = error.message; }
     finally { button.disabled = false; }
   });
