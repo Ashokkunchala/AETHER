@@ -22,6 +22,7 @@ from fastapi.responses import RedirectResponse
 from itsdangerous import BadSignature, URLSafeTimedSerializer
 from pydantic import BaseModel, Field, field_validator
 
+from app import provider_approvals
 from app.config import get_settings
 from app.personal_data import require_device_token
 
@@ -66,6 +67,7 @@ def _connect():
       );
     """)
     try:
+        provider_approvals.migrate(db)
         yield db
         db.commit()
     except Exception:
@@ -107,13 +109,19 @@ def _google_credentials() -> tuple[str, str, str]:
     return client_id, client_secret, redirect_uri
 
 
-def _save_provider(provider: str, data: dict) -> None:
+def _save_provider(provider: str, data: dict, *, new_generation: bool = False, expected_binding: str | None = None) -> None:
     with _connect() as db:
+        db.execute("BEGIN IMMEDIATE")
+        if expected_binding is not None and expected_binding != provider_approvals.account(db, provider, settings):
+            raise HTTPException(409, "Provider connection changed during refresh. Retry from the current account.")
         db.execute(
             "INSERT INTO integration_secrets(provider,encrypted_value,updated_at) VALUES(?,?,?) "
             "ON CONFLICT(provider) DO UPDATE SET encrypted_value=excluded.encrypted_value,updated_at=excluded.updated_at",
             (provider, _seal(data), _now()),
         )
+        if new_generation:
+            db.execute("UPDATE integration_secrets SET approval_generation=? WHERE provider=?",
+                       (secrets.token_hex(32), provider))
 
 
 def _provider(provider: str) -> dict:
@@ -125,6 +133,8 @@ def _provider(provider: str) -> dict:
 
 
 async def _google_access_token() -> str:
+    with _connect() as db:
+        connection_binding = provider_approvals.account(db, "google", settings)
     data = _provider("google")
     expires = datetime.fromisoformat(data["expires_at"])
     if expires > datetime.now(UTC) + timedelta(seconds=90):
@@ -140,13 +150,15 @@ async def _google_access_token() -> str:
     token = response.json()
     data["access_token"] = token["access_token"]
     data["expires_at"] = (datetime.now(UTC) + timedelta(seconds=int(token.get("expires_in", 3600)))).isoformat()
-    _save_provider("google", data)
+    _save_provider("google", data, expected_binding=connection_binding)
     return data["access_token"]
 
 
 async def _google(method: str, path: str, *, params: dict | None = None, body: dict | None = None):
     token = await _google_access_token()
     async with httpx.AsyncClient(timeout=25) as client:
+        if method != "GET":
+            provider_approvals.before_network_write()
         response = await client.request(method, GOOGLE_API + path, params=params, json=body,
                                         headers={"Authorization": f"Bearer {token}"})
     if response.status_code >= 400:
@@ -231,7 +243,7 @@ async def google_callback(code: str, state: str, error: str | None = None):
         "access_token": token["access_token"], "refresh_token": token["refresh_token"],
         "expires_at": (datetime.now(UTC)+timedelta(seconds=int(token.get("expires_in",3600)))).isoformat(),
         "scope": token.get("scope", ""),
-    })
+    }, new_generation=True)
     return RedirectResponse("/life?google=connected", status_code=303)
 
 
@@ -262,45 +274,69 @@ async def calendar_events(time_min: str | None = None, time_max: str | None = No
     return await _google("GET", "/calendar/v3/calendars/primary/events", params=params)
 
 
-def _approval(provider: str, action: str, payload: dict) -> dict:
+def _approval(provider: str, action: str, payload: dict, actor) -> dict:
+    provider_approvals.guard(actor)
+    expires = (datetime.now(UTC) + timedelta(minutes=5)).isoformat()
     with _connect() as db:
-        cur = db.execute("INSERT INTO approval_requests(provider,action,payload_json,created_at) VALUES(?,?,?,?)",
-                         (provider, action, json.dumps(payload), _now()))
+        cur = db.execute("INSERT INTO approval_requests(provider,action,payload_json,created_at,"
+                         "requester_kind,requester_hash,requester_device,expires_at,account_binding) VALUES(?,?,?,?,?,?,?,?,?)",
+                         (provider, action, json.dumps(payload), _now(), actor.kind, actor.credential_hash,
+                          actor.device_id, expires, provider_approvals.account(db, provider, settings)))
         return {"id": cur.lastrowid, "provider": provider, "action": action, "status": "pending",
-                "payload": payload, "message": "Review and explicitly approve before execution."}
+                "payload": payload, "expires_at": expires,
+                "message": "Review exact fields and approve with this same credential within 5 minutes. Nothing sent."}
 
 
 @router.post("/calendar/proposals", status_code=201, dependencies=[Depends(require_device_token)])
-def calendar_proposal(item: CalendarProposal):
+def calendar_proposal(item: CalendarProposal, actor=Depends(provider_approvals.identity)):
     if item.action in {"update", "delete"} and not item.event_id:
         raise HTTPException(422, "event_id is required for update/delete.")
     if item.action != "delete" and (not item.title or not item.start or not item.end):
         raise HTTPException(422, "title, start and end are required.")
     if item.start and item.end and datetime.fromisoformat(item.end) <= datetime.fromisoformat(item.start):
         raise HTTPException(422, "Event end must be after start.")
-    return _approval("google_calendar", item.action, item.model_dump())
+    return _approval("google_calendar", item.action, item.model_dump(), actor)
 
 
 @router.get("/approvals", dependencies=[Depends(require_device_token)])
-def pending_approvals():
+def pending_approvals(actor=Depends(provider_approvals.identity)):
     with _connect() as db:
-        rows = db.execute("SELECT * FROM approval_requests WHERE status='pending' ORDER BY id DESC LIMIT 100").fetchall()
-    return {"items": [{**dict(r), "payload": json.loads(r["payload_json"])} for r in rows]}
+        rows = db.execute("SELECT * FROM approval_requests WHERE status='pending' AND requester_hash=? "
+                          "AND expires_at>? ORDER BY id DESC LIMIT 100", (actor.credential_hash, _now())).fetchall()
+        items = []
+        for row in rows:
+            # Account-changed requests are intentionally hidden, not silently upgraded.
+            if row['account_binding'] != provider_approvals.account(db, row['provider'], settings):
+                continue
+            items.append({key: row[key] for key in ('id', 'provider', 'action', 'status', 'created_at', 'expires_at')}
+                         | {'payload': json.loads(row['payload_json'])})
+    return {"items": items, "notice": "Only this credential's unexpired requests. Recreate legacy or account-changed requests."}
 
 
 @router.post("/approvals/{approval_id}/approve", dependencies=[Depends(require_device_token)])
-async def approve_action(approval_id: int):
+async def approve_action(approval_id: int, actor=Depends(provider_approvals.identity)):
     with _connect() as db:
+        db.execute("BEGIN IMMEDIATE")
         row = db.execute("SELECT * FROM approval_requests WHERE id=?", (approval_id,)).fetchone()
         if not row or row["status"] != "pending":
             raise HTTPException(404, "Pending approval not found.")
+        provider_approvals.check(db, row, actor, settings)
         claim = db.execute("UPDATE approval_requests SET status='executing' WHERE id=? AND status='pending'",
                            (approval_id,))
         if not claim.rowcount:
             raise HTTPException(409, "This approval is already being processed.")
         payload = json.loads(row["payload_json"])
         provider, action = row["provider"], row["action"]
+    def check_at_send():
+        with _connect() as current_db:
+            current = current_db.execute("SELECT * FROM approval_requests WHERE id=?", (approval_id,)).fetchone()
+            if not current or current["status"] != "executing":
+                raise HTTPException(409, "Approval is no longer executing.")
+            provider_approvals.check(current_db, current, actor, settings)
+    check_token = provider_approvals.execution_check.set(check_at_send)
     try:
+        # Fresh checks after claiming and immediately before entering the provider adapter.
+        check_at_send()
         result = None
         if provider == "google_calendar":
             event_id = payload.get("event_id")
@@ -328,11 +364,17 @@ async def approve_action(approval_id: int):
             db.execute("UPDATE approval_requests SET status='failed',decided_at=? WHERE id=? AND status='executing'",
                        (_now(), approval_id))
         raise
+    finally:
+        provider_approvals.execution_check.reset(check_token)
 
 
 @router.post("/approvals/{approval_id}/reject", dependencies=[Depends(require_device_token)])
-def reject_action(approval_id: int):
+def reject_action(approval_id: int, actor=Depends(provider_approvals.identity)):
     with _connect() as db:
+        db.execute("BEGIN IMMEDIATE")
+        row = db.execute("SELECT * FROM approval_requests WHERE id=?", (approval_id,)).fetchone()
+        if not row or row["status"] != "pending" or row["requester_hash"] != actor.credential_hash:
+            raise HTTPException(404, "Pending approval not found.")
         cur = db.execute("UPDATE approval_requests SET status='rejected',decided_at=? WHERE id=? AND status='pending'",
                          (_now(), approval_id))
         if not cur.rowcount:
@@ -436,8 +478,8 @@ async def summarize_gmail(item: GmailSummaryRequest):
 
 
 @router.post("/gmail/drafts", status_code=201, dependencies=[Depends(require_device_token)])
-def gmail_draft(item: EmailDraft):
-    return _approval("gmail", "send", item.model_dump())
+def gmail_draft(item: EmailDraft, actor=Depends(provider_approvals.identity)):
+    return _approval("gmail", "send", item.model_dump(), actor)
 
 
 async def _send_gmail(payload: dict):
@@ -452,16 +494,17 @@ async def _send_gmail(payload: dict):
 
 
 @router.post("/whatsapp/drafts", status_code=201, dependencies=[Depends(require_device_token)])
-def whatsapp_draft(item: WhatsAppDraft):
+def whatsapp_draft(item: WhatsAppDraft, actor=Depends(provider_approvals.identity)):
     if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
         raise HTTPException(503, "Configure WhatsApp Cloud API credentials first.")
-    return _approval("whatsapp", "send", item.model_dump())
+    return _approval("whatsapp", "send", item.model_dump(), actor)
 
 
 async def _send_whatsapp(payload: dict):
     if not settings.whatsapp_access_token or not settings.whatsapp_phone_number_id:
         raise HTTPException(503, "WhatsApp Cloud API is not configured.")
     async with httpx.AsyncClient(timeout=20) as client:
+        provider_approvals.before_network_write()
         response = await client.post(f"{META_GRAPH}/{settings.whatsapp_phone_number_id}/messages",
             headers={"Authorization": f"Bearer {settings.whatsapp_access_token}"},
             json={"messaging_product": "whatsapp", "recipient_type": "individual",
