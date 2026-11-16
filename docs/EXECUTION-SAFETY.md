@@ -75,3 +75,21 @@ require a single backend worker (a restart loses outstanding tickets). Paired
 devices still inherit the existing broad tool catalogue; do not expose this
 prototype on the public internet. No device-control or provider-send tool was
 added by this change.
+
+## Explicit generic shell and background process review
+
+`run_shell` and `start_process` are HIGH-risk, fresh-review-only registry actions.
+Auto/always approval is disabled. Their previews show the exact command and
+working directory and explain shell/network/provider-output/child-process risk.
+Read-only-looking commands are not exempt. Empty/oversized/NUL inputs and existing
+blocked command patterns fail before approval. Legacy process elevation is denied
+both in preview and in its primitive; no PowerShell string interpolation is used
+to request UAC. Background start returns only a PID, not readiness/completion.
+
+This does not convert generic shell into an app allowlist, command sandbox, scoped
+remote executor or deployment adapter. Alias/PATH/script contents and shell
+startup behavior are not verified. The user must approve the actual command and
+its authority separately. Direct internal calls remain outside registry authority;
+no guarantee covers hostile code running as the same OS user. `run_shell` timeout
+and registry stop do not guarantee cancellation of started children. No command
+was run on the owner's machine for these tests; subprocesses were mocked.
