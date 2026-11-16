@@ -118,11 +118,14 @@ Open `http://127.0.0.1:8000/life` after starting the authenticated AETHER server
 - Persistent tasks with priority, timezone-aware deadlines, completion and one-day postponement.
 - Reminders using the existing reminder API, plus calendar event drafts stored locally.
 - Personal, meeting, work and voice-transcript notes.
-- Expense capture and monthly category totals (INR, USD, EUR and GBP).
+- Expense capture and monthly category totals in INR.
 - Travel and shopping request preparation, with live research handed to the AETHER assistant.
-- Email, WhatsApp and contacts panels that clearly show integrations are not connected yet.
+- Google Calendar and Gmail OAuth integration, with calendar changes and email sends gated by approval.
+- Official WhatsApp Business Cloud API message drafts with approval-gated sending.
+- Authorized TXT, Markdown, LOG, PDF and DOCX folder search.
+- AI daily-plan proposals, proactive reminder notifications, Android notification polling and native Windows toast delivery.
 
-All life-manager API routes require the authenticated device token. The token is held in browser `sessionStorage` for the current tab only. Calendar entries are drafts; they do not change Google/Outlook. Email and WhatsApp are not read or sent by this page. Booking, purchases, sending and other external side effects remain disabled until the relevant provider is connected and explicit approval is implemented. Documents are not scanned without an authorized workspace.
+All life-manager and integration API routes require the authenticated device token. The token is held in browser `sessionStorage` for the current tab only. Configure provider credentials in `.env` using [the integration setup guide](docs/AETHER-INTEGRATIONS.md). Calendar changes, Gmail sends and WhatsApp sends are queued for explicit approval. Documents are searched only in folders listed in `DOCUMENT_ALLOWED_ROOTS`.
 
 ### Terminal clients
 
