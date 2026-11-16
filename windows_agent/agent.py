@@ -72,3 +72,7 @@ def open_url(request: ApprovedOpenUrlRequest, _=__import__("fastapi").Depends(au
     if not opened:
         raise HTTPException(status_code=502, detail="The operating system could not open the URL; approval was consumed.")
     return {"opened": True, "host": host,"browser_request_accepted":True,"page_loaded_verified":False}
+
+# This is a separate per-device read-only request/result protocol. No HTTP decision endpoint.
+from windows_agent.remote_read_api import router as remote_read_router
+app.include_router(remote_read_router)
