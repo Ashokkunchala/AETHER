@@ -145,11 +145,19 @@ def mouse_position() -> dict[str, Any]:
 def press_media(key: str) -> dict[str, Any]:
     """Media keys: play_pause, next, prev, volume_up, volume_down, volume_mute."""
     valid = {"play_pause", "nexttrack", "prevtrack", "volumeup", "volumedown", "volumemute"}
-    key_norm = key.lower().replace(" ", "_")
+    if not isinstance(key, str):
+        return {"success": False, "error": "Media key must be text."}
+    key_norm = key.strip().lower().replace(" ", "_")
+    if key_norm in {"play", "pause"}:
+        return {
+            "success": False,
+            "error": ("Playback state is unavailable. An absolute play/pause request cannot safely use "
+                      "a toggle; no key was sent. Ask for an explicit play_pause toggle instead."),
+            "playback_verified": False,
+            "scope": "global media key, not app-specific playback",
+        }
     alias = {
         "play_pause": "playpause",
-        "play": "playpause",
-        "pause": "playpause",
         "next": "nexttrack",
         "previous": "prevtrack",
         "prev": "prevtrack",
@@ -163,13 +171,17 @@ def press_media(key: str) -> dict[str, Any]:
     if _HAS_KEYBOARD:
         try:
             _keyboard.press_and_release(resolved)
-            return {"success": True, "key": resolved}
+            return {"success": True, "key": resolved, "playback_verified": False,
+                    "scope": "global media key, not app-specific playback",
+                    "message": "Sent the global media key. Playback state, app and track are not verified."}
         except Exception as exc:
             return {"success": False, "error": str(exc)}
     if _HAS_PYAUTOGUI:
         try:
             pyautogui.press(resolved)
-            return {"success": True, "key": resolved}
+            return {"success": True, "key": resolved, "playback_verified": False,
+                    "scope": "global media key, not app-specific playback",
+                    "message": "Sent the global media key. Playback state, app and track are not verified."}
         except Exception as exc:
             return {"success": False, "error": str(exc)}
     return {"success": False, "error": "No input automation library available"}
