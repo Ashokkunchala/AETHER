@@ -10,6 +10,8 @@ import sqlite3
 import uuid
 from pathlib import Path
 
+from jarvis.mentor_terraform import TERRAFORM_PROJECT
+
 PROJECTS = {
     'python_sqlite_ledger': {
         'title': 'Python 3.11: fictional SQLite ledger',
@@ -94,11 +96,14 @@ PROJECTS = {
 }
 
 
+PROJECTS['terraform_local_foundations'] = copy.deepcopy(TERRAFORM_PROJECT)
+
+
 def project_brief(project_id):
     if not isinstance(project_id, str) or project_id not in PROJECTS:
         raise ValueError('Choose a project ID from mentor_project_catalog.')
     return {'project_id': project_id, **copy.deepcopy(PROJECTS[project_id]),
-            'notice': 'Manual practice brief, not a sandbox or graded course. Jarvis does not run these steps, open submitted paths, or verify evidence. Do not submit credentials or private data.'}
+            'notice': 'Manual practice brief, not a sandbox or graded course. AETHER does not run these steps, open submitted paths, or verify evidence. Do not submit credentials or private data.'}
 
 
 class ProjectStore:
@@ -192,7 +197,7 @@ def register_project_tools(registry):
         return ProjectStore().history(session_id)
 
     definitions = [
-        ('mentor_project_catalog', 'List four offline manual practice projects with sources. No execution or grading.', catalog, {}, [], Risk.SAFE),
+        ('mentor_project_catalog', 'List five offline manual practice projects with sources. No execution or grading.', catalog, {}, [], Risk.SAFE),
         ('mentor_project_brief', 'Read a sourced practice project with milestones, deliverables and manual review checks. Not a coding sandbox.', project_brief, {'project_id': {'type': 'string'}}, ['project_id'], Risk.SAFE),
         ('mentor_project_start', 'Start a local journal for a chosen practice project. Does not run any project step.', start, {'project_id': {'type': 'string'}}, ['project_id'], Risk.LOW),
         ('mentor_project_resume', 'Show the current saved project milestone. Evidence submission is never verified completion.', resume, {'session_id': {'type': 'string'}}, ['session_id'], Risk.SAFE),
@@ -203,3 +208,6 @@ def register_project_tools(registry):
         registry.register(Tool(name=name, description=description, handler=handler, risk=risk,
                                parameters={'type': 'object', 'properties': properties, 'required': required},
                                category='mentor_projects'))
+
+    from jarvis.mentor_terraform import register_terraform_tools
+    register_terraform_tools(registry)
