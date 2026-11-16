@@ -88,6 +88,8 @@ class LocalApprovalStore:
             db.execute('BEGIN IMMEDIATE')
             db.execute('INSERT INTO local_settings VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',('stopped',int(enabled)))
             if enabled:db.execute("UPDATE url_requests SET state='revoked' WHERE state IN ('pending','approved')")
+            if enabled and db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='remote_read_requests'").fetchone():
+                db.execute("UPDATE remote_read_requests SET state='stopped',result=NULL,result_expires=NULL")
 
 
 def main(argv=None):
