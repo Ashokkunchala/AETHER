@@ -54,3 +54,5 @@ See [NEXT-MILESTONES.md](NEXT-MILESTONES.md), [REALTIME-VOICE-AND-INTERFACE.md](
 - Windows service/startup-name and passive network-link inventories: bounded fresh-approved snapshots with unknown/partial states, no service/startup/network changes. Link-up is not internet verification.
 - Manual Python verification pipeline generator: real GitHub Actions/Jenkins test-stage text. Does not write/run/install/deploy; see [pipeline guide](PYTHON-VERIFICATION-PIPELINES.md).
 - Native Android local actions: dial/SMS/calendar system composers, selected-item pickers, foreground clipboard and device snapshot. These are not direct sends, saved-event verification, image analysis, broad file management or remote laptop control. See [phone actions](ANDROID-LOCAL-PHONE-ACTIONS.md).
+
+- Native Android foreground network snapshot: explicit local OS capabilities only, one additional normal ACCESS_NETWORK_STATE declaration; no identifier read, probe or backend-health claim. Runtime/layout acceptance remains unverified. See [network snapshot](ANDROID-NETWORK-SNAPSHOT.md).
