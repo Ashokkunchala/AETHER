@@ -13,6 +13,8 @@ from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
 
+from jarvis.mentor_activity import ATTEMPT_SCHEMA, daily_report, record_attempt
+
 # id, title, lesson, safe practice, question, options, correct option, explanation
 _LESSONS = [
     ('programming', 'Python: mutable values',
@@ -138,6 +140,7 @@ class MentorStore:
                     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
                 );
             ''')
+            db.executescript(ATTEMPT_SCHEMA)
 
     def connect(self):
         return sqlite3.connect(self.path, timeout=10)
@@ -234,8 +237,12 @@ class MentorStore:
         correct = choice == row['answer']
         with self.connect() as db:
             db.execute('INSERT INTO mentor_answers(lesson_id, choice, correct, attempts) VALUES (?, ?, ?, 1) ON CONFLICT(lesson_id) DO UPDATE SET choice=excluded.choice, correct=excluded.correct, attempts=attempts+1, updated_at=CURRENT_TIMESTAMP', (lesson_id, choice, int(correct)))
+            record_attempt(db, lesson_id, choice, correct)
         return {'lesson_id': lesson_id, 'correct': correct, 'correct_choice': row['answer'],
                 'feedback': row['explanation'], 'source': SOURCES[lesson_id], 'next': 'Try the practice task and explain your reasoning. A passed checkpoint is not mastery.'}
+
+    def daily_activity(self, start_date: str, end_date: str, timezone: str):
+        return daily_report(self, start_date, end_date, timezone)
 
     def progress(self, as_of: str | None = None):
         today = date.fromisoformat(as_of) if as_of else date.today()
@@ -320,6 +327,7 @@ def register_mentor_tools(registry):
         ('mentor_progress', 'Review persisted checkpoints, weak areas and overdue study sessions.', {'as_of': {'type': 'string', 'description': 'Optional YYYY-MM-DD local review date'}}, [], 'progress', Risk.SAFE),
     ]
     definitions.extend([
+        ('mentor_daily_activity', 'Read captured objective-checkpoint attempts by local day for an explicit 1-366 day range and IANA timezone. Future-only history, not study time, attendance, interview/project activity or mastery. Check partial notices.', {'start_date': {'type': 'string'}, 'end_date': {'type': 'string'}, 'timezone': {'type': 'string'}}, ['start_date', 'end_date', 'timezone'], 'daily_activity', Risk.SAFE),
         ('mentor_reschedule_preview', 'Preview dates for overdue unpassed study sessions, skipping occupied days. Uses the computer local calendar; changes nothing.', {'start_date': {'type': 'string', 'description': 'YYYY-MM-DD today or later in the computer local calendar'}}, ['start_date'], 'reschedule_preview', Risk.SAFE),
         ('mentor_reschedule_session', 'Move one overdue unpassed study session to an unoccupied date today or later. Requires its current expected_date; rejects stale previews and never changes answers or external calendars.', {'lesson_id': {'type': 'string'}, 'expected_date': {'type': 'string'}, 'new_date': {'type': 'string'}}, ['lesson_id', 'expected_date', 'new_date'], 'reschedule_session', Risk.LOW),
         ('mentor_interview_start', 'Start a local practice interview across chosen lesson IDs. One question at a time; no automated free-text score or certification.', {'lesson_ids': {'type': 'array', 'items': {'type': 'string'}}}, ['lesson_ids'], 'interview_start', Risk.LOW),
