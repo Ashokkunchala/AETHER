@@ -141,13 +141,14 @@ and enforces two rules:
 
 1. **Cleartext HTTP is disabled everywhere.** The bearer/device token is only
    ever sent over TLS; a plain `http://` backend URL is rejected outright.
-2. **User-installed CA certificates ARE trusted** (in addition to the system
-   store). The laptop backend started by `scripts/start-mobile.ps1` uses a
-   self-signed certificate that you install once on the phone as a CA
-   (`data/tls/jarvis-ca.crt` → Settings > Security > Encryption & credentials >
-   Install a certificate > CA certificate). On Android 7+ (API 24+) apps ignore
-   user CAs by default, so without this file the app would reject its own
-   backend. System CAs stay trusted, so publicly-signed endpoints keep working.
+2. **User-installed CA certificates are trusted** (in addition to the system
+   store) so the laptop backend can use a private self-signed CA. Install only
+   a CA you control (`data/tls/jarvis-ca.crt` → Settings > Security >
+   Encryption & credentials > Install a certificate > CA certificate). Android
+   applies this trust to HTTPS requests made by this app generally, not only
+   to your configured JARVIS host. Remove the user CA when you no longer need
+   it. This is a documented convenience trade-off; do not use this prototype
+   with untrusted networks or arbitrary remote backends.
 
 Because the file is a normal `res/xml` resource it is compiled into the APK
 (`res/xml/network_security_config.xml`) and its resource id is referenced from
