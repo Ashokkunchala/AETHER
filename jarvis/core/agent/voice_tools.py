@@ -66,7 +66,7 @@ TOOL_DECLARATIONS: list[dict[str, Any]] = [
     },
     {
         "name": "take_screenshot",
-        "description": "Capture a screenshot of the screen and save it as a PNG file.",
+        "description": "Legacy screenshot route disabled; use scoped desktop screenshot with fresh explicit user confirmation.",
         "parameters": {"type": "object", "properties": {}},
     },
     {
@@ -359,10 +359,7 @@ def _set_mute(system, args) -> dict[str, Any]:
 
 
 def _screenshot(system, args) -> dict[str, Any]:
-    result = system.screenshot()
-    if isinstance(result, dict) and result.get("success"):
-        return _ok(result, f"screenshot saved to {result.get('file', 'disk')}")
-    return {"success": False, "error": (result or {}).get("error", "screenshot failed")}
+    return {"success": False, "error": "Screenshot requires the desktop registry's explicit scope/path privacy preview and fresh user confirmation. Legacy voice capture is disabled."}
 
 
 def _focus_window(system, args) -> dict[str, Any]:
