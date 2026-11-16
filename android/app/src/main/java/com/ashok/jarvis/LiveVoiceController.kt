@@ -35,7 +35,7 @@ class LiveVoiceController(
     @Volatile private var lastPlaybackWarning = 0L
     private val playbackQueue = ArrayBlockingQueue<ByteArray>(MAX_QUEUED_AUDIO_FRAMES)
 
-    suspend fun start(backendUrl: String, token: String) {
+    suspend fun start(backendUrl: String, token: String, mode: String = "assistant", language: String = "auto") {
         require(backendUrl.startsWith("https://")) { "Live Voice requires an HTTPS backend." }
         require(token.length >= 32 && !token.startsWith("replace_")) { "Connect with a valid device token first." }
         check(!active) { "A Live Voice session is already active." }
@@ -46,7 +46,9 @@ class LiveVoiceController(
             val ticket = withContext(Dispatchers.IO) { requestTicket(backendUrl.trimEnd('/'), token) }
             if (!active || generation != sessionGeneration) return
             val socketUrl = backendUrl.trimEnd('/').replaceFirst("https://", "wss://") +
-                "/api/live-voice?ticket=" + java.net.URLEncoder.encode(ticket, Charsets.UTF_8.name())
+                "/api/live-voice?ticket=" + java.net.URLEncoder.encode(ticket, Charsets.UTF_8.name()) +
+                "&mode=" + java.net.URLEncoder.encode(mode.take(40), Charsets.UTF_8.name()) +
+                "&language=" + java.net.URLEncoder.encode(language.take(8), Charsets.UTF_8.name())
             val request = Request.Builder().url(socketUrl).build()
             webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(socket: WebSocket, response: Response) {
@@ -244,12 +246,12 @@ class LiveVoiceController(
                     }
                 }
                 "transcript" -> onStatus(
-                    "${if (event.optString("source") == "user") "You" else "JARVIS"}: ${event.optString("text")}",
+                    "${if (event.optString("source") == "user") "You" else "AETHER"}: ${event.optString("text")}",
                     true,
                 )
                 "interrupted" -> {
                     flushPlayback()
-                    onStatus("JARVIS audio interrupted. Speak to continue.", true)
+                    onStatus("AETHER audio interrupted. Speak to continue.", true)
                 }
                 "error" -> onStatus(event.optString("message", "Live Voice error."), false)
                 "closed" -> onStatus("Live Voice provider session closed.", false)
