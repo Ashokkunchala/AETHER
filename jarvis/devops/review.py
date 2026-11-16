@@ -154,23 +154,27 @@ def review_cicd(path: str) -> dict[str, Any]:
         where = str(f)
         if f.name.startswith("Jenkinsfile"):
             if re.search(r"AKIA[0-9A-Z]{16}|aws_secret_access_key", text, re.I):
-                findings.append(_finding("high", "jenkins-hardcoded-aws", "Hardcoded AWS credential in Jenkinsfile; use the credentials() binding or an instance role.", where))
-            if re.search(r"terraform\s+apply[^\n]*-auto-approve", text) and "input" not in text:
-                findings.append(_finding("medium", "jenkins-auto-apply", "terraform apply -auto-approve with no input() approval step.", where))
+                findings.append(_finding("high", "jenkins-hardcoded-aws", "AWS credential-like text pattern found; actual credential validity/exposure is not verified. Review secret handling separately.", where))
+            if re.search(r"terraform\s+apply[^\n]*-auto-approve", text):
+                findings.append(_finding("medium", "jenkins-auto-apply", "terraform apply -auto-approve text pattern found. A textual input substring or input step does not establish an effective approval gate or its authorized approvers.", where))
             continue
         for n, line in enumerate(text.splitlines(), 1):
             m = re.search(r"uses:\s*([\w./-]+)@([\w.-]+)", line)
             if m and not re.fullmatch(r"[0-9a-f]{40}", m.group(2)) and not m.group(1).startswith("./"):
-                if not m.group(1).startswith("actions/"):
-                    findings.append(_finding("medium", "gha-unpinned-action", f"{m.group(1)}@{m.group(2)} is a third-party action pinned to a mutable ref; pin to a commit SHA.", where, n))
+                findings.append(_finding("medium", "gha-unpinned-action", "uses reference is not a full lower-case 40-hex commit SHA text pattern. First-party actions are not exempt. Verify action origin and selected revision; a SHA alone does not establish trust.", where, n))
             if "pull_request_target" in line:
-                findings.append(_finding("high", "gha-pull-request-target", "pull_request_target runs with secrets; do not check out untrusted PR code with it.", where, n))
+                findings.append(_finding("high", "gha-pull-request-target", "pull_request_target text pattern found. This event can expose privileged token/secrets depending on configuration; do not execute untrusted PR code in a privileged context. Actual event, checkout, access and code flow are not verified.", where, n))
             if re.search(r"AKIA[0-9A-Z]{16}", line):
-                findings.append(_finding("high", "gha-hardcoded-aws", "Hardcoded AWS access key id.", where, n))
+                findings.append(_finding("high", "gha-hardcoded-aws", "AWS access-key-like text pattern found; actual credential validity/exposure is not verified.", where, n))
             if re.search(r"terraform\s+apply[^\n]*-auto-approve", line):
-                findings.append(_finding("medium", "gha-auto-apply", "terraform apply -auto-approve; gate it behind an environment with required reviewers.", where, n))
+                findings.append(_finding("medium", "gha-auto-apply", "terraform apply -auto-approve text pattern found. Verify a separately enforced approval gate and authorized reviewers; this scan does not verify environment protection or effective execution flow.", where, n))
         if "permissions:" not in text:
-            findings.append(_finding("medium", "gha-no-permissions", "No permissions block; the default token may be broader than needed.", where))
+            findings.append(_finding("medium", "gha-no-permissions", "No permissions text marker found. Effective token permissions depend on workflow/job settings and repository/organization/event policy; they are not verified.", where))
         if "aws-actions/configure-aws-credentials" in text and "role-to-assume" not in text:
-            findings.append(_finding("medium", "gha-static-aws-keys", "AWS credentials without role-to-assume; prefer OIDC with a role.", where))
-    return _summary(findings, len(files))
+            findings.append(_finding("medium", "gha-static-aws-keys", "AWS credentials-action text without a role-to-assume marker. Credential source, OIDC trust, role permissions and effective authentication are not verified.", where))
+    result = _summary(findings, len(files))
+    result.update({"workflow_schema_validated": False, "effective_permissions_verified": False,
+                   "approval_gates_verified": False, "secret_exposure_verified": False,
+                   "execution_security_verified": False,
+                   "limits": "Text-pattern review only, never a complete security scan or proof of safety. Comments, strings, malformed YAML/Groovy, incorrect indentation and unrelated jobs/stages can match or hide patterns. No YAML/Groovy parse, expression evaluation, trigger/checkout association, reusable workflow/composite action/shared library expansion, external action trust verification or live settings check. Marker presence does not establish correct scope, approval enforcement, OIDC trust or effective token/secrets access. No findings is never secure/approved/complete. Existing reader returns at most 200 candidate files before workflow filtering; traversal/symlink/concurrent swaps are not sandboxed, and unreadable/oversized files can fail. Source paths remain in output; raw action refs and matching line contents are omitted. No Jenkins/GitHub API, build/test/scan command, artifact upload, deploy, staging check, production monitor, rollback or payment performed."})
+    return result
