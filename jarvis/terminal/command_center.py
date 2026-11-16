@@ -26,6 +26,7 @@ def _system_panel() -> Panel:
     rows = Table.grid(padding=(0, 1))
     rows.add_column(style="cyan", width=9)
     rows.add_column(ratio=1)
+    rows.add_column(width=4, justify="right")
     try:
         import psutil
 
