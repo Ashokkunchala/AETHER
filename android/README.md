@@ -213,3 +213,11 @@ a laptop command.
 - Memory add/list/delete UI exists; workout tracking and general background data
   sync are not implemented. Backend/laptop command approvals remain separate.
   Generic chat/activity display is not acceptance of arbitrary remote app control.
+
+## Explicit local phone actions
+
+See [local phone actions](../docs/ANDROID-LOCAL-PHONE-ACTIONS.md) for the new
+optional card: system dial/SMS/calendar composers, selected contact/item UI,
+foreground plain clipboard controls and limited local device snapshots. No direct
+call/send/save, data upload or new broad permission. Build/source/JVM tests do not
+replace pending emulator/device and visual acceptance.
