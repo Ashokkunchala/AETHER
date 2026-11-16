@@ -17,8 +17,9 @@ def command_preview(command: str, timeout: int = 60, cwd: str | None = None):
     if classification == 'blocked':
         return {'success': False, 'error': 'Command blocked by existing shell policy.'}
     return {'success': True, 'command': command, 'cwd': cwd,
+            'cwd_policy': 'explicit supplied path' if cwd is not None else 'inherit launcher process working directory at execution time',
             'timeout_seconds': timeout, 'shell': True,
-            'notice': 'Review this exact command and working directory. Shell syntax, scripts, aliases, executable lookup and child processes can execute arbitrary code, disclose files, use the network, spend money or change systems. This is not approved-app launch, an allowlist, a sandbox or authority for deployment, destructive actions or spending. Captured output may reach the configured model provider. Timeout does not guarantee child-process cancellation or rollback.'}
+            'notice': 'Review this exact command and working-directory policy. Shell syntax, scripts, aliases, executable lookup and child processes can execute arbitrary code, disclose files, use the network, spend money or change systems. This is not approved-app launch, an allowlist, a sandbox or authority for deployment, destructive actions or spending. Captured output may reach the configured model provider. Timeout does not guarantee child-process cancellation or rollback.'}
 
 
 def process_start_preview(command: str, elevated: bool = False):
