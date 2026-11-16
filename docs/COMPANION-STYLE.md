@@ -60,3 +60,18 @@ branding migration. Music app/device control remains limited to actually support
 no new playback integration was added. Real microphone, installed voice quality, emotional
 response quality and device acceptance still need user-side testing. This change makes no
 provider send, deployment, subscription or account change.
+
+## Native and local display follow-up
+
+Native Android's existing horizontal style chips include the same five new styles. The
+selected style and language are passed when a new Live Voice connection starts; it does
+not upload the typed conversation history. Its existing preference store and package ID
+are unchanged. Device/emulator layout, installed TTS and audio still need acceptance.
+
+The local desktop Live client now uses the same companion guidance and the current
+persisted CLI/TUI style when the caller does not supply an explicit persona. An explicit
+caller persona is preserved. The robot, terminal dashboard, CLI responses, Windows toast
+labels, native Android chat/transcripts and backend titles use AETHER display names.
+Compatibility commands, data paths, installer filenames and scheduled-task identities are
+not migrated. The separate neural wake detector retains its legacy `jarvis` model
+selection and spoken trigger; this work does not bundle a trained AETHER wake model.
