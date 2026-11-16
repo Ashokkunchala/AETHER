@@ -7,3 +7,4 @@ numpy>=1.24,<3.0
 ruff>=0.6,<1.0
 mypy>=1.11,<2.0
 types-python-dateutil>=2.9,<3.0
+build>=1.2,<2.0
