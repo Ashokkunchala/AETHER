@@ -165,8 +165,9 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
         turn_cancel.clear()
         try:
             async with _turn_gate:
-                async for event in brain.ask(message, confirm=None if auto_approve else confirm,
-                                             auto_approve=auto_approve):
+                # Remote clients cannot self-grant approval. Sensitive tools always
+                # flow through the explicit confirmation callback for this socket.
+                async for event in brain.ask(message, confirm=confirm, auto_approve=False):
                     if turn_cancel.is_set():
                         await _emit(websocket, {"type": "status", "message": "stopped by user"})
                         break
