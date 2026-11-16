@@ -7,7 +7,6 @@ human review, not a security audit.
 
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 from typing import Any
@@ -56,43 +55,9 @@ def _files(root: str, patterns: tuple[str, ...]) -> list[Path]:
 
 # ----------------------------------------------------------------- IAM policy
 def review_iam_policy(policy: str | dict[str, Any]) -> dict[str, Any]:
-    """Flag over-broad statements in an IAM policy document (JSON text or dict)."""
-    try:
-        doc = json.loads(policy) if isinstance(policy, str) else policy
-    except json.JSONDecodeError as exc:
-        return {"success": False, "error": f"Policy is not valid JSON: {exc}"}
-    if not isinstance(doc, dict) or "Statement" not in doc:
-        return {"success": False, "error": "Policy has no Statement element."}
-    statements = doc["Statement"]
-    if isinstance(statements, dict):
-        statements = [statements]
-    findings: list[dict[str, Any]] = []
-    for i, st in enumerate(statements):
-        if not isinstance(st, dict):
-            continue
-        where = f"Statement[{i}]" + (f" (Sid={st['Sid']})" if st.get("Sid") else "")
-        if st.get("Effect") != "Allow":
-            continue
-        actions = st.get("Action", [])
-        actions = [actions] if isinstance(actions, str) else list(actions)
-        resources = st.get("Resource", [])
-        resources = [resources] if isinstance(resources, str) else list(resources)
-        principal = st.get("Principal")
-        if "NotAction" in st:
-            findings.append(_finding("high", "iam-not-action", "Allow with NotAction grants everything except the listed actions.", where))
-        if "*" in actions or "*:*" in actions:
-            findings.append(_finding("high", "iam-admin-action", "Action \"*\" allows every API call.", where))
-        for a in actions:
-            if isinstance(a, str) and a.endswith(":*") and a != "*:*":
-                findings.append(_finding("medium", "iam-service-wildcard", f"{a} allows every action in that service.", where))
-            if isinstance(a, str) and a.lower() in ("iam:passrole", "iam:*") and "*" in resources:
-                findings.append(_finding("high", "iam-passrole-any", "iam:PassRole on Resource \"*\" can enable privilege escalation.", where))
-        if "*" in resources and "*" not in actions and "Condition" not in st:
-            findings.append(_finding("medium", "iam-resource-wildcard", "Resource \"*\" with no Condition; scope to specific ARNs if the actions allow it.", where))
-        if principal == "*" or (isinstance(principal, dict) and "*" in (principal.get("AWS") if isinstance(principal.get("AWS"), list) else [principal.get("AWS")])):
-            if "Condition" not in st:
-                findings.append(_finding("high", "iam-public-principal", "Principal \"*\" with no Condition makes this statement public.", where))
-    return _summary(findings, 1)
+    """Review bounded supplied-policy patterns, never effective IAM permissions."""
+    from jarvis.devops.iam_review import review_policy
+    return review_policy(policy)
 
 
 # ------------------------------------------------------------------ Terraform
