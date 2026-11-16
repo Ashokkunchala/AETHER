@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AETHER | Saved-data chat</title>
+<style>
+:root{color-scheme:dark;font:16px/1.5 system-ui,sans-serif;background:#08131f;color:#e2eff8}*{box-sizing:border-box}body{margin:0}main{max-width:900px;margin:auto;padding:24px}a{color:#6ee7ef}h1{font-size:1.8rem;margin-bottom:6px}.panel{background:#112438;border:1px solid #31516c;border-radius:14px;padding:20px;margin:18px 0}.muted{color:#b5c8d8}label{display:block;margin:12px 0 6px}input,textarea,button{font:inherit;border:1px solid #4d718d;border-radius:8px;padding:10px;background:#091827;color:inherit}input,textarea{width:100%}textarea{min-height:90px;resize:vertical}button{cursor:pointer;background:#173d53}button:disabled{opacity:.5;cursor:default}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #6ee7ef;outline-offset:3px}.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.status{color:#a5e6d3;min-height:24px}#messages{min-height:140px;max-height:55vh;overflow:auto}article{padding:12px;margin:12px 0;border-left:3px solid #48c5d6;white-space:pre-wrap;overflow-wrap:anywhere}article[data-role=user]{border-color:#8d9ffe}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.9rem}#approval{border-color:#e7bd70}small{display:block;margin-top:8px}@media(max-width:560px){main{padding:14px}.panel{padding:14px}.row button{flex:1}}
+</style>
+</head>
+<body><main>
+<a href="/">Back to existing chat</a>
+<h1>AETHER saved-data chat</h1>
+<p class="muted">Opt-in preview using the shared assistant brain. Your existing text-only chat is unchanged.</p>
+<section class="panel" aria-labelledby="scope"><h2 id="scope">Read-only, on purpose</h2>
+<p>Read saved life-manager tasks, notes, expense rows and calendar drafts, plus backend reminders and active saved memories. Drafts are not booked events. Older CLI records are separate.</p>
+<p class="muted">No messages, calendar changes, device control, file access or purchases. No writes in this preview. Responses use your configured AI provider and may send the requested record contents to that provider. Listings are bounded, not a complete history.</p>
+<label for="token">API or paired-device token (this tab only)</label><input id="token" type="password" autocomplete="off" spellcheck="false">
+<div class="row"><button id="connect">Connect read-only chat</button><button id="disconnect" disabled>Disconnect</button></div>
+<p id="status" class="status" role="status">Disconnected. Requires the enhanced backend.</p>
+<small class="muted">No token or chat is saved in browser storage. Start with <code>python run_enhanced.py</code> locally. Keep this prototype private, not on the public internet.</small>
+</section>
+<section class="panel"><h2>Conversation</h2><div id="messages" role="log" aria-label="Conversation" aria-live="polite"></div>
+<form id="composer"><label for="message">Ask about saved data</label><textarea id="message" maxlength="16000" placeholder="What tasks do I have saved?" required></textarea><div class="row"><button id="send" disabled>Send</button><button id="cancel" type="button" disabled>Cancel turn</button></div></form>
+<small class="muted">Nothing is sent until you press Send. Cancel stops waiting for this turn; it cannot recall data already sent to an AI provider.</small>
+</section>
+<section id="approval" class="panel" hidden aria-labelledby="approvalTitle"><h2 id="approvalTitle">Unexpected action request blocked</h2><p>This preview is read-only. Any action request is rejected automatically.</p></section>
+<script src="/static/tool-chat.js" defer></script>
+</main></body></html>
