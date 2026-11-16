@@ -54,6 +54,11 @@ jobs:
           python -m pip install "ruff>=0.6,<1.0"
           ruff check . --select E9,F63,F7,F82
 
+      - name: Build the installable Python wheel
+        run: |
+          python -m pip install "build>=1.2,<2.0"
+          python -m build --wheel
+
   windows-installer-check:
     runs-on: windows-latest
     steps:
@@ -102,6 +107,14 @@ jobs:
           .\\.venv\\Scripts\\python.exe -c "import sounddevice, webrtcvad, openwakeword, scipy; print('Windows voice stack imports passed')"
           if ($LASTEXITCODE -ne 0) { throw "Windows voice dependency smoke test failed." }
 
+      - name: Validate editable Windows package installation
+        shell: pwsh
+        run: |
+          .\.venv\Scripts\python.exe -m pip install -e ".[windows]"
+          if ($LASTEXITCODE -ne 0) { throw "Editable package installation failed." }
+          .\.venv\Scripts\python.exe -c "import app, jarvis, windows_agent; print('Editable package imports passed')"
+          if ($LASTEXITCODE -ne 0) { throw "Editable package import test failed." }
+
       - name: Verify mobile helpers and secret-safe output
         shell: pwsh
         run: |
@@ -111,6 +124,15 @@ jobs:
           if ($mobileScripts -match 'Write-Host[^\r\n]*\$token') { throw "A mobile setup script appears to print a token." }
           $mobileCommon = Get-Content scripts/mobile-common.ps1 -Raw
           if ($mobileCommon -match 'ServerCertificateValidationCallback') { throw "A process-wide TLS validation callback is forbidden." }
+
+
+  container-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Build the local container image
+        run: docker build --tag jarvis-personal-ai:ci .
 
   android-build:
     runs-on: ubuntu-latest
