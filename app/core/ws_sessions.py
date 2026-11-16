@@ -19,7 +19,7 @@ class SessionIdentity:
     kind: Literal['legacy', 'device']
     credential_hash: str = field(repr=False)
     device_id: str | None = None
-    profile: Literal["legacy", "personal-readonly"] = "legacy"
+    profile: Literal["legacy", "personal-readonly", "personal-local"] = "legacy"
 
     @classmethod
     def authenticate(cls, authorization: str | None) -> SessionIdentity:
