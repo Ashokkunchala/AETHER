@@ -35,6 +35,8 @@ dependencies = [
     "keyboard>=0.13.5,<1.0",
     "SpeechRecognition>=3.10,<4.0",
     "sqlalchemy>=2.0,<3.0",
+    "pypdf>=5.0,<7.0",
+    "python-docx>=1.1,<2.0",
 ]
 
 [project.scripts]
