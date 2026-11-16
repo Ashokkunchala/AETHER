@@ -1,8 +1,6 @@
 import ctypes
 import logging
 import os
-import subprocess
-import time
 from ctypes import POINTER, cast
 from typing import Any
 
@@ -30,33 +28,7 @@ class SystemController:
             self.volume = None
 
     def open_app(self, app_name: str) -> dict[str, Any]:
-        try:
-            app_map = {
-                "chrome": r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-                "edge": r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
-                "firefox": r"C:\Program Files\Mozilla Firefox\firefox.exe",
-                "notepad": "notepad.exe",
-                "calculator": "calc.exe",
-                "cmd": "cmd.exe",
-                "powershell": "powershell.exe",
-                "taskmgr": "taskmgr.exe",
-                "file explorer": "explorer.exe",
-            }
-            app_lower = app_name.lower()
-            if app_lower in app_map:
-                path = os.path.expandvars(app_map[app_lower])
-                if path.endswith(':'):
-                    os.startfile(path)
-                else:
-                    try:
-                        os.startfile(path)
-                    except OSError:
-                        subprocess.Popen([path])
-            else:
-                os.startfile(app_name)
-            return {"success": True, "message": f"Opened {app_name}"}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        return {"success": False, "error": "Legacy app launch disabled. Use exact local approved-app registry launch with fresh confirmation."}
 
     def close_app(self, app_name: str) -> dict[str, Any]:
         try:
