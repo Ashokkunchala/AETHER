@@ -1,4 +1,8 @@
-# JARVIS delivery plan
+# AETHER delivery plan
+
+This plan is not a completion claim. [Category status](CATEGORY-STATUS.md) records
+the current categories 1-6 implementation gaps separately from account/device
+acceptance and gated deployments.
 
 ## Milestone 1 — local core and persistent data (in progress)
 - [x] Gemini API key stays server-side.
@@ -10,7 +14,7 @@
 - [x] Add regression coverage for required security response headers.
 - [x] Enforce a 1 MiB `/api/` request-body cap in both HTTP apps, including chunked requests, with authenticated-route independent 413 handling and security-header tests.
 - [x] Re-run the local Python tests, lint, and compile checks after the CI update.
-- [ ] Confirm the Android build in CI for the latest changes; retain the workflow URL as evidence.
+- [x] Android debug APK and JVM validation tests passed for local phone actions (CI run 43918073775). New source changes still need their own CI checks.
 - [ ] Verify clean setup and local end-to-end behavior on Windows with the owner's API key.
 
 ## Milestone 1B — real-time voice and interface (in progress)
@@ -36,9 +40,9 @@
 - Native Kotlin + Jetpack Compose client; API token stored using Android Keystore-backed encrypted storage.
 - Request microphone, notification, and other permissions only when a user activates the relevant feature.
 - Use Android WorkManager for deferrable background sync. Android restricts always-on microphone and background activity; no promise of unrestricted continuous listening.
-- Build and sign an APK on a machine with Android SDK/Gradle. CI source checks do not prove a device build.
+- Build and sign an APK on a machine with Android SDK/Gradle. CI now runs Android JVM tests and assembles a debug APK. A successful build does not prove runtime/device acceptance.
 - [ ] Install the latest APK on a physical Android 14 device and test master-token pairing/revocation, encrypted token persistence, HTTPS chat, speech input/output, disconnects, and error states.
-- [x] Add native Android quick links to device/Wi-Fi/Bluetooth settings and JARVIS app permissions; Android keeps protected changes in system UI.
+- [x] Add native Android quick links to device/Wi-Fi/Bluetooth settings and AETHER app permissions; Android keeps protected changes in system UI.
 - [x] Add authenticated reminder creation and list refresh in the native app.
 - [x] Integrate explicit memories with review/delete controls in the Android app and add daily/weekly/monthly reminder recurrence.
 - [x] Add opt-in Android WorkManager reminder polling with user-controlled notification permission; recurrence is handled by the backend after completion.
@@ -68,3 +72,10 @@
 
 ## Acceptance criteria
 Every milestone includes reproducible setup instructions, unit/API tests, security checks, manual test steps, known limitations, and a versioned release note. Never claim a feature is working until the relevant test/build or device test has actually passed. See [VERIFICATION-CHECKLIST.md](VERIFICATION-CHECKLIST.md) for current evidence and release gates.
+
+## Narrow paths added after the original milestones
+- [x] Scoped fresh-approved screenshots, exact local approved-app launch, exact process stop with verified exit, and laptop-local one-time URL review. All have mocked regression coverage; real Windows acceptance remains.
+- [x] Generate manual Python verification pipeline text for GitHub Actions/Jenkins without running project code.
+- [x] Native system-composer/selected-item/foreground-clipboard phone actions and local device snapshots. Android runtime and pixel acceptance remain open.
+- [x] Fresh-approved bounded service/startup-name/passive-link inventories, without OS changes.
+- [ ] Complete the substantive implementation backlog in CATEGORY-STATUS.md. Account credentials or approval alone will not implement those missing adapters.
