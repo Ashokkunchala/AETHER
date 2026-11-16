@@ -97,3 +97,16 @@ established here. Generated code or a generic command wrapper is not execution
 acceptance. Live credentials, hardware/provider checks and separate action
 approval remain prerequisites for work that needs them. Never expose this local
 prototype directly to the public internet.
+
+## Typed lifecycle proposal design
+
+The existing registry now includes `design_lifecycle_change`, documented in
+[TYPED-LIFECYCLE-DESIGN.md](TYPED-LIFECYCLE-DESIGN.md). It validates closed exact
+EC2 start/stop, Deployment scale or GitHub workflow-dispatch proposal shapes and
+returns a supplied-scope digest plus approval/live-check requirements. A pure
+protocol simulator tests no gate-skipping, unknown-outcome handling and
+cancellation distinctions. Neither function can contact providers, record real
+approval or execute. Every result is design-only and unauthorized. This is not
+a replacement for existing tools' confirmation policies or a completed typed
+provider lifecycle. Real adapters, permission/cost/account checks, durable claims,
+owner approval and external-result verification remain separate work.
