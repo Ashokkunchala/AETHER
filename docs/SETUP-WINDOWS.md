@@ -167,8 +167,7 @@ or run the script directly:
 It verifies/creates `.env` and `.venv`, generates the HTTPS certificate, builds
 `android\app\build\outputs\apk\debug\app-debug.apk` (JDK 17 + Android SDK
 required), adds the inbound firewall rule for TCP 8443 (needs an elevated
-PowerShell once; it prints the command if it cannot), prints your backend URL
-and `JARVIS_API_TOKEN`, then starts `https://<LAN-IP>:8443`.
+PowerShell once; it prints the command if it cannot), prints your backend URL without exposing the master token, then starts `https://<LAN-IP>:8443`. For pairing, open the local `.env` file in Notepad and copy `JARVIS_API_TOKEN` directly into the Android app; do not paste it into terminal logs or screenshots.
 
 On the phone:
 
@@ -189,7 +188,7 @@ Keep the backend on the private LAN only - never port-forward 8443.
 
 ## Troubleshooting
 - **503 / API not configured:** verify `.env` is in the repository root and the key is not still `replace_me`; restart the server after changing environment settings.
-- **VOICE ERR / "voice stack missing":** the robot's `v` call and `jarvis start`/`jarvis call` preflight need `sounddevice`, `webrtcvad`, `openwakeword`, `numpy` and `scipy` in the environment that runs the robot. Install them there with `.\.venv\Scripts\python.exe -m pip install -r requirements-voice.txt` (for the installed copy: `%LOCALAPPDATA%\Programs\JarvisPersonalAI\.venv\Scripts\python.exe -m pip install -r requirements-voice.txt` from the installed folder). `INSTALL-JARVIS.ps1` installs this file automatically; `jarvis doctor` shows the `voice-packages` row.
+- **VOICE ERR / "voice stack missing":** the robot's `v` call and `jarvis start`/`jarvis call` preflight need `sounddevice`, `webrtcvad`, `openwakeword`, `numpy` and `scipy` in the environment that runs the robot. Install them there with `.\.venv\Scripts\python.exe -m pip install -r requirements-voice.txt` (for the installed copy: `%LOCALAPPDATA%\Programs\JarvisPersonalAI\.venv\Scripts\python.exe -m pip install -r requirements-voice.txt` from the installed folder). Both `INSTALL-JARVIS.ps1` and `scripts\setup-windows.ps1` install and verify this file automatically; `jarvis doctor` shows the `voice-packages` row.
 - **502 / AI request failed:** verify key validity, model availability, internet connection, quotas, billing, and server logs. Do not share the key when requesting help.
 - **PowerShell blocks scripts:** use the process-scoped policy command above; do not change the machine-wide policy unnecessarily.
 - **Port 8000 busy:** `.\scripts\start-windows.ps1` now reports what holds the port. If it prints `[PASS] ... already running`, JARVIS is up - just open `http://127.0.0.1:8000`. If it prints `[FAIL] ... used by another program (PID ...)`, run the printed `Stop-Process -Id <pid> -Force`, or use another port with `.\scripts\start-windows.ps1 -Port 8001` and open `http://127.0.0.1:8001`.
