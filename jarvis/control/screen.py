@@ -22,28 +22,29 @@ def screen_size() -> dict[str, Any]:
 
 
 def screenshot(path: str | None = None, region: dict[str, int] | None = None) -> dict[str, Any]:
-    """Capture the full screen or a {left, top, width, height} region."""
-    try:
-        import mss
+    """Legacy direct entrypoint fails closed; use the scoped confirmed registry tool."""
+    return {"success": False, "error": "Explicit scoped screenshot confirmation is required through the desktop registry. Direct capture is disabled."}
 
-        if not path:
-            out_dir = Path("data/screenshots")
-            out_dir.mkdir(parents=True, exist_ok=True)
-            path = str(out_dir / f"screenshot_{int(time.time())}.png")
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
+
+def _capture_screenshot(path: str, region: dict[str, int] | None) -> dict[str, Any]:
+    """Internal primitive called only after the registry's scoped confirmation."""
+    try:
+        import os
+
+        import mss
+        import mss.tools
 
         with mss.mss() as sct:
-            if region:
-                monitor = {
-                    "left": int(region.get("left", 0)),
-                    "top": int(region.get("top", 0)),
-                    "width": int(region.get("width", 100)),
-                    "height": int(region.get("height", 100)),
-                }
-            else:
-                monitor = sct.monitors[0]
-            sct.grab(monitor).save(path)
-        return {"success": True, "path": str(path), "absolute": str(Path(path).resolve())}
+            monitor = region if region is not None else sct.monitors[0]
+            image = sct.grab(monitor)
+            payload = mss.tools.to_png(image.rgb, image.size)
+        # Exclusive creation prevents overwriting a file/symlink introduced after preview.
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, 'O_BINARY', 0), 0o600)
+        with os.fdopen(fd, 'wb') as stream:
+            stream.write(payload)
+        return {"success": True, "path": path, "absolute": path,
+                "captured_scope": "region" if region is not None else "full_screen",
+                "uploaded": False, "shared": False, "redacted": False}
     except Exception as exc:
         return {"success": False, "error": str(exc)}
 
