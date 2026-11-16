@@ -75,3 +75,54 @@ def test_upgrade_error_rolls_back_and_releases_lock(monkeypatch, tmp_path):
         assert 'expires_at' not in {r[1] for r in db.execute('PRAGMA table_info(memories)')}
     db = personal_data._connect()
     db.close()
+
+
+@pytest.mark.parametrize('code', [sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED, sqlite3.SQLITE_BUSY | (2 << 8)])
+def test_wal_lock_contention_retries_then_succeeds(monkeypatch, tmp_path, code):
+    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'busy.sqlite3'))
+    original = sqlite3.connect
+    attempts = []
+    class BusySetup(sqlite3.Connection):
+        def execute(self, sql, parameters=()):
+            if sql == 'PRAGMA journal_mode=WAL':
+                attempts.append(sql)
+                if len(attempts) < 3:
+                    error = sqlite3.OperationalError('injected lock contention')
+                    error.sqlite_errorcode = code
+                    raise error
+            return super().execute(sql, parameters)
+    monkeypatch.setattr(personal_data.sqlite3, 'connect', lambda *a, **kw: original(*a, **kw, factory=BusySetup))
+    monkeypatch.setattr(personal_data.time, 'sleep', lambda _:None)
+    db = personal_data._connect()
+    assert len(attempts) == 3
+    assert db.execute('PRAGMA journal_mode').fetchone()[0] == 'wal'
+    db.close()
+
+
+@pytest.mark.parametrize('failure', ['timeout', 'not_busy', 'schema'])
+def test_initial_setup_error_closes_connection_and_stops(monkeypatch, tmp_path, failure):
+    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'fail.sqlite3'))
+    original = sqlite3.connect
+    closed, attempts = [], []
+    class FailedSetup(sqlite3.Connection):
+        def execute(self, sql, parameters=()):
+            if sql == 'PRAGMA journal_mode=WAL' and failure != 'schema':
+                attempts.append(sql)
+                error = sqlite3.OperationalError('injected setup failure')
+                error.sqlite_errorcode = sqlite3.SQLITE_BUSY if failure == 'timeout' else sqlite3.SQLITE_READONLY
+                raise error
+            return super().execute(sql, parameters)
+        def executescript(self, sql):
+            if failure == 'schema':
+                raise sqlite3.OperationalError('injected schema setup failure')
+            return super().executescript(sql)
+        def close(self):
+            closed.append(True)
+            return super().close()
+    monkeypatch.setattr(personal_data.sqlite3, 'connect', lambda *a, **kw: original(*a, **kw, factory=FailedSetup))
+    ticks = iter([0, 11])
+    monkeypatch.setattr(personal_data.time, 'monotonic', lambda:next(ticks))
+    with pytest.raises(sqlite3.OperationalError, match='injected'):
+        personal_data._connect()
+    assert closed == [True]
+    assert len(attempts) == (0 if failure == 'schema' else 1)
