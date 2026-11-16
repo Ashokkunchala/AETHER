@@ -20,6 +20,36 @@
 - If a key/token is accidentally committed or exposed, revoke/rotate it immediately.
 - The Android app stores the issued device token, backend URL, and device ID encrypted locally. It uses the master token only in the HTTPS issue/revoke request and clears the entry afterward; the master token is not persisted.
 
+## Local Android certificate trust
+
+The current Android network security configuration trusts Android user-installed
+CAs in addition to system CAs so the user can install the laptop's private-LAN
+JARVIS CA. Android applies this trust policy to HTTPS connections made by this
+app, not only to the configured JARVIS host. Install only a CA you control,
+remove it from Android when it is no longer needed, and keep the phone/backend
+on a trusted private network. A future release should replace this convenience
+with a dedicated per-backend certificate pinning or managed trust flow before
+supporting arbitrary remote endpoints.
+
+The Windows mobile helper's certificate-validation exception is limited to a
+single curl.exe health probe against the local backend URL. It must never
+install a process-wide certificate callback or be reused for authenticated
+requests.
+
+## Repository and CI hygiene
+
+- Windows setup installs and imports the optional desktop voice stack; Linux
+  test dependencies intentionally remain audio-device independent.
+- CI tests the supported Python floor and the current Python 3.14 runtime,
+  parses PowerShell scripts, executes the clean Windows setup path, and builds
+  the Android debug APK. CI compilation is not a substitute for physical-device
+  acceptance testing.
+- Configure GitHub branch protection or a repository ruleset for
+  jarvis-cinematic-local-voice in repository Settings. Require the test,
+  static-checks, windows-installer-check, and android-build checks before
+  merging. The connected GitHub integration cannot change repository
+  administration settings, so an owner must enable this in GitHub.
+
 ## Before remote deployment
 
 - Build and verify the Android pairing/revocation flow on a device; add token rotation and appropriate authorization before remote deployment.
