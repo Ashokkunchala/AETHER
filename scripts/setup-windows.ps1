@@ -17,6 +17,7 @@ if (-not (Test-Path (Join-Path $RepoRoot "app\main_enhanced.py"))) {
     throw "Run this script from the Jarvis-Personal-AI repository (scripts\setup-windows.ps1 must live in scripts\)."
 }
 Push-Location $RepoRoot
+trap { Pop-Location; throw }
 
 function Test-Placeholder([string]$Value) {
     if ([string]::IsNullOrWhiteSpace($Value)) { return $true }
