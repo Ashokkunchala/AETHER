@@ -64,3 +64,29 @@ The scheduler checks due reminders and queues a notification once per reminder. 
 - API tokens and provider secrets are never returned to browser clients.
 - Keep the backend on localhost or private HTTPS. Do not expose it through a public tunnel.
 - Review OAuth scopes and revoke unused provider grants from the provider's security settings.
+
+## Read-only Google Contacts opt-in
+
+The Email/WhatsApp/Contacts section has a separate **Connect Google with read-only
+Contacts** button. Ordinary Google connect keeps its existing scope set. Contacts
+opt-in appends `https://www.googleapis.com/auth/contacts.readonly`; Google still
+asks for consent. Enable the Google People API in the same OAuth project. This
+uses the same Google credential slot as Gmail/calendar, not another account:
+check the selected Google account when reconnecting because it can replace the
+existing integration account. No live connection is made by installing this code.
+
+`GET /api/contacts/status` checks the stored scope; it is not proof of current
+provider availability. Authenticated `GET /api/contacts/search?q=prefix&limit=20`
+checks the grant, warms Google's lazy contacts search cache, waits five seconds,
+then performs a read-only prefix search. Names, email addresses, phone numbers
+and organizations only, at most 30 contacts. It never requests contact-write scope,
+merges duplicates, chooses a recipient or sends a message. Similar names remain
+separate; a matching address-book record is not verified identity. No contact data
+is written to AETHER's database or sent to an AI provider by this endpoint.
+Provider failures are redacted; missing consent/API enablement gives an actionable
+error. Search is not a complete address-book export. Local automated tests mock
+all Google calls and do not verify a real OAuth deployment/account.
+
+Official API grounding:
+- https://developers.google.com/people/api/rest/v1/people/searchContacts
+- https://developers.google.com/people/v1/contacts
