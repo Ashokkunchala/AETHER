@@ -503,25 +503,20 @@ def _register_power(r: ToolRegistry) -> None:
 
 # ------------------------------------------------------------------ screen
 def _register_screen(r: ToolRegistry) -> None:
+    from jarvis.control.screenshot_request import capture_requested_screenshot, preview_screenshot
+
     r.register(Tool(
         name="screenshot",
-        description="Capture the laptop screen (full screen or a region) and return the saved image path.",
-        parameters=_obj(
-            {
-                "path": _str("Optional output file path; a timestamped file is used when omitted."),
-                "left": _int("Region left edge (requires top/width/height)."),
-                "top": _int("Region top edge."),
-                "width": _int("Region width."),
-                "height": _int("Region height."),
-            }
-        ),
-        handler=lambda path=None, left=None, top=None, width=None, height=None: get_laptop().screenshot(
-            path,
-            {"left": left, "top": top, "width": width, "height": height}
-            if None not in (left, top, width, height)
-            else None,
-        ),
-        risk=Risk.LOW, category="screen",
+        description="Capture only on a fresh explicit scoped user confirmation: choose full_screen (all monitors) or exact region and new absolute local PNG path. Shows privacy/effect preview. No auto/always approval, remote upload, sharing or terminal output.",
+        parameters={"type": "object", "properties": {
+            "scope": {"type": "string", "enum": ["full_screen", "region"]},
+            "path": _str("Exact new absolute local PNG path in an existing canonical directory. No overwrite/network path."),
+            "left": _int("Region left edge."), "top": _int("Region top edge."),
+            "width": _int("Region width."), "height": _int("Region height.")},
+            "required": ["scope", "path"], "additionalProperties": False},
+        handler=capture_requested_screenshot, confirmation_preview=preview_screenshot,
+        risk=Risk.MEDIUM, category="screen", requires_confirmation=True,
+        never_auto_approve=True, allow_always=False, allow_auto_approve=False,
     ))
     r.register(Tool(
         name="screen_size",
