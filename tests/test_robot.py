@@ -26,7 +26,7 @@ def test_frame_contains_title_clock_and_hints() -> None:
     frame = _plain(
         robot.render_frame(0, 80, 24, ascii_mode=True, now=datetime(2026, 11, 12, 20, 30, 0))
     )
-    assert "J A R V I S" in frame
+    assert "A E T H E R" in frame
     assert "20:30:00" in frame
     assert "ONLINE" in frame
     assert "space pause" in frame
@@ -121,7 +121,7 @@ def test_voice_state_is_shown_in_the_frame() -> None:
         )
     )
     assert "CALL" in live
-    assert "JARVIS: Opening Chrome now." in live
+    assert "AETHER: Opening Chrome now." in live
 
     error = _plain(
         robot.render_frame(
@@ -157,13 +157,13 @@ def test_run_dump_prints_frames_and_exits_cleanly(capsys) -> None:
     code = robot.run(frames=2, ascii_mode=True, color=False, dump=True)
     assert code == 0
     output = capsys.readouterr().out
-    assert output.count("J A R V I S") >= 2
+    assert output.count("A E T H E R") >= 2
 
 
 def test_main_smoke(capsys) -> None:
     code = robot.main(["--frames", "1", "--ascii", "--no-color", "--dump"])
     assert code == 0
-    assert "J A R V I S" in capsys.readouterr().out
+    assert "A E T H E R" in capsys.readouterr().out
 
 
 def test_source_has_no_emoji_glyphs() -> None:
