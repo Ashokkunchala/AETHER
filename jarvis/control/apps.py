@@ -133,28 +133,8 @@ def launch_app(app: str, args: str | None = None) -> dict[str, Any]:
 
 
 def close_app(name: str, force: bool = False) -> dict[str, Any]:
-    """Terminate processes whose name contains *name*."""
-    import psutil
-
-    name = APP_ALIASES.get(name.strip().lower(), name.strip()).lower()
-    terminated: list[str] = []
-    skipped = 0
-    for proc in psutil.process_iter(["name", "pid"]):
-        try:
-            pname = (proc.info["name"] or "").lower()
-            base = os.path.splitext(pname)[0].lower()
-            if name in pname or name == base:
-                if force:
-                    proc.kill()
-                else:
-                    proc.terminate()
-                terminated.append(proc.info["name"])
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            skipped += 1
-            continue
-    if terminated:
-        return {"success": True, "closed": sorted(set(terminated)), "skipped": skipped}
-    return {"success": False, "error": f"No running process matched {name!r}"}
+    """Legacy broad termination fails closed."""
+    return {"success": False, "error": "Name-based stop disabled. Use exact PID/create_time/executable process-stop registry with fresh confirmation."}
 
 
 def list_running_apps() -> list[dict[str, Any]]:
