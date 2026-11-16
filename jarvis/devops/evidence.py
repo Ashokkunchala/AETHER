@@ -177,7 +177,9 @@ def register_evidence_tools(registry):
     from jarvis.devops.kubernetes_snapshot import review_pods_export
     from jarvis.devops.node_snapshot import register_node_tools
     from jarvis.devops.slo import register_slo_tools
+    from jarvis.devops.storage_snapshot import register_storage_tools
 
+    register_storage_tools(registry)
     register_node_tools(registry)
     register_aws_backup_tools(registry)
     register_cost_tools(registry)
