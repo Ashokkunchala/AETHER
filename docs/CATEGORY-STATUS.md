@@ -70,6 +70,12 @@ Sources: `jarvis/mentor.py`, `mentor_projects.py`, `mentor_terraform.py`,
 `mentor_activity.py`; [mentor activity](MENTOR-ACTIVITY.md),
 [Terraform mentor](MENTOR-TERRAFORM.md), [blueprint](ABILITIES.md).
 
+A bounded offline [Python snippet teaching reviewer](MENTOR-PYTHON-REVIEW.md) now
+checks five explicit AST patterns with source links and location-only findings.
+It never imports/runs code or writes progress. Aliases/control flow and general
+correctness/security/mastery are not evaluated; this does not close the advanced
+mentor/evaluation gap above.
+
 ## 4. DevOps and SRE
 
 Existing registry tools include guarded local command/Git/Docker/Kubernetes/AWS
