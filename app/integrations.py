@@ -420,6 +420,41 @@ def notification_read(notification_id: int):
     return {"status": "read"}
 
 
+def dispatch_due_reminders() -> int:
+    """Turn due-soon personal reminders into one-shot cross-device notifications."""
+    # Ensure the notification table exists before using the shared personal-data DB.
+    with _connect():
+        pass
+    from app.personal_data import _connect as personal_connect
+    db = personal_connect()
+    try:
+        columns = {row[1] for row in db.execute("PRAGMA table_info(reminders)")}
+        if "notification_sent_at" not in columns:
+            db.execute("ALTER TABLE reminders ADD COLUMN notification_sent_at TEXT")
+        now = datetime.now(UTC)
+        horizon = (now + timedelta(minutes=15)).isoformat()
+        rows = db.execute(
+            "SELECT id,title,due_at FROM reminders WHERE completed=0 "
+            "AND notification_sent_at IS NULL AND due_at<=? ORDER BY due_at LIMIT 50",
+            (horizon,),
+        ).fetchall()
+        for row in rows:
+            db.execute("UPDATE reminders SET notification_sent_at=? WHERE id=? AND notification_sent_at IS NULL",
+                       (_now(), row["id"]))
+            db.execute(
+                "INSERT INTO aether_notifications(title,body,channel,due_at,created_at) VALUES(?,?,?,?,?)",
+                ("Reminder: " + row["title"][:160], "Due " + row["due_at"], "reminder",
+                 row["due_at"], _now()),
+            )
+        db.commit()
+        return len(rows)
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
 def enqueue_notification(title: str, body: str, channel: str = "general", due_at: str | None = None) -> int:
     with _connect() as db:
         cur = db.execute("INSERT INTO aether_notifications(title,body,channel,due_at,created_at) VALUES(?,?,?,?,?)",
