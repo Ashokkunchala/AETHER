@@ -1,0 +1,31 @@
+# Secrets and local runtime data
+.env
+.env.*
+!.env.example
+data/
+logs/
+
+# Version control and local environments
+.git/
+.github/
+.venv/
+venv/
+node_modules/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Tests, docs and generated artifacts
+tests/
+docs/
+android/
+.pytest_cache/
+.pytest-tmp/
+.tmp-pytest-recurrence/
+.mypy_cache/
+.ruff_cache/
+.coverage*
+htmlcov/
+build/
+dist/
+*.egg-info/
