@@ -1,4 +1,4 @@
-# JARVIS Windows companion agent (experimental)
+# AETHER Windows companion agent (experimental)
 
 This is a deliberately narrow first version. It can report basic platform information and open a user-confirmed HTTPS URL on an allow-listed domain. It cannot execute arbitrary commands, inspect files, control other applications, or run invisibly.
 
@@ -24,3 +24,14 @@ Keep it bound to `127.0.0.1`. Do not expose the port or configure router forward
 - `POST /v1/open-url` — requires token and JSON `{"url":"https://github.com","confirmed":true}`. The domain must match the explicit allow-list.
 
 The browser dashboard has an experimental Windows companion panel. Enter the agent token in the dashboard and click **Save settings**; the token is held in page memory only. The dashboard asks for confirmation before requesting a URL open. CORS is restricted to the local dashboard origins. The server also rejects unapproved domains and non-HTTPS URLs. This remains a foundation, not a complete remote-control agent; audit logging, rate limits, and device pairing are still required.
+
+
+## Capability and remote-control boundary
+
+See [the Windows capability contract](../docs/WINDOWS-CAPABILITY-CONTRACT.md) for
+source-implemented versus planned laptop features and current enforcement gaps.
+The desktop registry, native Android backend and this loopback helper are distinct.
+A caller-supplied confirmed boolean is not a laptop-local single-use approval.
+Do not expose this helper on a LAN or promote it to an arbitrary remote-command
+service. Screenshots/terminal output require an explicit request and disclosure
+scope; this helper exposes neither. No real-device acceptance is claimed.
