@@ -43,7 +43,7 @@ from starlette.websockets import WebSocketState
 from app import live_tools
 from app.config import get_settings
 from app.personal_data import require_device_token
-from app.personality import SYSTEM_INSTRUCTIONS
+from app.personality import SYSTEM_INSTRUCTIONS, language_instruction, mode_instruction
 
 logger = logging.getLogger("jarvis.live_voice")
 router = APIRouter()
@@ -255,8 +255,8 @@ async def live_voice(websocket: WebSocket):
         client = genai.Client(api_key=settings.gemini_api_key)
         config = {
             "response_modalities": ["AUDIO"],
-            "system_instruction": SYSTEM_INSTRUCTIONS + (
-                "\nSpeak naturally and concisely as JARVIS, a personal assistant. "
+            "system_instruction": SYSTEM_INSTRUCTIONS + "\n" + mode_instruction(websocket.query_params.get("mode", "assistant")[:40]) + "\n" + language_instruction(websocket.query_params.get("language", "auto")[:8]) + (
+                "\nSpeak naturally and concisely as AETHER, a personal assistant. "
                 "Do not claim an action was performed unless the connected tool reports success. "
                 "For consequential actions, ask for explicit confirmation."
                 + live_tools.VOICE_TOOL_INSTRUCTION
