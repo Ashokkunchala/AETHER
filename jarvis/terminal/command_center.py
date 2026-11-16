@@ -70,14 +70,14 @@ def render_dashboard(transcript: str = "Good day. All systems are ready. How may
     )
     core = Text()
     core.append("             ╭──────────────╮\n", style="bright_cyan")
-    core.append("          ╭──┤   J A R V I S  ├──╮\n", style="bright_cyan bold")
+    core.append("          ╭──┤   A E T H E R  ├──╮\n", style="bright_cyan bold")
     core.append("          │  ╰──────┬───────╯  │\n", style="cyan")
     core.append("             ╲   ◉ CORE ◉   ╱\n", style="bright_cyan bold")
     core.append("                ╲  ✦  ╱\n\n", style="cyan")
     core.append("                 ONLINE\n", style="bold bright_cyan")
     core.append("\n  Personal AI  ·  Voice + Interface\n", style="dim")
-    layout["core"].update(Panel(core, title="[bold cyan]J.A.R.V.I.S[/]", border_style="cyan",
-                                box=box.DOUBLE, subtitle="JUST A RATHER VERY INTELLIGENT SYSTEM"))
+    layout["core"].update(Panel(core, title="[bold cyan]A.E.T.H.E.R[/]", border_style="cyan",
+                                box=box.DOUBLE, subtitle="PERSONAL AI COMPANION"))
     right = Layout()
     right.split_column(
         Layout(Panel(transcript, title="[bold cyan]TRANSCRIPT[/]", border_style="cyan"), ratio=3),
@@ -85,7 +85,7 @@ def render_dashboard(transcript: str = "Good day. All systems are ready. How may
                      title="[bold cyan]aether://activity[/]", border_style="cyan"), ratio=3),
     )
     layout["right"].update(right)
-    layout["header"].update(Panel(Text("J  ·  A  ·  R  ·  V  ·  I  ·  S", justify="center",
+    layout["header"].update(Panel(Text("A  ·  E  ·  T  ·  H  ·  E  ·  R", justify="center",
                                       style="bold bright_cyan"), border_style="bright_cyan"))
     layout["prompt"].update(Panel("[bright_cyan]>[/] Type a request, /help, /status or /quit",
                                   border_style="bright_cyan"))
