@@ -80,7 +80,9 @@ added by this change.
 
 `run_shell` and `start_process` are HIGH-risk, fresh-review-only registry actions.
 Auto/always approval is disabled. Their previews show the exact command and
-working directory and explain shell/network/provider-output/child-process risk.
+working-directory policy and explain shell/network/provider-output/child-process
+risk. With no explicit cwd, the launcher process working directory is inherited
+at execution time, not pinned or checked by the preview.
 Read-only-looking commands are not exempt. Empty/oversized/NUL inputs and existing
 blocked command patterns fail before approval. Legacy process elevation is denied
 both in preview and in its primitive; no PowerShell string interpolation is used
