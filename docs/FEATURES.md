@@ -81,3 +81,10 @@ See [wheel builder boundaries and evidence](PYTHON-WHEEL-BUILDER.md).
 namespace/kind/name, reports selected per-rule patterns with source indexes and
 keeps effective permissions/live cluster state unknown. No cluster call/change.
 See [RBAC structural scope and evidence](KUBERNETES-RBAC-SNAPSHOT.md).
+
+### Supplied Service and EndpointSlice field correlation
+
+`review_k8s_service_endpoints_json` compares one supplied Service with bounded
+EndpointSlices by namespace/label/owner UID and explicit port fields, with source
+indexes and unknowns instead of live routing/health claims. No cluster/network call.
+See [Service correlation scope](KUBERNETES-SERVICE-CORRELATION.md).
