@@ -61,6 +61,7 @@ dev = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+extend-exclude = [".tmp-pytest-recurrence", ".pytest-tmp", "data", "dist", "build", "*.egg-info"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
@@ -88,9 +89,13 @@ addopts = "-v --cov=app --cov-report=term-missing --basetemp=.pytest-tmp"
 
 [tool.setuptools]
 py-modules = ["jarvis_cli", "jarvis_daemon", "run_enhanced"]
+zip-safe = false
 
 [tool.setuptools.packages.find]
+where = ["."]
 include = ["app*", "jarvis*", "windows_agent*"]
+exclude = ["tests*", "scripts*", "docs*", "data*", "android*", "alembic*"]
+namespaces = true
 
 [tool.setuptools.package-data]
-app = ["static/*"]
+app = ["static/*", "static/**/*"]
