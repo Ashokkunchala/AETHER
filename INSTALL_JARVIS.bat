@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 echo ==========================================
-echo   JARVIS Personal AI - Windows install
+echo   AETHER Personal AI - Windows install
 echo ==========================================
 echo.
 echo This will:
@@ -33,13 +33,13 @@ echo ==========================================
 echo   Installation complete
 echo ==========================================
 echo.
-echo Start JARVIS now? [Y/n]
+echo Start AETHER now? [Y/n]
 set "answer=Y"
 set /p answer=
 if /i "%answer%"=="n" goto :skipstart
 
 echo.
-echo Starting JARVIS (close this window or press Ctrl+C to stop)...
+echo Starting AETHER (close this window or press Ctrl+C to stop)...
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\start-windows.ps1"
 goto :end
 
