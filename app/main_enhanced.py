@@ -25,6 +25,7 @@ from app.core.auth import require_api_token, require_master_token, token_auth
 from app.core.config import get_settings
 from app.live_voice import router as live_voice_router
 from app.life_manager import router as life_manager_router
+from app.integrations import router as integrations_router
 from app.middleware.rate_limit import ApiRateLimitMiddleware
 from app.middleware.request_size import DEFAULT_API_BODY_LIMIT, RequestBodyLimitMiddleware
 from app.middleware.security import SecurityHeadersMiddleware
@@ -98,6 +99,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 # Routers
 app.include_router(personal_data_router)
 app.include_router(life_manager_router)
+app.include_router(integrations_router)
 app.include_router(live_voice_router)
 
 # Realtime brain + tool loop for the browser (see app/ws.py for the protocol).
