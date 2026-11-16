@@ -58,3 +58,5 @@ See [NEXT-MILESTONES.md](NEXT-MILESTONES.md), [REALTIME-VOICE-AND-INTERFACE.md](
 - Native Android foreground network snapshot: explicit local OS capabilities only, one additional normal ACCESS_NETWORK_STATE declaration; no identifier read, probe or backend-health claim. Runtime/layout acceptance remains unverified. See [network snapshot](ANDROID-NETWORK-SNAPSHOT.md).
 
 - Local Python test execution: fresh-approved fixed pytest argv, canonical project/tests selection, current interpreter, reduced environment and direct-process timeout. No install, output log, verified count, sandbox or readiness claim. See [test runner](PYTHON-TEST-RUNNER.md).
+
+- Optional GitHub workflow failure reports: disabled-by-default HMAC/repository-scoped inbound webhook with replay-safe local inbox enqueue. No API/log/model/remediation call or verified device display. Localhost reachability needs separately approved architecture/setup. See [workflow alerts](GITHUB-WORKFLOW-ALERTS.md).
