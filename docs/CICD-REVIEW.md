@@ -48,7 +48,10 @@ Existing dependency-audit review summarizes a supplied export, not a live scan.
 Existing Deployment status review reads a supplied snapshot, not live staging
 validation or production monitoring. No Jenkinsfile/workflow generation, Docker
 build, test execution, security scan, artifact publication, dev deploy, staging
-validation, production watch or rollback occurs in this tool.
+validation, production watch or rollback occurs in this reviewer. The separate
+[manual Python verification generator](PYTHON-VERIFICATION-PIPELINES.md) now
+creates functional GitHub Actions/Jenkins test-stage text only. It does not run
+project tests or implement deployment/rollback.
 
 Those operations need separate typed parameters, reviewed repository/source and
 commands, environment/credential/secret and trust boundaries, concrete scope,
