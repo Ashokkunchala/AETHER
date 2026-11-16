@@ -61,7 +61,7 @@ function Find-PythonRuntime {
     if ($pyCommand) {
         # A launcher's default can be old even when a supported runtime exists.
         # Prefer validated stable Python versions before an unqualified launcher default.
-        foreach ($selector in @("-3.14", "-3.13", "-3.12", "-3.11", "-3")) {
+        foreach ($selector in @("-3.14", "-3.13", "-3.12", "-3.11")) {
             $candidate = Test-PythonRuntime -Executable $pyCommand.Source -LauncherArgs @($selector)
             if ($candidate) { return $candidate }
         }
