@@ -223,3 +223,15 @@ Sources: `jarvis/control/`, `windows_agent/`, `jarvis/tools/registry.py`,
 The missing implementation above must stay open even if every acceptance item is
 approved. Do not report categories 1-6 complete based on documentation, generic
 shell reach or mocked regression counts.
+
+## Integrated Android-to-Windows read-only source stage
+
+[Foreground read-only request/result](ANDROID-WINDOWS-READONLY.md) adds one fixed
+Windows memory snapshot, dedicated laptop-issued device tokens, laptop-local
+interactive review, single-consume queue and requester-bound expiring results.
+HTTP integration tests simulate Android protocol; native validators/source wiring
+are tested separately. No real TLS/device/native-pixel acceptance is claimed.
+Direct HTTPS reachability needs separate review/setup, not a port/tunnel opened
+by this code. Scoped cancellation and wider commands/results remain unimplemented.
+The earlier broad missing-work paragraphs remain applicable beyond this narrow
+source stage; do not interpret them as denying that this one tested path exists.
