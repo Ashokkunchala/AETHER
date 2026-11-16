@@ -159,7 +159,10 @@ snapshots now exist. They do not start/stop/configure services, alter startup
 entries, probe internet reachability or prove effective enabled state. A fixed fresh-approved trusted-project Python test runner is available separately;
 it does not make generic command/file/Git tools typed, verified installation/update, development,
 merge/conflict/PR or remote-control workflows. The older broad app/website/typing
-launch path fails closed rather than bypassing the app allowlist. Dedicated safe
+launch path fails closed rather than bypassing the app allowlist. Legacy
+default-handler open_path/open_file also fail closed for all paths so an executable
+or script cannot bypass policy through a file-opening label. Scoped default
+document/folder-handler launch remains unimplemented; data preview/read is separate. Dedicated safe
 URL/typing coverage and typed lifecycle workflows remain to build.
 
 The loopback Windows HTTP helper accepts status and narrow URL requests. It is not
