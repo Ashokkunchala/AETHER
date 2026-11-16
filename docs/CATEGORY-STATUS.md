@@ -96,6 +96,10 @@ No generic wrapper authorizes deployment, destructive operations or spending.
   storage/node and manifest/configuration review with explicit unknown states.
   They are not continuous cluster monitoring, root-cause proof, typed Helm/ECK
   administration, approved deployment/scaling or a verified upgrade procedure.
+  A [supplied RBAC JSON structural reviewer](KUBERNETES-RBAC-SNAPSHOT.md) now
+  joins exact role/binding references, distinguishes namespace/cluster binding
+  scope and reports selected per-rule signals without reflecting names. It
+  does not establish live/effective permissions, aggregation or complete audit.
 - CI/CD now has a functional manual Python verification workflow/Jenkinsfile text
   generator in addition to inert scaffold and heuristic review tools. Generation
   does not install/run tests, build Docker images, scan live dependencies, publish
