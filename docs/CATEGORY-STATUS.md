@@ -141,18 +141,27 @@ foreground plain-text clipboard controls and timestamped battery/storage/securit
 snapshots. An explicit foreground network-capabilities snapshot reports OS
 transport and capability flags with one additional normal ACCESS_NETWORK_STATE
 permission; it does not probe internet/backend reachability. They do not directly call/send/save, extract ambiguous contact numbers,
-read selected image pixels or upload selected content.
+read selected image pixels or upload selected content through those older controls.
 
 A separate system specific-number picker now reads only the selected temporary
 row, validates explicit international format and requires candidate review before
 copying into the number field. No broad contact directory access or verified
 recipient identity is implied. A separate local panel can explicitly read one
 selected UTF-8 text item up to 64 KiB and find literal text within its captured
-preview, with no upload or broad storage grant. Remaining implementation includes general native
-contact search/export beyond system UI, scoped image
-analysis, accessible-file search/organization, calendar read/edit/cancel, location
-reminders, permitted wake-word lifecycle and authenticated
-scoped Windows remote commands/results. Voice notes/security alerts and AWS alert sources also need end-to-end
+preview, with no upload or broad storage grant.
+
+The new [native data card](ANDROID-NATIVE-DATA.md) adds explicit read-only visible-calendar
+occurrences (next seven days, first 20), per-row system calendar edit/cancel handoff,
+selected-image bounded local pixel statistics, and an Android11+ one-shot approximate
+foreground location/proximity-reminder check. These paths request permissions and
+read only on separate explicit taps, suppress late results and have no backend/model
+upload. There is no direct calendar save/delete, semantic image interpretation,
+camera capture, background geofence or automatic arrival notification. Actual provider,
+device, layout and permission acceptance remain unverified. Remaining implementation
+includes general native contact search/export beyond system UI, semantic image
+analysis, accessible-file search/organization, automatic location reminders and
+permitted wake-word lifecycle. The separate Windows read path below is intentionally
+one fixed action, not arbitrary remote command capability. Voice notes/security alerts and AWS alert sources also need end-to-end
 integrations. A disabled-by-default [signed GitHub workflow report adapter](GITHUB-WORKFLOW-ALERTS.md)
 now queues a narrow historical failure summary into the existing inbox with
 exact repo scope and replay claims. Hosted delivery cannot reach localhost;
