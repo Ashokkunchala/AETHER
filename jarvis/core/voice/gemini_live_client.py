@@ -21,11 +21,13 @@ import numpy as np
 from google import genai
 from google.genai import types
 
+from jarvis.personality_modes import COMPANION_GUIDANCE, default_store, overlay_for
+
 logger = logging.getLogger("jarvis.gemini_live")
 
 DEFAULT_PERSONA = """
-You are JARVIS, a real-time voice assistant running locally on the user's computer.
-Personality: warm, witty, concise and loyal — like Tony Stark's JARVIS. Speak naturally.
+You are AETHER, a real-time voice assistant running locally on the user's computer.
+Personality: warm, witty, concise and honest. Speak naturally; do not impersonate a fictional character.
 Language: use natural Indian English by default; understand Telugu and code-switch when
 the user does; reply in the language the user uses.
 
@@ -39,7 +41,7 @@ Rules:
 - Do not ask for passwords, API keys or secrets.
 - If the user's request is ambiguous or consequential, ask a short clarifying question
   instead of guessing.
-""".strip()
+""".strip() + "\n\n" + COMPANION_GUIDANCE
 
 
 class GeminiLiveClient:
@@ -50,7 +52,7 @@ class GeminiLiveClient:
         api_key: str,
         model: str = "gemini-3.8-live",
         voice: str = "Aoede",
-        system_instruction: str = DEFAULT_PERSONA,
+        system_instruction: str | None = None,
         tools: list[dict[str, Any]] | None = None,
         output_sample_rate: int = 24000,
         manual_activity_detection: bool = False,
@@ -58,7 +60,9 @@ class GeminiLiveClient:
         self.api_key = api_key
         self.model = model
         self.voice = voice
-        self.system_instruction = system_instruction
+        self.system_instruction = system_instruction if system_instruction is not None else (
+            DEFAULT_PERSONA + "\n\n" + overlay_for(default_store().get())
+        )
         self.tools = tools or []
         self.output_sample_rate = output_sample_rate
         # When True the server-side VAD is disabled and the client must send
