@@ -180,7 +180,9 @@ def register_evidence_tools(registry):
     from jarvis.devops.node_snapshot import register_node_tools
     from jarvis.devops.slo import register_slo_tools
     from jarvis.devops.storage_snapshot import register_storage_tools
+    from jarvis.devops.pipeline_templates import register_pipeline_tools
 
+    register_pipeline_tools(registry)
     register_deployment_tools(registry)
     register_endpoint_tools(registry)
     register_storage_tools(registry)
