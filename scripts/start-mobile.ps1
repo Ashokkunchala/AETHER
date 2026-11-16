@@ -74,15 +74,11 @@ if (-not $SkipFirewall) {
 # ------------------------------------------------------------- 4. print handoff
 # Printed before the (blocking) server start so the URL and token are visible
 # on first run, while uvicorn keeps the window open below.
-$token = Read-JarvisEnvValue -Name "JARVIS_API_TOKEN"
 Write-Host ""
 Write-Host "Phone connection details" -ForegroundColor Cyan
 Write-Host "  Backend URL : $baseUrl"
-if ($token) {
-    Write-Host "  Pairing token: $token  (master JARVIS_API_TOKEN from .env)"
-} else {
-    Write-Host "  Pairing token: not found - set JARVIS_API_TOKEN in .env (32+ chars)." -ForegroundColor Yellow
-}
+Write-Host "  Pairing token: not displayed (secret protection)" -ForegroundColor Green
+Write-Host "  Copy JARVIS_API_TOKEN from your local .env file when pairing." -ForegroundColor Yellow
 Write-Host ""
 Write-Host "On the phone:" -ForegroundColor Green
 Write-Host "  1. Install the APK (scripts\setup-android.ps1 -Install, or copy the apk)."
@@ -90,7 +86,7 @@ Write-Host "  2. One-time: install this CA certificate on the phone:" -Foregroun
 Write-Host "     $($certInfo.CaCopy)" -ForegroundColor Yellow
 Write-Host "     (Settings > Security > Encryption & credentials > Install a certificate >"
 Write-Host "      CA certificate). Without it the app rejects the self-signed server cert."
-Write-Host "  3. Open JARVIS > enter the backend URL and pairing token above > Pair > Connect."
+Write-Host "  3. Open JARVIS > enter the backend URL and copy JARVIS_API_TOKEN from .env > Pair > Connect."
 Write-Host ""
 Write-Host "Security: TLS + bearer token on a private LAN only. Never port-forward 8443" -ForegroundColor DarkGray
 Write-Host "or expose it to the public internet; this prototype has no public hardening." -ForegroundColor DarkGray
