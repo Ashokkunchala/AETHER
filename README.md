@@ -43,7 +43,7 @@ Double-click entry points in the repository root. Each one sets the process exec
 | --- | --- | --- |
 | `INSTALL_JARVIS.bat` | **Install + run (Windows)** | Creates `.venv`, installs dependencies, writes `.env` with random secrets, asks for your Gemini key, runs `jarvis doctor`, then offers to start the backend on `http://127.0.0.1:8000`. |
 | `START-JARVIS.bat` | **Run (Windows)** | Starts the local HTTP backend + browser UI (already installed). |
-| `SETUP-MOBILE.bat` | **Install + run (Windows + Android)** | Installs the Python environment if missing, mints the LAN HTTPS certificate, builds `app-debug.apk` (optionally installs it over USB), opens the firewall port for TCP 8443, prints the phone-side steps, and starts the HTTPS backend. |
+| `SETUP-MOBILE.bat` | **Install + run (Windows + Android)** | Installs the Python environment if missing, mints the LAN HTTPS certificate, builds `app-debug.apk` (optionally installs it over USB), opens the firewall port for TCP 8443, prints the phone-side steps without exposing secrets, and starts the HTTPS backend. |
 | `START-MOBILE.bat` | **Run (phone backend)** | Serves `https://<LAN-IP>:8443` for the Android app (already installed). Keep the window open; Ctrl+C stops it. |
 
 Equivalent PowerShell (same behaviour, scriptable):
