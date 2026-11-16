@@ -186,7 +186,7 @@ class WhatsAppDraft(BaseModel):
 
 
 @router.get("/google/connect")
-def google_connect(_=Depends(require_device_token)):
+def google_connect(include_contacts: bool = False, _=Depends(require_device_token)):
     client_id, _, redirect_uri = _google_credentials()
     nonce = secrets.token_urlsafe(32)
     serializer = URLSafeTimedSerializer(settings.secret_key or settings.jarvis_api_token, salt="aether-google-oauth")
@@ -196,7 +196,7 @@ def google_connect(_=Depends(require_device_token)):
         db.execute("INSERT INTO integration_states(nonce_hash,created_at) VALUES(?,?)",
                    (hashlib.sha256(nonce.encode()).hexdigest(), _now()))
     params = {"client_id": client_id, "redirect_uri": redirect_uri, "response_type": "code",
-              "scope": GOOGLE_SCOPES, "access_type": "offline", "prompt": "consent",
+              "scope": GOOGLE_SCOPES + (" https://www.googleapis.com/auth/contacts.readonly" if include_contacts is True else ""), "access_type": "offline", "prompt": "consent",
               "include_granted_scopes": "true", "state": state}
     return {"authorization_url": GOOGLE_AUTH + "?" + urlencode(params)}
 
