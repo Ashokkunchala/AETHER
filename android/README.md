@@ -188,6 +188,14 @@ away from the laptop:
    **Revoke paired device**, and confirm. **Forget device token** clears local
    credentials only; it does not revoke the backend credential.
 
+## Android capability and permission contract
+
+See [the checked capability contract](../docs/ANDROID-CAPABILITY-CONTRACT.md) for
+implemented versus planned features, supported APIs, OS/store limits and device
+acceptance gaps. No universal app control, always-on mic or all-data access is
+claimed. Permission to use Android data is not permission to upload it or run
+a laptop command.
+
 ## Honest limitations
 
 - The debug APK here is built from source on your machine or CI. Release
@@ -202,5 +210,6 @@ away from the laptop:
   rotation, device-flow verification and production authorization remain
   required before any cloud deployment; keep the backend local/private until
   then.
-- Memory editing, workout tracking and background data sync are not implemented
-  in the Android app yet; approvals themselves stay on the laptop by design.
+- Memory add/list/delete UI exists; workout tracking and general background data
+  sync are not implemented. Backend/laptop command approvals remain separate.
+  Generic chat/activity display is not acceptance of arbitrary remote app control.
