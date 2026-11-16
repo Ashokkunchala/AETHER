@@ -170,12 +170,14 @@ def review_terraform_plan_export(path: str):
 
 
 def register_evidence_tools(registry):
+    from jarvis.devops.aws_backup_snapshot import register_aws_backup_tools
     from jarvis.devops.cost_snapshot import register_cost_tools
     from jarvis.devops.dependency_audit import register_audit_tools
     from jarvis.devops.ebs_snapshot import register_ebs_tools
     from jarvis.devops.kubernetes_snapshot import review_pods_export
     from jarvis.devops.slo import register_slo_tools
 
+    register_aws_backup_tools(registry)
     register_cost_tools(registry)
     register_ebs_tools(registry)
     register_slo_tools(registry)
