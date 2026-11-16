@@ -66,7 +66,12 @@ fun PhoneActionsCard() {
     val report: (String) -> Unit = { status = it }
     val contact = rememberLauncherForActivityResult(ActivityResultContracts.PickContact()) { uri ->
         // PickContact selects a contact, not necessarily a specific phone number. Do not infer a recipient.
-        status = if (uri == null) "Contact selection cancelled." else "Contact selected in system UI. Open Contacts to review its numbers; enter the exact number below. No contact directory was read or recipient inferred."
+        selectedPhoneCandidate = null
+        if (uri == null) status = "Contact selection cancelled. Number field unchanged."
+        else {
+            number = ""
+            status = "Contact selected in system UI. Previous number field cleared to avoid using another contact's number. Open Contacts to review its numbers; enter the exact number below. No contact directory was read or recipient inferred."
+        }
     }
     val phoneNumber = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         selectedPhoneCandidate = null
@@ -97,7 +102,7 @@ fun PhoneActionsCard() {
             TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "LOCAL PHONE ACTIONS - close" else "LOCAL PHONE ACTIONS - open") }
             if (expanded) {
                 Text("System composers, selected items and local device status. Call/Send/Save stay in the destination app. Missing handlers are normal.", style = MaterialTheme.typography.bodySmall)
-                Button(onClick = { try { contact.launch(null) } catch (_: Exception) { status = "Contact picker unavailable; no contacts read." } }) { Text("Choose contact (system picker)") }
+                Button(onClick = { selectedPhoneCandidate = null; try { contact.launch(null) } catch (_: Exception) { status = "Contact picker unavailable; no contacts read." } }) { Text("Choose contact (system picker)") }
                 Button(onClick = {
                     selectedPhoneCandidate = null
                     try { phoneNumber.launch(Intent(Intent.ACTION_PICK).setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE)) }
@@ -113,12 +118,12 @@ fun PhoneActionsCard() {
                     TextButton(onClick = { selectedPhoneCandidate = null }) { Text("Discard selected candidate") }
                 }
                 OutlinedTextField(value = number, onValueChange = { number = it.take(16) }, label = { Text("Exact international number, e.g. +919876543210") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                Button(onClick = {
+                Button(enabled = selectedPhoneCandidate == null, onClick = {
                     if (!validPhoneTarget(number)) status = "Enter one exact international +number (7-15 digits), no codes or separators."
                     else launchPhoneIntent(context, Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", number, null)), report)
                 }) { Text("Review number in dialer (does not call)") }
                 OutlinedTextField(value = message, onValueChange = { message = it.take(2000) }, label = { Text("Exact SMS draft (max 2000 characters)") }, modifier = Modifier.fillMaxWidth())
-                Button(onClick = {
+                Button(enabled = selectedPhoneCandidate == null, onClick = {
                     if (!validPhoneTarget(number) || message.isBlank()) status = "Enter exact international number and a nonempty draft."
                     else launchPhoneIntent(context, Intent(Intent.ACTION_SENDTO, Uri.fromParts("smsto", number, null)).putExtra("sms_body", message), report)
                 }) { Text("Review SMS draft (does not send)") }
