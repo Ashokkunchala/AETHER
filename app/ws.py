@@ -36,6 +36,7 @@ import asyncio
 import json
 import logging
 import uuid
+from dataclasses import replace
 from typing import Annotated, Any, Literal, TypeAlias
 
 from fastapi import APIRouter, Query, Request, WebSocket, WebSocketDisconnect
@@ -84,10 +85,10 @@ class IncomingFrame(RootModel[FrameType]):
 
 
 @router.post("/api/ws-ticket")
-async def create_ws_ticket(request: Request) -> dict[str, int | str]:
+async def create_ws_ticket(request: Request, profile: Literal["legacy", "personal-readonly"] = "legacy") -> dict[str, int | str]:
     """Exchange a bearer credential for a short-lived, one-use WebSocket ticket."""
     identity = SessionIdentity.authenticate(request.headers.get("authorization"))
-    return {"ticket": _tickets.issue(identity), "expires_in": _WS_TICKET_TTL_SECONDS}
+    return {"ticket": _tickets.issue(replace(identity, profile=profile)), "expires_in": _WS_TICKET_TTL_SECONDS}
 
 
 # Free-tier Gemini quotas are tiny; never let one browser melt them.
@@ -131,7 +132,16 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
         return
 
     await websocket.accept()
-    brain = JarvisBrain()
+    if identity.profile == "personal-readonly":
+        from app.personal_tool_chat import PERSONAL_PROMPT, build_personal_registry
+
+        registry = build_personal_registry()
+        if not len(registry):
+            await websocket.close(code=1011, reason="personal tools unavailable")
+            return
+        brain = JarvisBrain(registry=registry, system_prompt=PERSONAL_PROMPT)
+    else:
+        brain = JarvisBrain()
     pending_confirm: dict[str, asyncio.Future[bool]] = {}
     turn_task: asyncio.Task | None = None
     turn_cancel = asyncio.Event()
@@ -142,6 +152,7 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
         "providers": brain.provider_candidates(),
         "tools": len(brain.registry),
         "configured": brain.configured,
+        "profile": identity.profile,
     })
 
     async def confirm(tool, args: dict[str, Any]) -> bool:
