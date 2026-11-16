@@ -1,51 +1,12 @@
 import logging
-import os
 
-from jarvis.config.settings import config
 
 logger = logging.getLogger("jarvis.tools.app")
 
 
 def open_app(app_name: str):
-    """Open an application"""
-    app_name_lower = app_name.lower()
-
-    # Check if in allowed list
-    allowed = False
-    for allowed_app in config.allowed_apps:
-        if allowed_app.lower() in app_name_lower or app_name_lower in allowed_app.lower():
-            allowed = True
-            break
-
-    if not allowed and config.require_confirmation:
-        # Still allow but will be confirmed by registry
-        pass
-
-    try:
-        # Try common Windows apps
-        app_map = {
-            "chrome": "chrome.exe",
-            "edge": "msedge.exe",
-            "firefox": "firefox.exe",
-            "notepad": "notepad.exe",
-            "calculator": "calc.exe",
-            "calc": "calc.exe",
-            "vscode": "code.exe",
-            "visual studio": "devenv.exe",
-            "explorer": "explorer.exe",
-            "files": "explorer.exe"
-        }
-
-        exe = app_map.get(app_name_lower, app_name)
-        if not exe.endswith('.exe') and '.' not in exe:
-            exe += '.exe'
-
-        os.startfile(exe)
-        logger.info(f"Opened app: {exe}")
-        return f"Opened {app_name}"
-    except Exception as e:
-        logger.error(f"Failed to open app {app_name}: {e}")
-        raise
+    """Legacy substring allowlist path fails closed."""
+    return {"success": False, "error": "Use the exact local approved-app registry with fresh confirmation. Legacy broad launch disabled."}
 
 
 def close_app(app_name: str):
