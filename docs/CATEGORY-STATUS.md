@@ -127,7 +127,9 @@ read selected image pixels or upload selected content.
 A separate system specific-number picker now reads only the selected temporary
 row, validates explicit international format and requires candidate review before
 copying into the number field. No broad contact directory access or verified
-recipient identity is implied. Remaining implementation includes general native
+recipient identity is implied. A separate local panel can explicitly read one
+selected UTF-8 text item up to 64 KiB and find literal text within its captured
+preview, with no upload or broad storage grant. Remaining implementation includes general native
 contact search/export beyond system UI, scoped image
 analysis, accessible-file search/organization, calendar read/edit/cancel, location
 reminders, permitted wake-word lifecycle and authenticated
