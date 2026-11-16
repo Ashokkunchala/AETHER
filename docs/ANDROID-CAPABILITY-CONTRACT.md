@@ -6,7 +6,21 @@ of all requested abilities. No device was connected, installed, controlled or
 queried. Android runtime, API target, manufacturer, installed handlers/services,
 user grants and distribution policies all affect availability.
 
-## Current source baseline
+## Local phone actions addendum
+
+The new [local phone actions](ANDROID-LOCAL-PHONE-ACTIONS.md) card adds explicit
+ACTION_DIAL, SMS ACTION_SENDTO and calendar ACTION_INSERT composers, a system
+contact picker without number extraction, selected document display metadata,
+image selection without analysis/upload, plain-text foreground clipboard buttons,
+and battery/app-volume/keyguard/own-permission snapshots. No new manifest grant,
+background service, direct call/send/save, broad file/contact read, remote command
+or provider disclosure is added. Source/JVM/build tests are distinct from missing
+Android runtime and visual acceptance. The capability matrix below records the
+original reviewed baseline; this addendum supersedes its "not implemented" cells
+only for the narrow routes just named. It does not turn selection into analysis,
+phone-number resolution, file organization or confirmed communication delivery.
+
+## Original reviewed source baseline
 
 The native app has minSdk 26, targetSdk/compileSdk 35. The manifest declares
 only INTERNET, RECORD_AUDIO and POST_NOTIFICATIONS and one launcher activity.
