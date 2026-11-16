@@ -36,6 +36,7 @@ import asyncio
 import json
 import logging
 import uuid
+from contextvars import ContextVar
 from dataclasses import replace
 from typing import Annotated, Any, Literal, TypeAlias
 
@@ -85,7 +86,7 @@ class IncomingFrame(RootModel[FrameType]):
 
 
 @router.post("/api/ws-ticket")
-async def create_ws_ticket(request: Request, profile: Literal["legacy", "personal-readonly"] = "legacy") -> dict[str, int | str]:
+async def create_ws_ticket(request: Request, profile: Literal["legacy", "personal-readonly", "personal-local"] = "legacy") -> dict[str, int | str]:
     """Exchange a bearer credential for a short-lived, one-use WebSocket ticket."""
     identity = SessionIdentity.authenticate(request.headers.get("authorization"))
     return {"ticket": _tickets.issue(replace(identity, profile=profile)), "expires_in": _WS_TICKET_TTL_SECONDS}
@@ -132,6 +133,8 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
         return
 
     await websocket.accept()
+    turn_cancel = asyncio.Event()
+    local_turn: ContextVar[asyncio.Event | None] = ContextVar("local_turn", default=None)
     if identity.profile == "personal-readonly":
         from app.personal_tool_chat import PERSONAL_PROMPT, build_personal_registry
 
@@ -140,11 +143,19 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
             await websocket.close(code=1011, reason="personal tools unavailable")
             return
         brain = JarvisBrain(registry=registry, system_prompt=PERSONAL_PROMPT)
+    elif identity.profile == "personal-local":
+        from app.personal_local_tools import LOCAL_PROMPT, build_local_registry
+
+        def local_session_active():
+            context = local_turn.get()
+            return context is not None and not context.is_set() and identity.is_active()
+
+        registry = build_local_registry(local_session_active)
+        brain = JarvisBrain(registry=registry, system_prompt=LOCAL_PROMPT)
     else:
         brain = JarvisBrain()
     pending_confirm: dict[str, asyncio.Future[bool]] = {}
     turn_task: asyncio.Task | None = None
-    turn_cancel = asyncio.Event()
 
     await _emit(websocket, {
         "type": "ready",
@@ -181,11 +192,13 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
             pending_confirm.pop(confirm_id, None)
 
     async def run_turn(message: str) -> None:
-        nonlocal turn_task
-        turn_cancel.clear()
+        nonlocal turn_task, turn_cancel
+        turn_cancel = asyncio.Event()
+        turn_context = local_turn.set(turn_cancel)
         if not identity.is_active():
             await websocket.close(code=4401, reason="session revoked")
             turn_task = None
+            local_turn.reset(turn_context)
             return
         try:
             async with _turn_gate:
@@ -205,6 +218,7 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
             logger.exception("WS turn failed")
             await _emit(websocket, {"type": "error", "error": str(exc)})
         finally:
+            local_turn.reset(turn_context)
             turn_task = None
 
     try:
