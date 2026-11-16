@@ -34,6 +34,14 @@ class Settings(BaseSettings):
     # Database
     jarvis_db_path: str = "data/jarvis.sqlite3"
 
+    # AETHER external integrations (credentials are server-side only)
+    google_oauth_client_id: str = ""
+    google_oauth_client_secret: str = ""
+    google_oauth_redirect_uri: str = "http://127.0.0.1:8000/api/integrations/google/callback"
+    whatsapp_access_token: str = ""
+    whatsapp_phone_number_id: str = ""
+    document_allowed_roots: str = ""  # semicolon-separated absolute paths; no implicit home-folder scan
+
     # Rate limiting
     rate_limit_enabled: bool = True
     rate_limit_default: str = "100/minute"
