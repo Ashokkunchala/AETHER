@@ -5,16 +5,9 @@ logger = logging.getLogger("jarvis.tools.files")
 
 
 def open_file(path: str):
-    """Open a file"""
-    try:
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"File not found: {path}")
-        os.startfile(path)
-        logger.info(f"Opened file: {path}")
-        return f"Opened {path}"
-    except Exception as e:
-        logger.error(f"Failed to open file {path}: {e}")
-        raise
+    """Legacy default-handler route fails closed without resolving or launching."""
+    from jarvis.control.files import open_path
+    return open_path(path)
 
 
 def list_files(directory: str = "."):
