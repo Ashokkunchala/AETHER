@@ -450,25 +450,36 @@ def search_documents(q: str = Query(min_length=2, max_length=200), limit: int = 
         raise HTTPException(503, "Set DOCUMENT_ALLOWED_ROOTS to explicitly authorize folders.")
     terms = [term.casefold() for term in q.split() if len(term) > 1][:12]
     results = []
+    scanned = 0
     for root in roots:
         if not root.is_dir():
             continue
         for path in root.rglob("*"):
-            if len(results) >= limit:
+            scanned += 1
+            if len(results) >= limit or scanned > 10000:
                 break
-            if not path.is_file() or path.suffix.lower() not in {".txt", ".md", ".log"}:
+            if not path.is_file() or path.suffix.lower() not in {".txt", ".md", ".log", ".pdf", ".docx"}:
                 continue
             try:
                 resolved = path.resolve()
-                if not resolved.is_relative_to(root) or path.stat().st_size > 2_000_000:
+                if not resolved.is_relative_to(root) or path.stat().st_size > 10_000_000:
                     continue
-                content = path.read_text(encoding="utf-8", errors="replace")
-                lines = content.splitlines()
+                suffix = path.suffix.lower()
+                if suffix == ".pdf":
+                    from pypdf import PdfReader
+                    text = "\\n".join(page.extract_text() or "" for page in PdfReader(str(resolved)).pages[:80])
+                elif suffix == ".docx":
+                    from docx import Document
+                    document = Document(str(resolved))
+                    text = "\\n".join(paragraph.text for paragraph in document.paragraphs)
+                else:
+                    text = path.read_text(encoding="utf-8", errors="replace")
+                lines = text.splitlines()
                 matches = [(i + 1, line.strip()[:500]) for i, line in enumerate(lines)
                            if all(term in line.casefold() for term in terms)]
                 if matches:
                     results.append({"path": str(resolved), "matches": matches[:5]})
-            except (OSError, PermissionError):
+            except (OSError, PermissionError, ValueError, ImportError):
                 continue
     return {"query": q, "items": results}
 
