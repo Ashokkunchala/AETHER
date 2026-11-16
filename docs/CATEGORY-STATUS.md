@@ -178,6 +178,11 @@ start empty. Exact app ID/executable/hash and fresh review are needed; a PID is
 not readiness. Process identity is rechecked and exit is waited for, without
 name/tree/force fallback. Windows termination can lose unsaved work.
 
+A [fresh-approved exact-name OS resolver lookup](EXACT-DNS-LOOKUP.md) now
+returns bounded IPv4/IPv6 records with no application connection. Resolver
+disclosure, one-outstanding-call gating and non-cancellable timeout limits are
+explicit; this is not DNS authenticity or port/network health verification.
+
 Fresh-approved bounded Windows service/startup-name and passive network-link
 snapshots now exist. They do not start/stop/configure services, alter startup
 entries, probe internet reachability or prove effective enabled state. A fixed fresh-approved trusted-project Python test runner is available separately;
