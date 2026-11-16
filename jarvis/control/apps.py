@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import logging
 import os
-import shutil
-import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -129,49 +127,9 @@ def search_apps(query: str, limit: int = 15) -> list[dict[str, str]]:
     return ordered[:limit]
 
 
-def _launch_path(target: str) -> subprocess.Popen | None:
-    resolved = shutil.which(target)
-    if resolved:
-        return subprocess.Popen([resolved], shell=False)
-    if os.path.isfile(target):
-        os.startfile(target)  # type: ignore[attr-defined]
-        return None
-    # Fall back to shell resolution (handles aliases, app paths, URIs)
-    return subprocess.Popen(  # noqa: S602
-        target, shell=True, creationflags=subprocess.DETACHED_PROCESS
-    )
-
-
 def launch_app(app: str, args: str | None = None) -> dict[str, Any]:
-    """Launch an application by alias, shortcut name, path or URI."""
-    original = app
-    app = APP_ALIASES.get(app.strip().lower(), app.strip())
-    candidates = [app]
-    for target in candidates:
-        try:
-            if target.startswith(("http://", "https://", "ms-", "ms-settings:")):
-                os.startfile(target)  # type: ignore[attr-defined]
-                return {"success": True, "launched": target}
-            proc = _launch_path(target)
-            return {"success": True, "launched": target, "pid": getattr(proc, "pid", None)}
-        except (OSError, subprocess.SubprocessError) as exc:
-            logger.debug("Launch failed for %r: %s", target, exc)
-            continue
-
-    matches = search_apps(app, limit=1)
-    if matches:
-        entry = matches[0]
-        try:
-            os.startfile(entry["path"])  # type: ignore[attr-defined]
-            return {"success": True, "launched": entry["name"], "path": entry["path"]}
-        except OSError as exc:
-            return {"success": False, "error": str(exc)}
-
-    return {
-        "success": False,
-        "error": f"Could not find an application matching {original!r}. "
-        f"Try 'search_apps' to list what is installed.",
-    }
+    """Legacy broad-launch route is disabled, including shell/alias/URI fallback."""
+    return {"success": False, "error": "Use the approved-app registry tool with exact local allowlist ID/executable/SHA256 and fresh confirmation. Direct broad launch is disabled."}
 
 
 def close_app(name: str, force: bool = False) -> dict[str, Any]:
