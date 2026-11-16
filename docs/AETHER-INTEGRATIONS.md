@@ -111,3 +111,25 @@ providers, taxes, fees, policies and final availability on the provider's page.
 Nothing is booked or paid. The UI renders outside text as text, rejects non-HTTP
 links and never follows instructions found in snippets. Automated checks use
 mocked search responses; search-site availability still needs runtime acceptance.
+
+## Document previews and reviewed creation
+
+The Documents panel can list up to 500 supported files from explicit absolute
+`DOCUMENT_ALLOWED_ROOTS` (bounded directory scan), then preview selected extracted
+text. Authenticated routes: `GET /api/documents/library` and
+`POST /api/documents/preview` with the listed absolute `path`. TXT/MD/LOG/PDF/DOCX
+are supported. Text preview is bounded to 60000 characters and 80 PDF pages; PDF
+OCR is absent. DOCX paragraphs/tables are extracted, not embedded objects. Partial
+previews say so. Secret-shaped filenames, private-key markers, symlinks and noisy
+folders are excluded by these new routes. This does not retrofit those exclusions
+to the older document-search endpoint. Treat configured folders as private trusted
+input, not an OS sandbox against hostile concurrent filesystem changes.
+
+The create form takes exact user-reviewed title/body text and downloads TXT,
+Markdown or editable DOCX through `POST /api/documents/download`. It uses no AI
+provider and writes no server file, so it does not move, rename, overwrite or share
+a source. The browser chooses the download folder. The form is not an automatic
+resume rewrite or proof of the latest correct resume: modification time is merely
+filesystem metadata. Semantic summaries and approved file organization are still
+separate work. Tests use synthetic temporary files and mocked UI responses; a
+sample generated DOCX was rendered to PDF and visually checked for layout.
