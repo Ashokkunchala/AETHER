@@ -58,3 +58,11 @@ Sources:
 - https://www.jenkins.io/doc/book/pipeline/syntax/
 - https://api.github.com/repos/actions/checkout/git/ref/tags/v4
 - https://api.github.com/repos/actions/setup-python/git/ref/tags/v5
+
+## Separate local execution path
+
+The [fresh-approved local Python test runner](PYTHON-TEST-RUNNER.md) invokes fixed
+pytest argv in a selected trusted local project. It does not run the generated
+pipeline, install dependencies, publish artifacts or deploy. It discards output
+and reports the direct process exit code only. The generator still only returns
+text; this separate action does not grant permission to execute that text.
