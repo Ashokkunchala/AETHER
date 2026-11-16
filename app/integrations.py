@@ -535,6 +535,9 @@ def dispatch_due_reminders() -> int:
     from app.personal_data import _connect as personal_connect
     db = personal_connect()
     try:
+        # Serialize the schema check and claim/enqueue transaction across
+        # dispatchers. A second worker must see the first worker's committed claim.
+        db.execute("BEGIN IMMEDIATE")
         columns = {row[1] for row in db.execute("PRAGMA table_info(reminders)")}
         if "notification_sent_at" not in columns:
             db.execute("ALTER TABLE reminders ADD COLUMN notification_sent_at TEXT")
