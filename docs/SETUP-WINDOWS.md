@@ -101,7 +101,7 @@ Generate a random token in PowerShell with `python -c "import secrets; print(sec
 
 Open [http://127.0.0.1:8000](http://127.0.0.1:8000). API documentation is at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
-Keep the PowerShell window open while using JARVIS. Press Ctrl+C in that window to stop the server.
+Keep the PowerShell window open while using AETHER. Press Ctrl+C in that window to stop the server.
 
 ## 6. Test the API
 
@@ -114,7 +114,7 @@ Invoke-RestMethod http://127.0.0.1:8000/health
 Test chat:
 
 ```powershell
-$body = @{ message = "Hello JARVIS. Introduce yourself in friendly Indian English."; language = "en" } | ConvertTo-Json
+$body = @{ message = "Hello AETHER. Introduce yourself in friendly Indian English."; language = "en" } | ConvertTo-Json
 Invoke-RestMethod -Uri http://127.0.0.1:8000/api/chat -Method Post -ContentType "application/json" -Body $body
 ```
 
