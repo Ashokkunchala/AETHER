@@ -63,6 +63,8 @@ def generate_pipeline_scaffold(platform):
 
 
 def register_pipeline_tools(registry):
+    from jarvis.devops.verification_pipeline import register_verification_pipeline_tool
+    register_verification_pipeline_tool(registry)
     from jarvis.tools.registry import Risk, Tool
     registry.register(Tool(
         name='generate_pipeline_review_scaffold',
