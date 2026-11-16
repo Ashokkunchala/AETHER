@@ -13,9 +13,11 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.personal_data import require_device_token
+from app.public_source_pages import router as source_pages_router
 from app.research import search_web
 
 router = APIRouter(prefix='/api/research', tags=['AETHER source research'], dependencies=[Depends(require_device_token)])
+router.include_router(source_pages_router)
 
 
 class _Input(BaseModel):
