@@ -19,12 +19,12 @@ def isolated(monkeypatch, tmp_path):
     monkeypatch.setattr(ws, '_tickets', TicketStore())
 
 
-def test_personal_registry_has_only_six_readers():
+def test_personal_registry_has_only_eight_readers():
     registry = build_personal_registry()
-    assert len(registry) == 6
+    assert len(registry) == 8
     assert set(registry.names()) == {'list_personal_tasks', 'list_personal_notes',
         'list_calendar_drafts', 'list_personal_expenses', 'list_saved_reminders',
-        'list_active_saved_memories'}
+        'list_active_saved_memories', 'plan_saved_day', 'report_saved_expenses'}
     assert all(tool.risk == 0 for tool in registry.tools.values())
     assert registry.get('run_shell') is None
     assert registry.get('aws_change') is None
@@ -77,7 +77,7 @@ def test_ticket_profile_cannot_be_upgraded_in_socket_url(monkeypatch):
         with client.websocket_connect(f'/ws?ticket={ticket}&profile=legacy') as socket:
             ready = socket.receive_json()
             assert ready['profile'] == 'personal-readonly'
-            assert ready['tools'] == 6
+            assert ready['tools'] == 8
     assert observed['registry'].get('run_shell') is None
     assert 'AETHER' in observed['prompt']
 
