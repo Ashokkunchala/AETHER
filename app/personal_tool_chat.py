@@ -32,9 +32,26 @@ def _bounded(result: dict[str, Any], source: str) -> dict[str, Any]:
             'returned': len(clipped)}
 
 
+def _report_preview(value: Any) -> Any:
+    """Keep report tool context bounded without changing full authenticated reports."""
+    if isinstance(value, dict):
+        return {key: _report_preview(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_report_preview(item) for item in value[:10]]
+    if isinstance(value, str):
+        return value[:600]
+    return value
+
+
+def _chat_report(handler, **kwargs):
+    result = _report_preview(handler(**kwargs))
+    result['chat_preview_notice'] = 'Every list in this chat preview is capped at 10 entries and text at 600 characters. Returned aggregates/counts can cover more rows; use authenticated report endpoints for complete bounded lists.'
+    return result
+
+
 def build_personal_registry() -> ToolRegistry:
     # Import lazily to keep CLI startup independent from the HTTP app.
-    from app import life_manager, personal_data
+    from app import life_manager, personal_data, personal_reports
 
     registry = ToolRegistry()
     definitions = [
@@ -55,4 +72,18 @@ def build_personal_registry() -> ToolRegistry:
         registry.register(Tool(name=name, description=description, parameters={
             'type': 'object', 'properties': {}, 'additionalProperties': False},
             handler=handler, risk=Risk.SAFE, category='personal_readonly'))
+    registry.register(Tool(
+        name='plan_saved_day',
+        description='Read local-day task priorities and unconfirmed calendar drafts using a required IANA timezone. Date optional: defaults to today in that timezone. No schedule is saved. Not a full external calendar.',
+        parameters={'type': 'object', 'properties': {
+            'timezone': {'type': 'string'}, 'plan_date': {'type': 'string', 'description': 'YYYY-MM-DD'}},
+            'required': ['timezone'], 'additionalProperties': False},
+        handler=lambda **kwargs: _chat_report(personal_reports.today_plan, **kwargs), risk=Risk.SAFE, category='personal_readonly'))
+    registry.register(Tool(
+        name='report_saved_expenses',
+        description='Read saved expense totals by currency for an explicit inclusive YYYY-MM-DD date range. Decimal strings, no combined-currency total. Check partial/invalid notices. Saved life-manager data only.',
+        parameters={'type': 'object', 'properties': {
+            'start_date': {'type': 'string'}, 'end_date': {'type': 'string'}},
+            'required': ['start_date', 'end_date'], 'additionalProperties': False},
+        handler=lambda **kwargs: _chat_report(personal_reports.expense_report, **kwargs), risk=Risk.SAFE, category='personal_readonly'))
     return registry
