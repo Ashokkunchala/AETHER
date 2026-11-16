@@ -1,5 +1,5 @@
 """
-Unified JARVIS - realtime voice + system control + Android bridge.
+Unified AETHER - realtime voice + system control + Android bridge.
 """
 
 import asyncio
@@ -25,7 +25,7 @@ class JarvisUnified:
         self.memory = None  # created lazily; chromadb is optional and heavy
         self.running = False
 
-        logger.info("JARVIS Unified initialized")
+        logger.info("AETHER Unified initialized")
         logger.info("System Control: ONLINE")
         logger.info("Android Devices: %d", len(self.android.devices))
 
@@ -110,13 +110,13 @@ class JarvisUnified:
         cancelled, like answering a phone call.
         """
         self.running = True
-        logger.info("Starting real-time JARVIS mode%s...", " (call)" if call_mode else "")
+        logger.info("Starting real-time AETHER mode%s...", " (call)" if call_mode else "")
         await self.agent.start(call_mode=call_mode)
 
     async def stop(self):
         self.running = False
         await self.agent.stop()
-        logger.info("JARVIS stopped")
+        logger.info("AETHER stopped")
 
 
 async def main():
@@ -124,13 +124,13 @@ async def main():
     jarvis = JarvisUnified()
     await jarvis.initialize()
     print("\n" + "=" * 60)
-    print("JARVIS UNIFIED SYSTEM ONLINE")
+    print("AETHER UNIFIED SYSTEM ONLINE")
     print("=" * 60)
     print("System Control: READY")
     print(f"Android Devices: {len(jarvis.android.devices)}")
     print(f"Voice Mode: {'ENABLED' if config.wakeword_enabled else 'DISABLED'}")
     print("=" * 60)
-    print("\nSay 'Hey JARVIS' or use terminal interface")
+    print("\nUse the configured local wake phrase or terminal interface; call mode skips wake words")
     print("Press Ctrl+C to exit\n")
 
     try:
