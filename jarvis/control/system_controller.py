@@ -31,18 +31,7 @@ class SystemController:
         return {"success": False, "error": "Legacy app launch disabled. Use exact local approved-app registry launch with fresh confirmation."}
 
     def close_app(self, app_name: str) -> dict[str, Any]:
-        try:
-            closed = []
-            for proc in psutil.process_iter(['name', 'pid']):
-                try:
-                    if app_name.lower() in proc.info['name'].lower():
-                        proc.terminate()
-                        closed.append(proc.info['name'])
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    pass
-            return {"success": True, "closed": closed}
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+        return {"success": False, "error": "Legacy name-based process stop disabled. Use exact process identity with fresh confirmation."}
 
     def set_volume(self, level: int) -> dict[str, Any]:
         try:
