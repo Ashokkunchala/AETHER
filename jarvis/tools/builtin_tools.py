@@ -303,13 +303,11 @@ def _register_apps(r: ToolRegistry) -> None:
     ))
     r.register(Tool(
         name="close_app",
-        description="Close a running application by name (terminates its processes).",
-        parameters=_obj(
-            {"app_name": _str("Application name to close."), "force": _bool("Use kill instead of graceful terminate.")},
-            ["app_name"],
-        ),
-        handler=lambda app_name, force=False: get_laptop().close_app(app_name, force),
-        risk=Risk.MEDIUM, category="apps", requires_confirmation=True,
+        description="Stop one exact process identity after fresh confirmation and verify exit. No name matching, tree stop or force fallback. Unsaved work may be lost; Windows termination is forceful.",
+        parameters=_obj({"pid": _int("Exact selected process ID, never a name."), "expected_create_time": _num("Exact observed process create_time."), "expected_executable": _str("Exact observed absolute executable path.")}, ["pid", "expected_create_time", "expected_executable"]),
+        handler=lambda pid, expected_create_time, expected_executable: __import__("jarvis.control.process_stop", fromlist=["stop_exact_process"]).stop_exact_process(pid, expected_create_time, expected_executable),
+        confirmation_preview=lambda **args: __import__("jarvis.control.process_stop", fromlist=["preview_process_stop"]).preview_process_stop(**args),
+        risk=Risk.HIGH, category="apps", requires_confirmation=True, never_auto_approve=True, allow_always=False, allow_auto_approve=False,
     ))
     r.register(Tool(
         name="search_apps",
@@ -755,13 +753,11 @@ def _register_process(r: ToolRegistry) -> None:
     ))
     r.register(Tool(
         name="kill_process",
-        description="Terminate a process by name. Critical Windows processes are protected.",
-        parameters=_obj(
-            {"name": _str("Process name, e.g. 'chrome'."), "force": _bool("Kill instead of graceful terminate.")},
-            ["name"],
-        ),
-        handler=lambda name, force=False: get_laptop().kill_process(name, force),
-        risk=Risk.HIGH, category="process", requires_confirmation=True,
+        description="Stop one exact process identity after fresh confirmation and verify exit. No name matching, tree stop or force fallback. Unsaved work may be lost; Windows termination is forceful.",
+        parameters=_obj({"pid": _int("Exact selected process ID, never a name."), "expected_create_time": _num("Exact observed process create_time."), "expected_executable": _str("Exact observed absolute executable path.")}, ["pid", "expected_create_time", "expected_executable"]),
+        handler=lambda pid, expected_create_time, expected_executable: __import__("jarvis.control.process_stop", fromlist=["stop_exact_process"]).stop_exact_process(pid, expected_create_time, expected_executable),
+        confirmation_preview=lambda **args: __import__("jarvis.control.process_stop", fromlist=["preview_process_stop"]).preview_process_stop(**args),
+        risk=Risk.HIGH, category="process", requires_confirmation=True, never_auto_approve=True, allow_always=False, allow_auto_approve=False,
     ))
     r.register(Tool(
         name="start_process",
