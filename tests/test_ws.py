@@ -60,3 +60,43 @@ def test_websocket_reports_provider_timeout(monkeypatch):
             response = websocket.receive_json()
 
     assert response == {"type": "error", "error": "provider timed out"}
+
+def test_websocket_cannot_self_approve_sensitive_tools(monkeypatch):
+    observed = {}
+
+    class EmptyRegistry:
+        def __len__(self):
+            return 0
+
+        def get_tool_schemas(self):
+            return []
+
+    class FakeBrain:
+        active_model = "test-model"
+        registry = EmptyRegistry()
+        configured = True
+
+        @staticmethod
+        def provider_candidates():
+            return ["test-provider"]
+
+        async def ask(self, *_args, confirm=None, auto_approve=False, **_kwargs):
+            observed["confirm"] = confirm
+            observed["auto_approve"] = auto_approve
+            yield {"type": "done", "text": "approval remains required"}
+
+    monkeypatch.setattr("app.ws.JarvisBrain", FakeBrain)
+
+    with TestClient(app) as client:
+        with client.websocket_connect(f"/ws?token={TOKEN}") as websocket:
+            assert websocket.receive_json()["type"] == "ready"
+            websocket.send_json({
+                "type": "chat",
+                "message": "perform a sensitive action",
+                "auto_approve": True,
+            })
+            assert websocket.receive_json()["type"] == "done"
+
+    assert callable(observed["confirm"])
+    assert observed["auto_approve"] is False
+
