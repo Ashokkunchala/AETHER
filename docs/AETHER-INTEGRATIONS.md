@@ -33,10 +33,10 @@ AETHER saves message drafts as pending approvals. A message is sent only when a 
 ## Android and Windows notifications
 
 - Android WorkManager polls the authenticated AETHER notification inbox while notifications are enabled and Android notification permission is granted. It also retains the existing due-reminder polling path.
-- Windows browser notifications are delivered while the AETHER Life Manager page is open, the user has granted browser notification permission, and the authenticated backend is reachable.
+- Windows browser notifications are delivered while the AETHER Life Manager page is open, the user has granted browser notification permission, and the authenticated backend is reachable. A native Windows toast agent is also available with `python -m app.windows_notifications`; install it to run at sign-in with `powershell -ExecutionPolicy Bypass -File .\\scripts\\install-aether-notifications.ps1` (remove with `-Remove`). The agent uses the local master API token from `.env` and stores only a notification cursor locally.
 - The backend scheduler creates one-shot notifications up to 15 minutes before a reminder becomes due.
 
-This is authenticated polling, not Firebase Cloud Messaging or Windows background push. Android WorkManager timing is OS-controlled and is not an exact alarm. A future remote deployment should add FCM and a Windows native notification agent with device-scoped credentials.
+This is authenticated polling, not Firebase Cloud Messaging. Android WorkManager timing is OS-controlled and is not an exact alarm. The Windows native agent is a local polling process, not a remote push service. A future remote deployment should add FCM and device-scoped credentials.
 
 ## Authorized document search
 
