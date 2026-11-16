@@ -44,10 +44,10 @@ Existing open_website/open_app_and_type routes relying on that broad launcher
 therefore cannot launch/type through it; no insecure fallback is restored. This
 is an intentional compatibility change until separately scoped URL/typing routes
 are implemented. Search/discovery is informational and never approval. Generic
-HIGH-risk shell/start_process primitives are distinct, not an alternative way to
+confirmation-gated shell/start_process primitives are distinct, not an alternative way to
 claim approved-app automation; no command execution authority is created here.
-The loopback Windows helper's own narrow URL route remains separate and still
-needs its own local-approval hardening.
+The loopback Windows helper's narrow URL route is separate and now requires
+one-time laptop-local interactive review. Its HTTP caller cannot approve it.
 
 Mock tests cover exact ID/path/hash, aliases/injection/URL/relative-path refusal,
 missing/default config, malformed config, executable change, fresh/denied/auto
