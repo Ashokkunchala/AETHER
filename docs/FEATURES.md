@@ -60,3 +60,10 @@ See [NEXT-MILESTONES.md](NEXT-MILESTONES.md), [REALTIME-VOICE-AND-INTERFACE.md](
 - Local Python test execution: fresh-approved fixed pytest argv, canonical project/tests selection, current interpreter, reduced environment and direct-process timeout. No install, output log, verified count, sandbox or readiness claim. See [test runner](PYTHON-TEST-RUNNER.md).
 
 - Optional GitHub workflow failure reports: disabled-by-default HMAC/repository-scoped inbound webhook with replay-safe local inbox enqueue. No API/log/model/remediation call or verified device display. Localhost reachability needs separately approved architecture/setup. See [workflow alerts](GITHUB-WORKFLOW-ALERTS.md).
+
+### Bounded Python mentor snippet review
+
+`mentor_review_python` provides five explicit AST teaching checks on supplied
+redacted text, without execution, imports, file access or progress writes. It is
+not a correctness/security/mastery pass and does not resolve aliases/data flow.
+See [Python review scope and evidence](MENTOR-PYTHON-REVIEW.md).
