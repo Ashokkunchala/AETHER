@@ -55,7 +55,7 @@ Keys are credential-scoped. Different device credentials or a rotated token have
 key namespaces. Clients must retain their key when retrying an uncertain result. A new
 key, or no key, is a new create request, so check transactions before retrying that way.
 This is not automatic semantic deduplication of two otherwise identical real expenses.
-No browser UI retry-key persistence is claimed by this API-only slice.
+The browser uses the same key for an unchanged uncertain create while this page remains open. It does not persist retry keys across reloads.
 
 Only the new `life_expense_requests` table is added when a keyed create is used. The old
 expense schema and rows are left intact. Claim records retain request hashes and expense
@@ -67,5 +67,26 @@ text. Removing an expense does not remove its retry tombstone.
 Automated checks use temporary local databases and synthetic expenses. They cover mixed
 currencies, decimal sums, invalid/partial records, correction conflicts, deleted-record
 retries, concurrent same-key creation, credential namespaces and transaction rollback.
-They do not inspect or change the owner's real spending records. The existing expense
-form has not yet been upgraded with correction and retry controls in this API slice.
+They do not inspect or change the owner's real spending records. The expense form uses the API controls described below.
+
+## Expense form
+
+Use **Correct** beside a transaction, review the fields, then **Review & save correction**.
+The confirmation shows before/after amount, currency, category, note and spending date.
+A conflicting correction keeps your draft and reports the error; reload transactions,
+choose the current row and review again. **Start new / cancel correction** returns to
+an unsaved INR draft. Correction does not alter the recorded currency in this form.
+
+New creates get a random retry key and a busy guard. After a network failure, keep the
+page open and retry unchanged fields with the same credential. Changing fields or
+credentials after an uncertain create is blocked rather than silently generating a
+new key. Starting a new record in that state requires a warning acknowledgement to
+check transactions first. Reloading/closing the page loses the page-memory retry key.
+Draft expense data and retry keys are not saved to browser storage.
+
+A successful save clears the form before refreshing reports. A refresh failure after
+that success says the record was saved and must not be resubmitted as a new expense.
+The transaction list displays scan/list/invalid-row notices; monthly report currencies
+stay separate. Disconnect clears the displayed transaction list and invalidates stale
+reads. It cannot cancel a write that already reached the server. These controls are
+covered by synthetic browser/state-machine checks, not by changes to real records.
