@@ -67,3 +67,10 @@ See [NEXT-MILESTONES.md](NEXT-MILESTONES.md), [REALTIME-VOICE-AND-INTERFACE.md](
 redacted text, without execution, imports, file access or progress writes. It is
 not a correctness/security/mastery pass and does not resolve aliases/data flow.
 See [Python review scope and evidence](MENTOR-PYTHON-REVIEW.md).
+
+### Trusted-project local Python wheel build
+
+`build_python_wheel` adds a fixed fresh-reviewed no-isolation wheel-build command
+and bounded output hashing. It runs arbitrary trusted backend code, not a sandbox,
+and does not install dependencies, publish, deploy or certify the resulting file.
+See [wheel builder boundaries and evidence](PYTHON-WHEEL-BUILDER.md).
