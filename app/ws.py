@@ -26,19 +26,22 @@ server → client
     {"type": "tools_list", ...}
     {"type": "pong"}
 
-Auth: pass the device/API token as ``?token=...`` (browsers cannot set
-Authorization headers on WebSocket handshakes).
+Auth: POST to ``/api/ws-ticket`` with the bearer token, then pass the
+short-lived, single-use ticket as ``?ticket=...`` on the WebSocket handshake.
 """
 
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
+import secrets
+import time
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
 from starlette.websockets import WebSocketState
 
 from app.core.auth import token_auth
@@ -47,6 +50,41 @@ from jarvis.core.brain import JarvisBrain
 logger = logging.getLogger("jarvis.ws")
 
 router = APIRouter()
+
+_WS_TICKET_TTL_SECONDS = 60
+_WS_TICKET_MAX_ENTRIES = 1024
+_ws_tickets: dict[str, float] = {}
+
+
+def _ticket_digest(ticket: str) -> str:
+    return hashlib.sha256(ticket.encode("utf-8")).hexdigest()
+
+
+def _issue_ws_ticket() -> str:
+    now = time.monotonic()
+    for digest, expires_at in list(_ws_tickets.items()):
+        if expires_at <= now:
+            _ws_tickets.pop(digest, None)
+    if len(_ws_tickets) >= _WS_TICKET_MAX_ENTRIES:
+        raise HTTPException(status_code=503, detail="WebSocket ticket capacity reached; retry shortly.")
+    ticket = secrets.token_urlsafe(32)
+    _ws_tickets[_ticket_digest(ticket)] = now + _WS_TICKET_TTL_SECONDS
+    return ticket
+
+
+def _consume_ws_ticket(ticket: str) -> bool:
+    if not ticket or len(ticket) > 256:
+        return False
+    expires_at = _ws_tickets.pop(_ticket_digest(ticket), None)
+    return expires_at is not None and expires_at > time.monotonic()
+
+
+@router.post("/api/ws-ticket")
+async def create_ws_ticket(request: Request) -> dict[str, int | str]:
+    """Exchange a bearer credential for a short-lived, one-use WebSocket ticket."""
+    token_auth.validate_token(request.headers.get("authorization"))
+    return {"ticket": _issue_ws_ticket(), "expires_in": _WS_TICKET_TTL_SECONDS}
+
 
 # Free-tier Gemini quotas are tiny; never let one browser melt them.
 MAX_CONCURRENT_TURNS = 2
@@ -80,13 +118,11 @@ async def _emit(websocket: WebSocket, payload: dict[str, Any]) -> bool:
 
 
 @router.websocket("/ws")
-async def websocket_chat(websocket: WebSocket, token: str = Query(default="")):
-    """Streaming JARVIS session: chat, tools, confirmations, live status."""
-    try:
-        token_auth.validate_token(f"Bearer {token}" if token else None)
-    except Exception as exc:
+async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
+    """Streaming JARVIS session authenticated with a one-use ticket."""
+    if not _consume_ws_ticket(ticket):
         await websocket.close(code=4401, reason="unauthorized")
-        logger.debug("WS handshake rejected: %s", exc)
+        logger.debug("WS handshake rejected: invalid or expired ticket")
         return
 
     await websocket.accept()
