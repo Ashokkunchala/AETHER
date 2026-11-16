@@ -106,6 +106,10 @@ The cinematic terminal command centre is a separate, on-demand interface. It doe
 
 The shortcut is installed in the current user's Start Menu Programs folder. Windows resolves the shortcut hotkey globally; if another application already uses Ctrl+Alt+A, choose another combination with `-Hotkey "CTRL+ALT+B"`. The microphone remains off until you explicitly start a voice session in a voice-enabled client. Sensitive AETHER tools continue to require approval. This is a Windows shortcut integration, not a replacement shell or a background keylogger/hotkey service.
 
+### AETHER integrations
+
+See [AETHER integrations and daily automation](docs/AETHER-INTEGRATIONS.md) for Google OAuth setup, official WhatsApp Cloud API configuration, Android/Windows notifications, authorized document search, AI planning and the approval model. Configure provider credentials only in your local `.env`; never commit them.
+
 ### AETHER personal life manager
 
 Open `http://127.0.0.1:8000/life` after starting the authenticated AETHER server. The responsive workspace includes:
