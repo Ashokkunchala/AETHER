@@ -128,6 +128,7 @@ fun PhoneActionsCard() {
                     status = "Local fields cleared. This does not erase system clipboard, destination-app drafts, logs or backups."
                 }) { Text("Clear local fields") }
                 Button(onClick = { status = localDeviceStatus(context) }) { Text("Read battery, volume and lock status now") }
+                Button(onClick = { status = networkSnapshotText(readLocalNetworkSnapshot(context)) }) { Text("Read local network capabilities now") }
                 Text(status, style = MaterialTheme.typography.bodySmall)
             }
         }
