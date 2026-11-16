@@ -113,13 +113,9 @@ Add-JarvisFirewallRule -Port $Port | Out-Null
 
 # --------------------------------------------------------------- 5. summary
 Write-Step "Step 5/5: What to do on the phone"
-$token = Read-JarvisEnvValue -Name "JARVIS_API_TOKEN"
 Write-Host "  Backend URL   : $baseUrl" -ForegroundColor White
-if ($token) {
-    Write-Host "  Pairing token : $token" -ForegroundColor White
-} else {
-    Write-Host "  Pairing token : MISSING - set JARVIS_API_TOKEN (32+ chars) in .env" -ForegroundColor Yellow
-}
+Write-Host "  Pairing token : not displayed (secret protection)" -ForegroundColor Green
+Write-Host "  To retrieve it locally, open .env in Notepad and copy JARVIS_API_TOKEN." -ForegroundColor Yellow
 Write-Host ""
 Write-Host "  a. Install the APK on the phone:" -ForegroundColor Green
 Write-Host "     - USB: rerun with -Install, or"
@@ -128,8 +124,9 @@ Write-Host "  b. One-time CA install (required for HTTPS):" -ForegroundColor Gre
 Write-Host "     - Send $($certInfo.CaCopy) to the phone (USB/Bluetooth/Drive)."
 Write-Host "     - Settings > Security > Encryption & credentials > Install a certificate"
 Write-Host "       > CA certificate > select jarvis-ca.crt."
-Write-Host "  c. In the app: paste the backend URL and pairing token above," -ForegroundColor Green
-Write-Host "     tap Pair device, then Connect securely."
+Write-Host "  c. In the app: paste the backend URL and copy JARVIS_API_TOKEN" -ForegroundColor Green
+Write-Host "     from your local .env file into the pairing field, then tap Pair device."
+Write-Host "     After pairing, tap Connect securely. Never share or screenshot the token."
 Write-Host ""
 Write-Host "  Keep this Windows account signed in and this machine on the same Wi-Fi" -ForegroundColor DarkGray
 Write-Host "  as the phone whenever you want JARVIS reachable. Never port-forward $Port" -ForegroundColor DarkGray
