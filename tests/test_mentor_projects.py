@@ -13,7 +13,7 @@ def store(tmp_path):
 
 
 def test_all_project_briefs_have_progressive_deliverables_and_review_checks():
-    assert len(PROJECTS) == 4
+    assert len(PROJECTS) == 5
     for key in PROJECTS:
         brief = project_brief(key)
         assert brief['scope'] and brief['prerequisites'] and brief['source'].startswith('https://')
