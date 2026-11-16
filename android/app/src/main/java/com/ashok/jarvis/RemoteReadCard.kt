@@ -20,20 +20,21 @@ import org.json.JSONObject
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
-private fun remoteReadHttp(base: String, token: String, requestId: String?): JSONObject {
-    val path = if (requestId == null) "/v1/remote-read/requests" else "/v1/remote-read/requests/${remoteReadId(requestId)}"
+private fun remoteReadHttp(base: String, token: String, requestId: String?, cancel: Boolean = false): JSONObject {
+    require(!cancel || requestId != null)
+    val path = (if (requestId == null) "/v1/remote-read/requests" else "/v1/remote-read/requests/${remoteReadId(requestId)}") + if (cancel) "/cancel" else ""
     val connection = URL(remoteReadBase(base) + path).openConnection() as HttpsURLConnection
     try {
         connection.instanceFollowRedirects = false
         connection.connectTimeout = 8000
         connection.readTimeout = 8000
-        connection.requestMethod = if (requestId == null) "POST" else "GET"
+        connection.requestMethod = if (requestId == null || cancel) "POST" else "GET"
         connection.setRequestProperty("Authorization", "Bearer $token")
         connection.setRequestProperty("Accept", "application/json")
-        if (requestId == null) {
+        if (requestId == null || cancel) {
             connection.doOutput = true
             connection.setRequestProperty("Content-Type", "application/json; charset=utf-8")
-            connection.outputStream.use { it.write("{\"action\":\"memory_snapshot\"}".toByteArray(Charsets.UTF_8)) }
+            connection.outputStream.use { it.write((if (cancel) "{}" else "{\"action\":\"memory_snapshot\"}").toByteArray(Charsets.UTF_8)) }
         }
         require(connection.responseCode == if (requestId == null) 201 else 200)
         val bytes = connection.inputStream.use { stream ->
@@ -117,6 +118,26 @@ internal fun RemoteReadCard() {
                             finally { if (generation == activeGeneration) busy = false }
                         }
                     }) { Text("Check this request once") }
+                }
+                if (requestId.isNotEmpty()) {
+                    Button(enabled = !busy, onClick = {
+                        val activeId = requestId
+                        val activeBase = base
+                        val activeToken = token
+                        val activeGeneration = generation
+                        busy = true; memory = ""
+                        status = "Requesting owner-bound cancellation/result clearing. This does not terminate or undo a running read."
+                        work = scope.launch {
+                            try {
+                                val value = withContext(Dispatchers.IO) { remoteReadHttp(activeBase, activeToken, activeId, true) }
+                                require(value.getString("request_id") == activeId && value.getString("action") == REMOTE_READ_ACTION && value.getBoolean("cancel_acknowledged"))
+                                require(value.isNull("result") && value.getBoolean("running_operation_termination_verified") == false)
+                                val state = value.getString("state"); require(state in REMOTE_READ_STATES)
+                                if (generation == activeGeneration) status = "Cancellation/result-clear acknowledged: $state. Pending requests cannot start. If already dispatched, the read may have happened; result access is suppressed, not OS cancellation or recall of previous copies."
+                            } catch (_: Exception) { if (generation == activeGeneration) status = "Cancellation response unavailable or unsupported. No cancellation success claimed. The server request/read may remain; check this exact request or review on the laptop. No automatic retry." }
+                            finally { if (generation == activeGeneration) busy = false }
+                        }
+                    }) { Text("Cancel this request / clear server result") }
                 }
                 Text(status)
                 if (memory.isNotEmpty()) Text(memory)
