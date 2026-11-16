@@ -181,7 +181,7 @@ class EmailDraft(BaseModel):
 
 
 class WhatsAppDraft(BaseModel):
-    to: str = Field(min_length=8, max_length=16, pattern=r"^\\+?[1-9]\\d{7,14}$")
+    to: str = Field(min_length=8, max_length=16, pattern=r"^\+?[1-9]\d{7,14}$")
     body: str = Field(min_length=1, max_length=4096)
 
 
