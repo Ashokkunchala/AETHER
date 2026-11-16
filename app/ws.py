@@ -33,18 +33,16 @@ short-lived, single-use ticket as ``?ticket=...`` on the WebSocket handshake.
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import json
 import logging
-import secrets
-import time
 import uuid
-from typing import Any
+from typing import Annotated, Any, Literal, TypeAlias
 
-from fastapi import APIRouter, HTTPException, Query, Request, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Query, Request, WebSocket, WebSocketDisconnect
+from pydantic import BaseModel, ConfigDict, Field, RootModel, StrictBool, ValidationError
 from starlette.websockets import WebSocketState
 
-from app.core.auth import token_auth
+from app.core.ws_sessions import SessionIdentity, TicketStore
 from jarvis.core.brain import JarvisBrain
 
 logger = logging.getLogger("jarvis.ws")
@@ -52,38 +50,44 @@ logger = logging.getLogger("jarvis.ws")
 router = APIRouter()
 
 _WS_TICKET_TTL_SECONDS = 60
-_WS_TICKET_MAX_ENTRIES = 1024
-_ws_tickets: dict[str, float] = {}
+_APPROVAL_TIMEOUT_SECONDS = 60
+_tickets = TicketStore(ttl=_WS_TICKET_TTL_SECONDS)
 
 
-def _ticket_digest(ticket: str) -> str:
-    return hashlib.sha256(ticket.encode("utf-8")).hexdigest()
+class _Frame(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
 
 
-def _issue_ws_ticket() -> str:
-    now = time.monotonic()
-    for digest, expires_at in list(_ws_tickets.items()):
-        if expires_at <= now:
-            _ws_tickets.pop(digest, None)
-    if len(_ws_tickets) >= _WS_TICKET_MAX_ENTRIES:
-        raise HTTPException(status_code=503, detail="WebSocket ticket capacity reached; retry shortly.")
-    ticket = secrets.token_urlsafe(32)
-    _ws_tickets[_ticket_digest(ticket)] = now + _WS_TICKET_TTL_SECONDS
-    return ticket
+class ChatFrame(_Frame):
+    type: Literal["chat"]
+    message: str = Field(min_length=1, max_length=16000)
+    # Backward-compatible but never used to grant authority.
+    auto_approve: StrictBool = False
 
 
-def _consume_ws_ticket(ticket: str) -> bool:
-    if not ticket or len(ticket) > 256:
-        return False
-    expires_at = _ws_tickets.pop(_ticket_digest(ticket), None)
-    return expires_at is not None and expires_at > time.monotonic()
+class ApprovalFrame(_Frame):
+    type: Literal["approve"]
+    id: str = Field(min_length=1, max_length=64)
+    approved: StrictBool
+
+
+class ControlFrame(_Frame):
+    type: Literal["ping", "status", "tools", "cancel"]
+    id: str | None = Field(default=None, max_length=64)
+
+
+FrameType: TypeAlias = Annotated[ChatFrame | ApprovalFrame | ControlFrame, Field(discriminator="type")]
+
+
+class IncomingFrame(RootModel[FrameType]):
+    """Strict discriminated wire message; no implicit approval defaults."""
 
 
 @router.post("/api/ws-ticket")
 async def create_ws_ticket(request: Request) -> dict[str, int | str]:
     """Exchange a bearer credential for a short-lived, one-use WebSocket ticket."""
-    token_auth.validate_token(request.headers.get("authorization"))
-    return {"ticket": _issue_ws_ticket(), "expires_in": _WS_TICKET_TTL_SECONDS}
+    identity = SessionIdentity.authenticate(request.headers.get("authorization"))
+    return {"ticket": _tickets.issue(identity), "expires_in": _WS_TICKET_TTL_SECONDS}
 
 
 # Free-tier Gemini quotas are tiny; never let one browser melt them.
@@ -119,8 +123,9 @@ async def _emit(websocket: WebSocket, payload: dict[str, Any]) -> bool:
 
 @router.websocket("/ws")
 async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
-    """Streaming JARVIS session authenticated with a one-use ticket."""
-    if not _consume_ws_ticket(ticket):
+    """Streaming AETHER session authenticated with a one-use ticket."""
+    identity = _tickets.consume(ticket)
+    if identity is None:
         await websocket.close(code=4401, reason="unauthorized")
         logger.debug("WS handshake rejected: invalid or expired ticket")
         return
@@ -140,7 +145,7 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
     })
 
     async def confirm(tool, args: dict[str, Any]) -> bool:
-        if turn_cancel.is_set():
+        if turn_cancel.is_set() or not identity.is_active():
             return False
         confirm_id = uuid.uuid4().hex
         loop = asyncio.get_running_loop()
@@ -156,13 +161,21 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
                 "risk": tool.risk.name,
                 "args": args,
             })
-            return await future
+            try:
+                approved = await asyncio.wait_for(future, _APPROVAL_TIMEOUT_SECONDS)
+            except TimeoutError:
+                return False
+            return approved and not turn_cancel.is_set() and identity.is_active()
         finally:
             pending_confirm.pop(confirm_id, None)
 
     async def run_turn(message: str) -> None:
         nonlocal turn_task
         turn_cancel.clear()
+        if not identity.is_active():
+            await websocket.close(code=4401, reason="session revoked")
+            turn_task = None
+            return
         try:
             async with _turn_gate:
                 # Remote clients cannot self-grant approval. Sensitive tools always
@@ -186,16 +199,18 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
     try:
         while True:
             raw = await websocket.receive_text()
+            if not identity.is_active():
+                await websocket.close(code=4401, reason="session revoked")
+                break
             try:
-                message = json.loads(raw)
-            except ValueError:
-                await _emit(websocket, {"type": "error", "error": "invalid JSON frame"})
+                if len(raw) > 20000:
+                    raise ValueError("frame too large")
+                frame = IncomingFrame.model_validate_json(raw).root
+            except (ValueError, ValidationError):
+                await _emit(websocket, {"type": "error", "error": "invalid frame"})
                 continue
-            if not isinstance(message, dict):
-                await _emit(websocket, {"type": "error", "error": "expected a JSON object"})
-                continue
-
-            kind = str(message.get("type", "")).lower()
+            message = frame.model_dump()
+            kind = frame.type
 
             if kind == "ping":
                 await _emit(websocket, {"type": "pong"})
@@ -211,7 +226,9 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
                 confirm_id = str(message.get("id", ""))
                 future = pending_confirm.get(confirm_id)
                 if future and not future.done():
-                    future.set_result(bool(message.get("approved", True)))
+                    future.set_result(message["approved"])
+                else:
+                    await _emit(websocket, {"type": "error", "error": "unknown or expired approval"})
 
             elif kind == "cancel":
                 turn_cancel.set()
