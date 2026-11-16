@@ -1,23 +1,99 @@
-# AWS DevOps mode
+# AETHER AWS DevOps foundations
 
-JARVIS can act as a DevOps copilot for AWS work. It does not store AWS credentials. It uses the AWS CLI profile already configured on your machine.
+AETHER has offline reviewers and a guarded local AWS CLI wrapper in the desktop
+brain/CLI/TUI tool registry. These are foundations, not full AWS operations or
+acceptance evidence. Saved-data chat, Live Voice and provider panels do not
+universally expose the same tools, memory or approval path. Configuring one
+interface does not connect every other interface.
 
-## Tools
+The wrapper uses an AWS CLI profile configured on the user's machine. It does
+not set up, read or store credentials itself. No real AWS account, cloud change,
+backup/restore, production incident or device acceptance was exercised for these
+foundations. Request charges and data disclosure depend on the actual operation;
+read-only does not mean free or non-sensitive.
 
-| Tool | What it does | Approval |
-| --- | --- | --- |
-| `review_terraform` | Scans `.tf` files for open security groups, public S3, hardcoded secrets, missing backend | none (offline) |
-| `review_dockerfile` | Unpinned base image, root user, secrets in ENV, `curl \| sh` | none (offline) |
-| `review_cicd` | GitHub Actions and Jenkinsfile problems | none (offline) |
-| `review_iam_policy` | Wildcard actions, PassRole on `*`, public principals | none (offline) |
-| `devops_runbook` | Checklists for ECS, EKS, Terraform locks, Jenkins, ALB 5xx, IAM AccessDenied | none |
-| `aws_read` | `describe-*`, `list-*`, `get-*`, `s3 ls` | none; refuses anything else |
-| `aws_change` | Any other AWS CLI call | always asks first; `dry_run` shows the command |
+## Exact AWS read policy
 
-Never auto-run: secret reads (Secrets Manager, SSM parameters, KMS decrypt, STS assume-role), per-request billed APIs (Cost Explorer, Pricing), and mutating calls. A few account-destructive calls are blocked outright.
+`aws_read` accepts only these reviewed service/operation pairs and reviewed flags:
 
-## Limits
+| Service | Operation |
+| --- | --- |
+| `ec2` | `describe-instances` |
+| `ecs` | `list-clusters` |
+| `ecs` | `describe-clusters` |
+| `sts` | `get-caller-identity` |
+| `s3` | `ls` |
 
-- The reviewers are heuristics, not a security audit.
-- The AWS wrapper was tested with dry runs and unit tests only. It has not been run against a real AWS account.
-- Terraform plan/apply, kubectl and Jenkins are not wrapped yet. Use `run_shell` (asks first) for those.
+This is an exact allowlist, not permission for every operation whose name starts
+with describe, list or get. Unknown/repeated flags, global endpoint overrides,
+local-file argument loading, flag abbreviations and malformed pagination values
+are refused on the read path. See `jarvis/devops/awscli.py` for each operation's
+flag contract. No new AWS read is enabled by the offline reviewers below.
+
+`aws_read` is a LOW registry action: the persistent emergency stop blocks it.
+`aws_change` is a HIGH registry action and always requires confirmation, including
+billed reads, unlisted reads and secret-returning operations. Some explicitly
+blocked account actions remain blocked. Secret reads such as Secrets Manager,
+SSM parameters, KMS decrypt and STS assume-role are not automatic reads. Cost
+Explorer, Pricing and Bedrock Runtime stay on the approval path, even for reads.
+
+`aws_change(dry_run=true)` only builds/displays the local command. It is not an
+AWS-side dry run and does not validate permissions, account, region, price,
+resource existence, quota or rollback. Any real operation needs a separately
+reviewed exact command, scope, expected effect, possible charges and undo plan.
+The generic wrapper is not a typed safe lifecycle adapter for every AWS service.
+Do not use it or generic shell access to bypass the user's approved-command,
+no-deployment, no-paid-service or no-destructive-action boundaries.
+
+[Local execution safety](EXECUTION-SAFETY.md) describes invocation-bound
+confirmation, stop behavior and limits. This is not an OS sandbox, remote role
+system or a way to revoke work that already started.
+
+## Offline evidence tools
+
+SAFE evidence reviews do not call AWS or run export commands. They remain
+available after the registry stop, so they must not be confused with LOW live
+reads. Select an existing local export yourself; a missing snapshot is not
+permission to fetch one. No export below proves current account/region/filter
+scope, freshness, completeness or actual resource health.
+
+| Tool | Reported evidence and limits |
+| --- | --- |
+| `review_security_groups` | Explicit public ingress patterns from supplied describe-security-groups JSON. No effective reachability or full network audit. |
+| `review_terraform_plan` | Delete/replacement/state-removal actions in a supplied plan JSON. No apply, sensitive attribute echo or proof of a safe deployment. |
+| `review_kubernetes_pods` | Supplied Pod/PodList readiness/restart/termination signals. No cluster access, root-cause proof or inferred readiness from Running. |
+| `review_ebs_volumes` | Reported attachment state. Available with explicit empty attachments is only a human-review candidate, never proof unused or safe cleanup. |
+| `review_cost_explorer` | Native supplied cost/usage periods, metrics, units and estimated flags kept separate. No billed request, implicit grand total or final-invoice/savings claim. |
+| `review_aws_backup_jobs` | Supplied job states and category status, including completed-with-issues and unknown categories. No protected-resource coverage, backup integrity or restore-readiness claim. |
+| `analyze_daily_costs` | Caller-normalized complete-day same-currency totals against a short baseline. Not native export parsing, monthly billing, forecasting or learned anomaly detection. |
+
+Detailed input bounds and acceptance limits:
+[cloud evidence scope](ABILITIES.md), [EBS review](AWS-EBS-REVIEW.md),
+[Cost Explorer review](AWS-COST-REVIEW.md),
+[AWS Backup jobs](AWS-BACKUP-REVIEW.md).
+
+## Other existing offline helpers
+
+- `review_terraform`, `review_dockerfile`, `review_cicd`, `review_k8s` and
+  `review_iam_policy` flag selected text/JSON patterns. They are heuristics, not
+  complete parsers, vulnerability scans, effective IAM permission simulation or
+  proof secure. No finding does not mean safe. IAM/S3/VPC live inventories are
+  not created by these reviewers.
+- `triage_log` matches known local log patterns and minute strings; a match is a
+  signal, not a verified root cause. Raw examples/patterns can include sensitive
+  log content in its result. Select and redact logs before model-backed use.
+  This is not CloudWatch collection, trace correlation or a monitoring service.
+- `devops_runbook` returns manual checklists. `draft_postmortem` formats supplied
+  facts and flags missing sections, not an independently verified incident report.
+- [Terraform mentor](MENTOR-TERRAFORM.md) provides a no-cloud lesson and a bounded
+  supplied validation-report reviewer. It does not execute Terraform or provision
+  infrastructure. [Local backup verification](BACKUP-VERIFICATION.md) checks a
+  selected ZIP snapshot against a caller's trusted hash, not AWS Backup recovery.
+
+No dedicated validated Git/Docker/Jenkins lifecycle adapters, general Linux
+administrator, coding sandbox or complete ECS/EKS/RDS/Lambda/CloudWatch/S3/VPC/
+Secrets Manager/Security Hub/GuardDuty/CloudFormation operational suite is
+established here. Generated code or a generic command wrapper is not execution
+acceptance. Live credentials, hardware/provider checks and separate action
+approval remain prerequisites for work that needs them. Never expose this local
+prototype directly to the public internet.
