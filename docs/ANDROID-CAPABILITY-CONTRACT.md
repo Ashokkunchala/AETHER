@@ -12,6 +12,7 @@ The new [local phone actions](ANDROID-LOCAL-PHONE-ACTIONS.md) card adds explicit
 ACTION_DIAL, SMS ACTION_SENDTO and calendar ACTION_INSERT composers, a system
 contact picker without number extraction, a separate [specific-number picker](ANDROID-SELECTED-PHONE-NUMBER.md)
 with selected-row-only access and explicit candidate review, selected document display metadata,
+and a separate [explicit selected UTF-8 text preview/find](ANDROID-SELECTED-TEXT.md),
 image selection without analysis/upload, plain-text foreground clipboard buttons,
 and battery/app-volume/keyguard/own-permission snapshots. These composer/picker
 paths add no new manifest grant. The separate [foreground network snapshot](ANDROID-NETWORK-SNAPSHOT.md)
