@@ -41,10 +41,13 @@ app permission, bearer token, shell classifier or confirmation boolean.
 
 ## Material current gaps, not enforcement claims
 
-- screenshot is currently Risk.LOW and does not require a confirmation callback.
-  The registry cannot independently establish an explicit user screenshot request.
-  Therefore the new explicit-request-only requirement is not yet enforced by the
-  generic desktop tool. Do not use it for proactive or remote evidence capture.
+- Screenshot hardening now requires fresh scoped confirmation in the desktop
+  registry: explicit full_screen/region, exact new local PNG path and privacy/
+  effect preview, no auto/always approval. Legacy direct/voice screenshot routes
+  fail closed. Confirming that preview is the user's explicit single-capture
+  request, not a model/caller boolean. It does not authorize upload or remote
+  disclosure. Other screen/pixel/OCR/recording tools and arbitrary Python/shell
+  are distinct, not covered by a screenshot-only acceptance claim.
 - run_shell has explicit HIGH-risk registry confirmation, but direct shell.run
   is an execution primitive, not an authority boundary or sandbox. Its text
   classifier/dry_run do not establish safety, scope, credential or no-side-effect
@@ -58,8 +61,8 @@ app permission, bearer token, shell classifier or confirmation boolean.
   and UAC/permissions are not bypassed. An approval prompt cannot repair an
   ambiguous target or command.
 
-This document does not silently change existing controller behavior or claim
-these gaps fixed. Source-regression tests record the narrow helper boundary and
+Only the scoped screenshot change above is implemented; the remaining gaps
+are not fixed by this contract. Source-regression tests record the narrow helper boundary and
 existing registry gates; they are not live Windows validation.
 
 ## Required future remote-job contract
