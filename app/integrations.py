@@ -467,11 +467,11 @@ def search_documents(q: str = Query(min_length=2, max_length=200), limit: int = 
                 suffix = path.suffix.lower()
                 if suffix == ".pdf":
                     from pypdf import PdfReader
-                    text = "\\n".join(page.extract_text() or "" for page in PdfReader(str(resolved)).pages[:80])
+                    text = "\n".join(page.extract_text() or "" for page in PdfReader(str(resolved)).pages[:80])
                 elif suffix == ".docx":
                     from docx import Document
                     document = Document(str(resolved))
-                    text = "\\n".join(paragraph.text for paragraph in document.paragraphs)
+                    text = "\n".join(paragraph.text for paragraph in document.paragraphs)
                 else:
                     text = path.read_text(encoding="utf-8", errors="replace")
                 lines = text.splitlines()
