@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 $ProgressPreference = "SilentlyContinue"
 
 Write-Host ""
-Write-Host "JARVIS Personal AI - Windows installer" -ForegroundColor Cyan
+Write-Host "AETHER Personal AI - Windows installer" -ForegroundColor Cyan
 
 $installRoot = Join-Path $env:LOCALAPPDATA "Programs\JarvisPersonalAI"
 $tempRoot = Join-Path $env:TEMP ("jarvis-install-" + [guid]::NewGuid().ToString("N"))
@@ -124,7 +124,7 @@ try {
         }
     }
 
-    Write-Host "Downloading current JARVIS branch..."
+    Write-Host "Downloading current AETHER branch..."
     $zipPath = Join-Path $tempRoot "jarvis.zip"
     Invoke-WebRequest -Uri "https://codeload.github.com/Ashokkunchala/Jarvis-Personal-AI/zip/refs/heads/jarvis-cinematic-local-voice" -OutFile $zipPath
     Expand-Archive -Path $zipPath -DestinationPath $tempRoot -Force
@@ -134,7 +134,7 @@ try {
         Select-Object -First 1 -ExpandProperty FullName
 
     if (-not $sourceRoot) {
-        throw "Could not find the downloaded JARVIS source tree."
+        throw "Could not find the downloaded AETHER source tree."
     }
 
     New-Item -ItemType Directory -Force -Path $installRoot | Out-Null
@@ -224,21 +224,21 @@ try {
     $principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
     $taskSettings = New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
 
-    Register-ScheduledTask -TaskName "JARVIS Personal AI" -Action $action -Trigger $trigger -Principal $principal -Settings $taskSettings -Description "Starts the local JARVIS assistant after this user signs in." -Force | Out-Null
+    Register-ScheduledTask -TaskName "JARVIS Personal AI" -Action $action -Trigger $trigger -Principal $principal -Settings $taskSettings -Description "Starts the local AETHER assistant after this user signs in." -Force | Out-Null
 
     Write-Host ""
     Write-Host "Verifying the installation (jarvis doctor)..." -ForegroundColor Cyan
     & $venvPython (Join-Path $installRoot "jarvis_cli.py") doctor
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "jarvis doctor reported critical failures. JARVIS is installed, but fix the FAIL rows above before relying on it. Rerun any time with: $venvPython jarvis_cli.py doctor"
+        Write-Warning "jarvis doctor reported critical failures. AETHER is installed, but fix the FAIL rows above before relying on it. Rerun any time with: $venvPython jarvis_cli.py doctor"
     } else {
         Write-Host "Verification passed." -ForegroundColor Green
     }
 
-    Write-Host "Installation complete. Starting JARVIS..." -ForegroundColor Green
+    Write-Host "Installation complete. Starting AETHER..." -ForegroundColor Green
     & $sessionScript
 
-    Write-Host "JARVIS will start after you sign in to Windows."
+    Write-Host "AETHER will start after you sign in to Windows."
     Write-Host "UI: http://127.0.0.1:8000"
     Write-Host "Installed at: $installRoot"
     Write-Host "Disable auto-start by disabling the JARVIS Personal AI task in Task Scheduler."
