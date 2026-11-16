@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import math
 import sqlite3
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
@@ -25,6 +26,7 @@ def _now() -> str:
     return datetime.now(UTC).isoformat()
 
 
+@contextmanager
 def _db():
     path = Path(Settings().jarvis_db_path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -51,7 +53,14 @@ def _db():
         status TEXT NOT NULL DEFAULT 'draft', created_at TEXT NOT NULL, updated_at TEXT NOT NULL
       );
     """)
-    return db
+    try:
+        yield db
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
 
 
 class TaskInput(BaseModel):
