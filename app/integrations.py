@@ -286,16 +286,16 @@ async def approve_action(approval_id: int):
     try:
         result = None
         if provider == "google_calendar":
-        event_id = payload.get("event_id")
-        if action == "delete":
-            result = await _google("DELETE", f"/calendar/v3/calendars/primary/events/{event_id}")
-        else:
-            event = {"summary": payload["title"], "description": payload.get("description", ""),
-                     "location": payload.get("location", ""),
-                     "start": {"dateTime": payload["start"]}, "end": {"dateTime": payload["end"]}}
-            result = await _google("POST" if action == "create" else "PATCH",
-                                   "/calendar/v3/calendars/primary/events" if action == "create"
-                                   else f"/calendar/v3/calendars/primary/events/{event_id}", body=event)
+            event_id = payload.get("event_id")
+            if action == "delete":
+                result = await _google("DELETE", f"/calendar/v3/calendars/primary/events/{event_id}")
+            else:
+                event = {"summary": payload["title"], "description": payload.get("description", ""),
+                         "location": payload.get("location", ""),
+                         "start": {"dateTime": payload["start"]}, "end": {"dateTime": payload["end"]}}
+                result = await _google("POST" if action == "create" else "PATCH",
+                                       "/calendar/v3/calendars/primary/events" if action == "create"
+                                       else f"/calendar/v3/calendars/primary/events/{event_id}", body=event)
         elif provider == "gmail":
             result = await _send_gmail(payload)
         elif provider == "whatsapp":
