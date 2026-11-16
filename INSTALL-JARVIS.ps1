@@ -9,6 +9,22 @@ $installRoot = Join-Path $env:LOCALAPPDATA "Programs\JarvisPersonalAI"
 $tempRoot = Join-Path $env:TEMP ("jarvis-install-" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
 
+function Read-SecretValue {
+    param([Parameter(Mandatory = $true)][string]$Prompt)
+    $secure = Read-Host -Prompt $Prompt -AsSecureString
+    if ($secure.Length -eq 0) {
+        $secure.Dispose()
+        return ""
+    }
+    $pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+    try {
+        return [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer)
+    } finally {
+        [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer)
+        $secure.Dispose()
+    }
+}
+
 function Set-EnvValue {
     param(
         [Parameter(Mandatory = $true)][string]$Text,
@@ -147,15 +163,17 @@ try {
     # Realtime voice stack (sounddevice/webrtcvad/openwakeword/scipy). Separate
     # from requirements.txt so CI stays audio-free; without it the robot's `v`
     # call and `jarvis start` report VOICE ERR. requirements-voice.txt may be
-    # absent only when an older branch zip predates it - warn, never hard-fail.
+    # absent means the published package is incomplete; fail instead of shipping a broken voice install.
     $voiceRequirements = Join-Path $installRoot "requirements-voice.txt"
     if (Test-Path -LiteralPath $voiceRequirements) {
         Write-Host "Installing the realtime voice stack (sounddevice, webrtcvad, openwakeword, scipy)..."
         & $venvPython -m pip install -r $voiceRequirements
         if ($LASTEXITCODE -ne 0) { throw "Voice stack installation failed (pip exit ${LASTEXITCODE})." }
     } else {
-        Write-Warning "requirements-voice.txt not present in the downloaded tree (older branch). Voice features will report VOICE ERR; install later with: $venvPython -m pip install -r requirements-voice.txt"
+        throw "requirements-voice.txt is missing from the downloaded package; refusing an incomplete installation."
     }
+    & $venvPython -c "import sounddevice, webrtcvad, openwakeword, scipy"
+    if ($LASTEXITCODE -ne 0) { throw "Voice dependency verification failed." }
 
     $envPath = Join-Path $installRoot ".env"
     if (-not (Test-Path $envPath)) {
@@ -173,19 +191,22 @@ try {
         Write-Host ""
         Write-Host "Enter API keys. They are saved only in your local .env file." -ForegroundColor Yellow
         Write-Host "Gemini is required for current live voice features." -ForegroundColor Yellow
-        $gemini = Read-Host "Gemini API key (required)"
+        $gemini = Read-SecretValue -Prompt "Gemini API key (required; input hidden)"
         if ([string]::IsNullOrWhiteSpace($gemini)) {
             throw "Gemini API key is required for current live voice features. Rerun after obtaining one."
         }
-        $openrouter = Read-Host "OpenRouter API key (optional; press Enter to skip)"
-        $groq = Read-Host "Groq API key (optional; press Enter to skip)"
+        $openrouter = Read-SecretValue -Prompt "OpenRouter API key (optional; input hidden; press Enter to skip)"
+        $groq = Read-SecretValue -Prompt "Groq API key (optional; input hidden; press Enter to skip)"
 
         $template = Set-EnvValue -Text $template -Name "GEMINI_API_KEY" -Value $gemini.Trim()
         $template = Set-EnvValue -Text $template -Name "OPENROUTER_API_KEY" -Value $openrouter.Trim()
         $template = Set-EnvValue -Text $template -Name "GROQ_API_KEY" -Value $groq.Trim()
         $template = Set-EnvValue -Text $template -Name "JARVIS_AI_PROVIDER" -Value "auto"
 
-        Set-Content -Path $envPath -Value $template -Encoding UTF8
+        [System.IO.File]::WriteAllText($envPath, $template, (New-Object System.Text.UTF8Encoding($false)))
+        $gemini = $null
+        $openrouter = $null
+        $groq = $null
     }
     else {
         Write-Host "Keeping existing .env credentials and settings." -ForegroundColor Green
