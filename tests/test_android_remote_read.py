@@ -44,7 +44,7 @@ def test_server_api_has_no_pair_approve_or_execute_route():
     source = (ROOT / "windows_agent/remote_read_api.py").read_text()
     assert "Literal['memory_snapshot']" in source or 'Literal["memory_snapshot"]' in source
     assert 'extra="forbid"' in source
-    assert source.count("@router.") == 2
+    assert source.count("@router.") == 3
     assert "review_local(" not in source and "provision_local(" not in source
     implementation = (ROOT / "windows_agent/remote_read.py").read_text()
     for forbidden in [
@@ -56,3 +56,19 @@ def test_server_api_has_no_pair_approve_or_execute_route():
         "exec(",
     ]:
         assert forbidden not in implementation
+
+
+def test_cancel_is_explicit_separate_from_clearing_and_never_os_termination_claim():
+    source = (BASE / "RemoteReadCard.kt").read_text()
+    for marker in [
+        "Cancel this request / clear server result",
+        "cancel_acknowledged",
+        "running_operation_termination_verified",
+        "No cancellation success claimed",
+        "not OS cancellation",
+        "Clear local fields (not cancel)",
+    ]:
+        assert marker in source
+    protocol = (BASE / "RemoteReadProtocol.kt").read_text()
+    for state in ["cancelled_before_read", "cancelled_result_suppressed", "result_cleared"]:
+        assert state in protocol
