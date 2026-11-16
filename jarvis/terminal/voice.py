@@ -118,7 +118,14 @@ class VoiceCall:
         if self._preflight:
             missing = missing_voice_packages()
             if missing:
-                return self._fail("voice stack missing: " + ", ".join(missing))
+                # Print the exact fix (same file the Windows installer uses);
+                # google.genai lives in requirements.txt, not the voice file.
+                hint = "pip install -r requirements-voice.txt"
+                if "google.genai" in missing:
+                    hint = "pip install -r requirements.txt -r requirements-voice.txt"
+                return self._fail(
+                    "voice stack missing: " + ", ".join(missing) + " - fix: " + hint
+                )
             if not has_api_key():
                 return self._fail("GEMINI_API_KEY is not set in .env")
 

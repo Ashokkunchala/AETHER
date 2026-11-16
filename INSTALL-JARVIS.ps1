@@ -144,6 +144,19 @@ try {
     & $venvPython -m pip install -r (Join-Path $installRoot "requirements-dev.txt")
     if ($LASTEXITCODE -ne 0) { throw "Dependency installation failed." }
 
+    # Realtime voice stack (sounddevice/webrtcvad/openwakeword/scipy). Separate
+    # from requirements.txt so CI stays audio-free; without it the robot's `v`
+    # call and `jarvis start` report VOICE ERR. requirements-voice.txt may be
+    # absent only when an older branch zip predates it - warn, never hard-fail.
+    $voiceRequirements = Join-Path $installRoot "requirements-voice.txt"
+    if (Test-Path -LiteralPath $voiceRequirements) {
+        Write-Host "Installing the realtime voice stack (sounddevice, webrtcvad, openwakeword, scipy)..."
+        & $venvPython -m pip install -r $voiceRequirements
+        if ($LASTEXITCODE -ne 0) { throw "Voice stack installation failed (pip exit ${LASTEXITCODE})." }
+    } else {
+        Write-Warning "requirements-voice.txt not present in the downloaded tree (older branch). Voice features will report VOICE ERR; install later with: $venvPython -m pip install -r requirements-voice.txt"
+    }
+
     $envPath = Join-Path $installRoot ".env"
     if (-not (Test-Path $envPath)) {
         $token = (& $venvPython -c "import secrets; print(secrets.token_urlsafe(48))").Trim()
@@ -191,6 +204,15 @@ try {
 
     Register-ScheduledTask -TaskName "JARVIS Personal AI" -Action $action -Trigger $trigger -Principal $principal -Settings $taskSettings -Description "Starts the local JARVIS assistant after this user signs in." -Force | Out-Null
 
+    Write-Host ""
+    Write-Host "Verifying the installation (jarvis doctor)..." -ForegroundColor Cyan
+    & $venvPython (Join-Path $installRoot "jarvis_cli.py") doctor
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning "jarvis doctor reported critical failures. JARVIS is installed, but fix the FAIL rows above before relying on it. Rerun any time with: $venvPython jarvis_cli.py doctor"
+    } else {
+        Write-Host "Verification passed." -ForegroundColor Green
+    }
+
     Write-Host "Installation complete. Starting JARVIS..." -ForegroundColor Green
     & $sessionScript
 
@@ -198,6 +220,7 @@ try {
     Write-Host "UI: http://127.0.0.1:8000"
     Write-Host "Installed at: $installRoot"
     Write-Host "Disable auto-start by disabling the JARVIS Personal AI task in Task Scheduler."
+    Write-Host "Uninstall with: .\scripts\uninstall-jarvis.ps1 -RemoveFiles"
 }
 finally {
     Remove-Item $tempRoot -Recurse -Force -ErrorAction SilentlyContinue

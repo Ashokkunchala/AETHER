@@ -27,6 +27,18 @@ from rich.table import Table
 
 sys.path.insert(0, str(Path(__file__).parent))
 
+# Load the repo .env into the process environment before any command reads
+# os.getenv(...). Without this, `jarvis serve` mints a random
+# JARVIS_API_TOKEN/SECRET_KEY that then overrides the configured values in
+# .env, because pydantic gives real environment variables priority over the
+# .env file. Real environment variables still win (override=False).
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(Path(__file__).resolve().parent / ".env", override=False)
+except ImportError:  # pragma: no cover - python-dotenv is a runtime dependency
+    pass
+
 app = typer.Typer(
     name="jarvis",
     help="JARVIS Personal AI — floating robot, streaming assistant, laptop control, Android control.",
@@ -509,9 +521,9 @@ def _launch_voice(*, call_mode: bool) -> None:
             "[red]Voice stack is not installed[/red] — missing: "
             + ", ".join(missing)
             + ".\nThe wake word, microphone loop and VAD run locally and need these packages. "
-            "Install them with: [bold]pip install -r requirements-jarvis.txt[/bold] "
-            "(PyAudio needs PortAudio build headers on Linux). The floating 'jarvis' robot "
-            "and typed 'jarvis ask' mode work without them."
+            "Install them with: [bold]pip install -r requirements-voice.txt[/bold] "
+            "(prebuilt Windows wheels; on Linux also install libportaudio2). "
+            "The floating 'jarvis' robot and typed 'jarvis ask' mode work without them."
         )
         raise typer.Exit(code=1)
 

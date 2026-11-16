@@ -60,8 +60,16 @@ shows `You:` / `JARVIS:` transcripts.
 It needs `GEMINI_API_KEY` and the realtime audio stack
 (`sounddevice`, `webrtcvad`, `openwakeword`, `numpy`, `scipy`,
 `google-genai`). If a key or package is missing the robot shows `VOICE ERR`
-with the reason and does not open the microphone. The animation and gauge
-themselves are local-only and never call a model or the network.
+with the reason (including the exact fix command) and does not open the
+microphone. Install the stack with:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-voice.txt
+```
+
+`INSTALL-JARVIS.ps1` installs this file automatically for installed copies.
+The animation and gauge themselves are local-only and never call a model or
+the network.
 
 ## Rendering
 

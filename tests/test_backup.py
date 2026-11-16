@@ -110,14 +110,24 @@ def test_same_basename_files_have_unique_safe_members(tmp_path):
         assert all(not n.startswith('/') and '..' not in n for n in archive.namelist())
 
 
+def _symlink_or_skip(link, target, target_is_directory=False):
+    # Windows only allows symlink creation with Administrator rights or
+    # Developer Mode enabled (WinError 1314: A required privilege is not held
+    # by the client). The security assertion itself still runs on POSIX CI.
+    try:
+        link.symlink_to(target, target_is_directory=target_is_directory)
+    except OSError as exc:
+        pytest.skip(f'symlinks unavailable on this host: {exc}')
+
+
 def test_symlink_sources_and_destination_ancestors_rejected(selection, tmp_path):
     files, destination = selection
     link = tmp_path / 'link.md'
-    link.symlink_to(files[0])
+    _symlink_or_skip(link, files[0])
     with pytest.raises(ValueError, match='Symlink'):
         preview_backup([str(link)], destination)
     folder_link = tmp_path / 'folder'
-    folder_link.symlink_to(tmp_path, target_is_directory=True)
+    _symlink_or_skip(folder_link, tmp_path, target_is_directory=True)
     with pytest.raises(ValueError, match='Symlink'):
         preview_backup(files, str(folder_link / 'backup.zip'))
 

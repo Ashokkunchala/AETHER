@@ -44,7 +44,7 @@ def test_web_selector_exposes_every_requested_mode_without_removing_legacy_optio
             if tag == 'select':
                 self.in_modes = False
     parser = Options()
-    parser.feed((Path(__file__).parents[1] / 'app/static/index.html').read_text())
+    parser.feed((Path(__file__).parents[1] / 'app/static/index.html').read_text(encoding='utf-8'))
     assert REQUIRED <= set(parser.options)
     assert set(parser.options) == set(MODES)
 

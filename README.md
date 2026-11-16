@@ -15,9 +15,54 @@ Set-ExecutionPolicy -Scope Process Bypass
 
 The installer downloads this branch, installs Python (using winget if needed), installs dependencies, asks for your Gemini key (OpenRouter/Groq are optional), creates local secrets, and registers a Windows sign-in task. After sign-in it starts the local backend, opens the browser UI, and opens the terminal assistant. It does not run as administrator or expose the server beyond localhost.
 
+### One-click .exe installer (no PowerShell)
+
+Build it once on any Windows 10/11 machine — the build is fully offline and uses the .NET Framework C# compiler that ships with Windows (no PyInstaller, no ps2exe, no Python needed to build):
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\build-installer-exe.ps1 -SelfTest     # -> dist\JARVIS-Setup.exe
+```
+
+Then double-click **`dist\JARVIS-Setup.exe`** — it embeds `INSTALL-JARVIS.ps1`, opens one console window, and runs the exact same installer flow described above (Python check/install, dependency install, API-key prompt, sign-in task, `jarvis doctor`, start). The window stays open at the end so you can read the result.
+
+- ~62 KB, self-contained: copy it to another Windows machine and double-click — nothing else to ship.
+- The exe installs the branch **published on GitHub**, so push your commits before sharing it.
+- It is unsigned: SmartScreen may show "Windows protected your PC" — click **More info > Run anyway**.
+- Rebuild any time with `.\scripts\build-installer-exe.ps1` (add `-OutFile` to choose the destination, e.g. the Desktop).
+
 In the browser, enter your generated `JARVIS_API_TOKEN` from the installed `.env` file once. If you choose **Remember device token on this browser**, it is stored in browser local storage for convenience; this is less secure than session-only entry. Then click **Start Live Voice** and grant microphone permission. Voice is not silently activated on boot; the explicit start control is intentional.
 
-**Android is a separate APK**, not installable by the Windows script. Get the debug APK from the successful [Android build artifact](https://github.com/Ashokkunchala/Jarvis-Personal-AI/actions). Install it on Android and configure your private HTTPS backend. Android 14 restricts starting microphone foreground services from boot, so the phone app cannot safely promise automatic always-listening voice after reboot; launch the app and start voice explicitly.
+**Android is a separate APK**, not installable by the Windows script. Build it on this machine with `.\scripts\setup-android.ps1` (add `-Install` to push it to a USB-connected phone), or get the debug APK from the successful [Android build artifact](https://github.com/Ashokkunchala/Jarvis-Personal-AI/actions). Install it on Android and configure your private HTTPS backend. Android 14 restricts starting microphone foreground services from boot, so the phone app cannot safely promise automatic always-listening voice after reboot; launch the app and start voice explicitly.
+
+## One-click setup files (Windows + phone)
+
+Double-click entry points in the repository root. Each one sets the process execution policy itself, so no manual PowerShell setup is needed:
+
+| File | Does | Result |
+| --- | --- | --- |
+| `INSTALL_JARVIS.bat` | **Install + run (Windows)** | Creates `.venv`, installs dependencies, writes `.env` with random secrets, asks for your Gemini key, runs `jarvis doctor`, then offers to start the backend on `http://127.0.0.1:8000`. |
+| `START-JARVIS.bat` | **Run (Windows)** | Starts the local HTTP backend + browser UI (already installed). |
+| `SETUP-MOBILE.bat` | **Install + run (Windows + Android)** | Installs the Python environment if missing, mints the LAN HTTPS certificate, builds `app-debug.apk` (optionally installs it over USB), opens the firewall port for TCP 8443, prints the phone-side steps, and starts the HTTPS backend. |
+| `START-MOBILE.bat` | **Run (phone backend)** | Serves `https://<LAN-IP>:8443` for the Android app (already installed). Keep the window open; Ctrl+C stops it. |
+
+Equivalent PowerShell (same behaviour, scriptable):
+
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\setup-windows.ps1    # = INSTALL_JARVIS.bat
+.\scripts\start-windows.ps1    # = START-JARVIS.bat
+.\scripts\setup-mobile.ps1     # = SETUP-MOBILE.bat   (add -Install for USB)
+.\scripts\start-mobile.ps1     # = START-MOBILE.bat
+```
+
+Prove the phone-facing stack end to end (boots uvicorn with TLS, verifies the certificate chain and hostname, then checks `GET /health` returns 200):
+
+```powershell
+.\scripts\https-smoke-test.ps1
+```
+
+The app never sends cleartext: `android/app/src/main/res/xml/network_security_config.xml` disables HTTP and opts in to user-installed CA certificates, so the phone trusts your laptop's self-signed certificate after you install `data\tls\jarvis-ca.crt` once. Full phone setup: [android/README.md](android/README.md).
 
 ## Start here
 
@@ -111,6 +156,8 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\setup-windows.ps1
 notepad .env
 ```
+
+The setup script verifies Python 3.11+, creates the virtual environment, installs dependencies, generates the local secrets in `.env`, and finishes with a `jarvis doctor` health check.
 
 In the local `.env`, set at least one AI provider key (`GEMINI_API_KEY`, `OPENROUTER_API_KEY` or `GROQ_API_KEY` — optionally set `JARVIS_AI_PROVIDER` to `gemini`, `openrouter`, `groq` or `auto` to pick the order) and replace the example `JARVIS_API_TOKEN` with a random secret generated using:
 

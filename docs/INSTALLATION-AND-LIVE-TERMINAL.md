@@ -176,7 +176,9 @@ terminal looks best. `jarvis tui` is an alias.
   + `JarvisAgent(call_mode=True)`). It needs `GEMINI_API_KEY` and the realtime
   audio stack (`sounddevice`, `webrtcvad`, `openwakeword`, `numpy`, `scipy`,
   `google-genai`). When they are missing the robot shows `VOICE ERR` with the
-  reason and does not open the microphone.
+  reason and the fix command, and does not open the microphone. Install the
+  stack with `.\.venv\Scripts\python.exe -m pip install -r requirements-voice.txt`
+  (`INSTALL-JARVIS.ps1` runs this automatically for installed copies).
 - `jarvis call` runs the same call without the robot; `jarvis start` keeps the
   local wake-word flow. All three share the same microphone, barge-in, tools and
   spoken replies.
