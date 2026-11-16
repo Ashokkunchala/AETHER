@@ -1,11 +1,15 @@
 from datetime import UTC, datetime, timedelta
 
+import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
 from app import integrations
+from app.main import app
 
 TOKEN = "aether-integration-test-token-with-32-characters"
+
+
+pytestmark = pytest.mark.usefixtures("manual_scheduler")
 
 
 def setup_client(monkeypatch, tmp_path):
