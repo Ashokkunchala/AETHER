@@ -133,8 +133,11 @@ preview, with no upload or broad storage grant. Remaining implementation include
 contact search/export beyond system UI, scoped image
 analysis, accessible-file search/organization, calendar read/edit/cancel, location
 reminders, permitted wake-word lifecycle and authenticated
-scoped Windows remote commands/results. Voice notes/security alerts and GitHub/AWS
-alert sources also need end-to-end integrations. Existing Android ADB tools are
+scoped Windows remote commands/results. Voice notes/security alerts and AWS alert sources also need end-to-end
+integrations. A disabled-by-default [signed GitHub workflow report adapter](GITHUB-WORKFLOW-ALERTS.md)
+now queues a narrow historical failure summary into the existing inbox with
+exact repo scope and replay claims. Hosted delivery cannot reach localhost;
+reviewed HTTPS/provider setup and actual Windows/Android display remain unverified. Existing Android ADB tools are
 not a native remote Windows service or authorization model.
 
 CI assembled a debug APK and ran JVM validator tests after the local action
