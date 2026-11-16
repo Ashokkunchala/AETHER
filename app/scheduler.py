@@ -99,6 +99,8 @@ class ScheduleRunner:
             await self.run_due_once()
             try:
                 await asyncio.to_thread(self.proactive.tick)
+                from app.integrations import dispatch_due_reminders
+                await asyncio.to_thread(dispatch_due_reminders)
             except Exception:
                 # Never let a missing sensor or local DB issue stop other schedules.
                 logging.getLogger(__name__).warning("Proactive local check failed", exc_info=False)
