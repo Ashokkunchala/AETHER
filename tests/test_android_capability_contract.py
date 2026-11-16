@@ -10,7 +10,8 @@ NAMESPACE='{http://schemas.android.com/apk/res/android}'
 def test_native_manifest_permission_baseline_no_broad_access():
     root=ET.parse(ANDROID/'src/main/AndroidManifest.xml').getroot()
     assert {row.attrib[NAMESPACE+'name'] for row in root.findall('uses-permission')}=={
-        'android.permission.INTERNET','android.permission.RECORD_AUDIO','android.permission.POST_NOTIFICATIONS'}
+        'android.permission.INTERNET','android.permission.RECORD_AUDIO','android.permission.POST_NOTIFICATIONS',
+        'android.permission.ACCESS_NETWORK_STATE'}
     assert not root.findall('.//service') and not root.findall('.//receiver')
     assert len(root.findall('.//activity'))==1
 
