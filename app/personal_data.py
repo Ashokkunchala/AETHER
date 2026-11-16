@@ -69,25 +69,34 @@ def _connect():
         created_at TEXT NOT NULL
       );
     """)
-    if 'expires_at' not in {row[1] for row in conn.execute('PRAGMA table_info(memories)')}:
-        conn.execute('ALTER TABLE memories ADD COLUMN expires_at TEXT')
-    reminder_columns = {row[1] for row in conn.execute("PRAGMA table_info(reminders)")}
-    if "recurrence" not in reminder_columns:
-        conn.execute("ALTER TABLE reminders ADD COLUMN recurrence TEXT NOT NULL DEFAULT 'none'")
-    plan_columns = {row[1] for row in conn.execute("PRAGMA table_info(plans)")}
-    if "reminder_id" not in plan_columns:
-        conn.execute("ALTER TABLE plans ADD COLUMN reminder_id INTEGER")
-    # Upgrade plans created before due dates were connected to the reminder workers.
-    unlinked_plans = conn.execute(
-        "SELECT id,title,due_at FROM plans WHERE reminder_id IS NULL AND due_at IS NOT NULL "
-        "AND status IN ('planned','in_progress')"
-    ).fetchall()
-    for plan in unlinked_plans:
-        reminder = conn.execute(
-            "INSERT INTO reminders(title,due_at,created_at,recurrence) VALUES(?,?,?,'none')",
-            ("Plan due: " + plan["title"], plan["due_at"], _now()),
-        )
-        conn.execute("UPDATE plans SET reminder_id=? WHERE id=?", (reminder.lastrowid, plan["id"]))
+    # Serialize inspection and upgrade under SQLite's cross-connection write
+    # lock. A Python lock would not protect a second backend process.
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        if 'expires_at' not in {row[1] for row in conn.execute('PRAGMA table_info(memories)')}:
+            conn.execute('ALTER TABLE memories ADD COLUMN expires_at TEXT')
+        reminder_columns = {row[1] for row in conn.execute("PRAGMA table_info(reminders)")}
+        if "recurrence" not in reminder_columns:
+            conn.execute("ALTER TABLE reminders ADD COLUMN recurrence TEXT NOT NULL DEFAULT 'none'")
+        plan_columns = {row[1] for row in conn.execute("PRAGMA table_info(plans)")}
+        if "reminder_id" not in plan_columns:
+            conn.execute("ALTER TABLE plans ADD COLUMN reminder_id INTEGER")
+        # Upgrade plans created before due dates were connected to the reminder workers.
+        unlinked_plans = conn.execute(
+            "SELECT id,title,due_at FROM plans WHERE reminder_id IS NULL AND due_at IS NOT NULL "
+            "AND status IN ('planned','in_progress')"
+        ).fetchall()
+        for plan in unlinked_plans:
+            reminder = conn.execute(
+                "INSERT INTO reminders(title,due_at,created_at,recurrence) VALUES(?,?,?,'none')",
+                ("Plan due: " + plan["title"], plan["due_at"], _now()),
+            )
+            conn.execute("UPDATE plans SET reminder_id=? WHERE id=?", (reminder.lastrowid, plan["id"]))
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        conn.close()
+        raise
     return conn
 
 
