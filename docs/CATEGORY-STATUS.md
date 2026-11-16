@@ -115,12 +115,14 @@ explicit memory/reminders, opt-in WorkManager polling, user-started Live Voice,
 speech fallback and settings links. New local-only actions open the system dialer,
 SMS draft and calendar insert UI, selected contact/document/image pickers,
 foreground plain-text clipboard controls and timestamped battery/storage/security
-snapshots. They do not directly call/send/save, extract ambiguous contact numbers,
+snapshots. An explicit foreground network-capabilities snapshot reports OS
+transport and capability flags with one additional normal ACCESS_NETWORK_STATE
+permission; it does not probe internet/backend reachability. They do not directly call/send/save, extract ambiguous contact numbers,
 read selected image pixels or upload selected content.
 
 Remaining implementation includes full contact search/extraction, scoped image
 analysis, accessible-file search/organization, calendar read/edit/cancel, location
-reminders, network-status snapshots, permitted wake-word lifecycle and authenticated
+reminders, permitted wake-word lifecycle and authenticated
 scoped Windows remote commands/results. Voice notes/security alerts and GitHub/AWS
 alert sources also need end-to-end integrations. Existing Android ADB tools are
 not a native remote Windows service or authorization model.
