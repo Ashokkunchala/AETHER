@@ -38,3 +38,17 @@ def read_result(request_id: str, authorization: str | None = Header(default=None
         raise HTTPException(
             409, "Device authentication, local stop or request scope refused."
         ) from None
+
+
+class CancelRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+
+@router.post("/requests/{request_id}/cancel")
+def cancel_request(
+    request_id: str, body: CancelRequest, authorization: str | None = Header(default=None)
+):
+    try:
+        return RemoteReadStore().cancel_request(_token(authorization), request_id)
+    except (ValueError, OSError):
+        raise HTTPException(409, "Device authentication or cancellation scope refused.") from None
