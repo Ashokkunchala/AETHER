@@ -891,6 +891,9 @@ def _register_devops(r: ToolRegistry) -> None:
     """AWS / DevOps tools. Reviews are offline; AWS calls use the user's own CLI profile."""
     from jarvis.devops import awscli, review, runbooks
 
+    from jarvis.devops.python_wheel import register_python_wheel
+    register_python_wheel(r)
+
     from jarvis.devops.python_tests import preview_python_tests, run_python_tests
     r.register(Tool(
         name="run_python_tests",
