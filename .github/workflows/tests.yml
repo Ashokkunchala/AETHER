@@ -82,7 +82,8 @@ jobs:
             "scripts/start-windows.ps1",
             "scripts/start-jarvis-session.ps1",
             "scripts/start-jarvis-terminal.ps1",
-            "scripts/install-jarvis-startup.ps1"
+            "scripts/install-jarvis-startup.ps1",
+            "scripts/install-aether-notifications.ps1"
           )
           foreach ($file in $files) {
             $tokens = $null
