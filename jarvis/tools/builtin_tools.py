@@ -765,13 +765,14 @@ def _register_process(r: ToolRegistry) -> None:
     ))
     r.register(Tool(
         name="start_process",
-        description="Start a program or command, optionally with UAC elevation.",
+        description="Start one exact freshly approved background shell command. Not approved-app launch; no elevation, readiness or completion claim.",
         parameters=_obj(
             {"command": _str("Command or program to start."), "elevated": _bool("Request administrator elevation.")},
             ["command"],
         ),
         handler=lambda command, elevated=False: get_laptop().start_process(command, elevated),
-        risk=Risk.MEDIUM, category="process", requires_confirmation=True,
+        confirmation_preview=lambda **args: __import__("jarvis.control.command_preview", fromlist=["process_start_preview"]).process_start_preview(**args),
+        risk=Risk.HIGH, category="process", requires_confirmation=True, never_auto_approve=True, allow_always=False, allow_auto_approve=False,
     ))
 
 
@@ -864,8 +865,8 @@ def _register_shell(r: ToolRegistry) -> None:
     r.register(Tool(
         name="run_shell",
         description=(
-            "Run a shell command on this laptop. Read-only commands (dir, ipconfig, tasklist…) "
-            "run directly; anything destructive or unknown requires user confirmation and may be blocked."
+            "Run one exact shell command after fresh confirmation, including read-only commands. "
+            "Not a sandbox or typed deployment adapter. Output may reach the configured model provider; timeout does not guarantee child cancellation."
         ),
         parameters=_obj(
             {
@@ -876,7 +877,8 @@ def _register_shell(r: ToolRegistry) -> None:
             ["command"],
         ),
         handler=lambda command, timeout=60, cwd=None: get_laptop().run_shell(command, timeout, cwd),
-        risk=Risk.HIGH, category="shell", requires_confirmation=True,
+        confirmation_preview=lambda **args: __import__("jarvis.control.command_preview", fromlist=["command_preview"]).command_preview(**args),
+        risk=Risk.HIGH, category="shell", requires_confirmation=True, never_auto_approve=True, allow_always=False, allow_auto_approve=False,
     ))
 
 
