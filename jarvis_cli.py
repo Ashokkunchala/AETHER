@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""JARVIS command line interface.
+"""AETHER command line interface.
 
 Three tiers of entry:
 
@@ -41,7 +41,7 @@ except ImportError:  # pragma: no cover - python-dotenv is a runtime dependency
 
 app = typer.Typer(
     name="jarvis",
-    help="JARVIS Personal AI — floating robot, streaming assistant, laptop control, Android control.",
+    help="AETHER Personal AI — floating robot, streaming assistant, laptop control, Android control.",
     invoke_without_command=True,
     pretty_exceptions_enable=False,
 )
@@ -163,7 +163,7 @@ def ask(
     model: str | None = typer.Option(None, "--model", "-m", help="Override the Gemini model."),
     history: bool = typer.Option(True, "--history/--no-history", help="Keep multi-turn context in interactive mode."),
 ):
-    """Ask JARVIS directly (local tool loop, streams as it thinks)."""
+    """Ask AETHER directly (local tool loop, streams as it thinks)."""
     from jarvis.core.brain import JarvisBrain
 
     brain = JarvisBrain()
@@ -180,7 +180,7 @@ def ask(
     providers = ", ".join(brain.provider_candidates())
     console.print(
         Panel.fit(
-            f"[bold cyan]JARVIS[/bold cyan] · providers [magenta]{providers}[/magenta] · "
+            f"[bold cyan]AETHER[/bold cyan] · providers [magenta]{providers}[/magenta] · "
             f"model [magenta]{brain.active_model}[/magenta] · "
             f"[cyan]{len(brain.registry)}[/cyan] tools",
             border_style="cyan",
@@ -207,7 +207,7 @@ def ask(
         buffer: list[str] = []
         if not history:
             brain.reset()
-        console.print("[bold cyan]JARVIS[/bold cyan]")
+        console.print("[bold cyan]AETHER[/bold cyan]")
         try:
             asyncio.run(_stream_reply(brain, prompt, buffer))
         except KeyboardInterrupt:
@@ -219,7 +219,7 @@ def ask(
 
 async def _cli_confirm(tool, args) -> bool:
     """Ask on the terminal before a tool that needs approval runs."""
-    console.print(f"[yellow]JARVIS wants to run[/yellow] [bold]{tool.name}[/bold] ({tool.risk.name} risk)")
+    console.print(f"[yellow]AETHER wants to run[/yellow] [bold]{tool.name}[/bold] ({tool.risk.name} risk)")
     console.print(f"[dim]{args}[/dim]")
     return typer.confirm("Allow?", default=False)
 
@@ -275,7 +275,7 @@ def _run_robot(
 
 @app.command("command-center")
 def command_center():
-    """Open the cinematic JARVIS terminal dashboard and interactive assistant."""
+    """Open the cinematic AETHER terminal dashboard and interactive assistant."""
     from jarvis.terminal.command_center import run
 
     raise typer.Exit(code=run())
@@ -294,7 +294,7 @@ def robot(
     call: bool = typer.Option(False, "--call", help="Dial the live voice call on start."),
     no_laptop: bool = typer.Option(False, "--no-laptop", help="Hide the laptop gauge."),
 ):
-    """Launch the animated floating JARVIS robot (the default command)."""
+    """Launch the animated floating AETHER robot (the default command)."""
     if ascii_mode and unicode_mode:
         err_console.print("[red]Use only one of --ascii or --unicode.[/red]")
         raise typer.Exit(code=2)
@@ -359,7 +359,7 @@ def status():
     from jarvis.core.brain import JarvisBrain
 
     brain = JarvisBrain()
-    table = Table(title="JARVIS status", header_style="bold cyan")
+    table = Table(title="AETHER status", header_style="bold cyan")
     table.add_column("Component")
     table.add_column("State")
     table.add_column("Detail")
@@ -419,7 +419,7 @@ def serve(
     import uvicorn
 
     console.print(Panel.fit(
-        f"[bold cyan]JARVIS[/bold cyan] backend on [green]http://{host}:{port}[/green]\n"
+        f"[bold cyan]AETHER[/bold cyan] backend on [green]http://{host}:{port}[/green]\n"
         f"UI: http://{host}:{port}/ · WS: ws://{host}:{port}/ws",
         border_style="cyan",
     ))
@@ -441,7 +441,7 @@ def chat(message: str = typer.Argument(None, help="Optional first message; omit 
 
     history: list[dict[str, str]] = []
     interactive = message is None
-    console.print(Panel.fit("[bold cyan]JARVIS[/bold cyan] · Backend chat", border_style="cyan"))
+    console.print(Panel.fit("[bold cyan]AETHER[/bold cyan] · Backend chat", border_style="cyan"))
     console.print(f"[dim]Backend: {base} · /help for commands · /quit to exit[/dim]")
     with httpx.Client(timeout=httpx.Timeout(120, connect=10)) as client:
         while True:
@@ -474,7 +474,7 @@ def chat(message: str = typer.Argument(None, help="Optional first message; omit 
                             detail = response.read().decode("utf-8", errors="replace")
                         raise RuntimeError(f"HTTP {response.status_code}: {detail}")
                     chunks: list[str] = []
-                    console.print("[bold cyan]JARVIS[/bold cyan] ", end="")
+                    console.print("[bold cyan]AETHER[/bold cyan] ", end="")
                     for line in response.iter_lines():
                         if not line.startswith("data: "):
                             continue
@@ -502,7 +502,7 @@ def chat(message: str = typer.Argument(None, help="Optional first message; omit 
 
 @app.command()
 def start():
-    """Start JARVIS in real-time voice mode ('Hey JARVIS' + Gemini Live + tools)."""
+    """Start AETHER with the configured local wake detector, Gemini Live and tools."""
     _launch_voice(call_mode=False)
 
 
@@ -538,7 +538,7 @@ def _launch_voice(*, call_mode: bool) -> None:
     if call_mode:
         console.print(
             Panel.fit(
-                "[bold cyan]JARVIS[/bold cyan] live voice call\n"
+                "[bold cyan]AETHER[/bold cyan] live voice call\n"
                 f"model [magenta]{config.gemini_live_model}[/magenta] · "
                 f"voice [magenta]{config.gemini_live_voice}[/magenta] · "
                 "[magenta]no wake word[/magenta]\n"
@@ -549,12 +549,12 @@ def _launch_voice(*, call_mode: bool) -> None:
     else:
         console.print(
             Panel.fit(
-                "[bold cyan]JARVIS[/bold cyan] realtime voice\n"
+                "[bold cyan]AETHER[/bold cyan] realtime voice\n"
                 f"model [magenta]{config.gemini_live_model}[/magenta] · "
                 f"voice [magenta]{config.gemini_live_voice}[/magenta] · "
-                f"wake word [magenta]hey jarvis[/magenta] · "
+                "local wake detector [magenta]legacy jarvis model[/magenta] · "
                 f"idle timeout [magenta]{config.awake_timeout_seconds:g}s[/magenta]\n"
-                "[dim]Ctrl+C shuts JARVIS down[/dim]",
+                "[dim]Ctrl+C shuts AETHER down[/dim]",
                 border_style="cyan",
             )
         )
@@ -573,7 +573,7 @@ def _voice_event_printer(kind: str, payload: dict) -> None:
         else:
             console.print(
                 f"[green]ok[/green] microphone online · "
-                f"[cyan]{tools}[/cyan] voice tools · say [bold]'Hey JARVIS'[/bold] to talk"
+                f"[cyan]{tools}[/cyan] voice tools · use the configured local wake phrase (legacy model)"
             )
     elif kind == "live_ready":
         console.print(f"[green]ok[/green] Gemini Live session open ([dim]{payload.get('model')}[/dim])")
@@ -581,14 +581,14 @@ def _voice_event_printer(kind: str, payload: dict) -> None:
         if payload.get("mode") == "call":
             console.print("[bold yellow]*[/bold yellow] [bold]Call live[/bold] — go ahead")
         else:
-            console.print("[bold yellow]*[/bold yellow] [bold]JARVIS is awake[/bold] — go ahead")
+            console.print("[bold yellow]*[/bold yellow] [bold]AETHER is awake[/bold] — go ahead")
     elif kind == "transcript":
         if payload.get("source") == "user":
             console.print(f"[bold green]You ›[/bold green] {payload.get('text', '')}")
         else:
-            console.print(f"[bold cyan]JARVIS ›[/bold cyan] {payload.get('text', '')}")
+            console.print(f"[bold cyan]AETHER ›[/bold cyan] {payload.get('text', '')}")
     elif kind == "text":
-        console.print(f"[bold cyan]JARVIS ›[/bold cyan] {payload.get('text', '')}")
+        console.print(f"[bold cyan]AETHER ›[/bold cyan] {payload.get('text', '')}")
     elif kind == "tool":
         result = payload.get("result") or {}
         mark = "green" if result.get("success") else "red"
@@ -602,7 +602,7 @@ def _voice_event_printer(kind: str, payload: dict) -> None:
     elif kind == "turn_complete":
         console.print("[dim]—[/dim]")
     elif kind == "sleep":
-        console.print("[dim]back to sleep — say 'Hey JARVIS'[/dim]")
+        console.print("[dim]back to sleep - use the configured local wake phrase[/dim]")
     elif kind == "error":
         console.print(f"[red]![/red] {payload.get('message', 'voice error')}")
 
@@ -634,7 +634,7 @@ async def start_realtime(call_mode: bool = False):
         pass
     finally:
         await jarvis.stop()
-    console.print("\n[red]JARVIS shut down[/red]")
+    console.print("\n[red]AETHER shut down[/red]")
 
 
 # ---------------------------------------------------------------------------
@@ -728,7 +728,7 @@ def laptop_kill(name: str, force: bool = typer.Option(False, "--force", help="Al
 
 @laptop_app.command("shell")
 def laptop_shell(command: str, yes: bool = typer.Option(False, "--yes", help="Skip confirmation.")):
-    """Run a shell command with JARVIS's safe/confirm/blocked guardrails."""
+    """Run a shell command with AETHER's safe/confirm/blocked guardrails."""
     ctrl = _lazy_laptop()
     level = ctrl.classify_shell(command)
     if level == "blocked":
@@ -941,7 +941,7 @@ def doctor():
     for check in report.checks:
         mark = "[green]ok[/green]" if check.ok else ("[red]FAIL[/red]" if check.critical else "[yellow]warn[/yellow]")
         rows.append([check.name, mark, check.detail])
-    console.print(_table("JARVIS doctor", ["check", "status", "detail"], rows))
+    console.print(_table("AETHER doctor", ["check", "status", "detail"], rows))
     if not report.ok:
         err_console.print("[red]Some critical checks failed - fix the FAIL rows above.[/red]")
         raise typer.Exit(code=1)
