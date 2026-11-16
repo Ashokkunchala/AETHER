@@ -57,6 +57,7 @@ fun PhoneActionsCard() {
     var expanded by remember { mutableStateOf(false) }
     var number by remember { mutableStateOf("") }
     var selectedPhoneCandidate by remember { mutableStateOf<String?>(null) }
+    var selectedTextReset by remember { mutableStateOf(0) }
     var message by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var begin by remember { mutableStateOf("") }
@@ -158,11 +159,12 @@ fun PhoneActionsCard() {
                     } catch (_: Exception) { status = "Clipboard copy unavailable." }
                 }) { Text("Copy this field to clipboard") }
                 Button(onClick = {
-                    number = ""; selectedPhoneCandidate = null; message = ""; title = ""; begin = ""; end = ""; clipboard = ""
+                    number = ""; selectedPhoneCandidate = null; selectedTextReset++; message = ""; title = ""; begin = ""; end = ""; clipboard = ""
                     status = "Local fields cleared. This does not erase system clipboard, destination-app drafts, logs or backups."
                 }) { Text("Clear local fields") }
                 Button(onClick = { status = localDeviceStatus(context) }) { Text("Read battery, volume and lock status now") }
                 Button(onClick = { status = networkSnapshotText(readLocalNetworkSnapshot(context)) }) { Text("Read local network capabilities now") }
+                key(selectedTextReset) { SelectedTextCard() }
                 Text(status, style = MaterialTheme.typography.bodySmall)
             }
         }
