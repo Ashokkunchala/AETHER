@@ -89,6 +89,23 @@ internet. For Android, use the dedicated private-LAN HTTPS flow in
 
 ## Start here
 
+### Global cinematic terminal (Windows)
+
+The cinematic terminal command centre is a separate, on-demand interface. It does not replace PowerShell, CMD, Windows Terminal, or the user's shell. It opens in its own terminal window and shares the existing JARVIS brain, tool registry, and approval prompts.
+
+```powershell
+# Open the command centre in the current terminal
+.\.venv\Scripts\python.exe jarvis_cli.py command-center
+
+# Register the per-user global shortcut (default: Ctrl+Alt+J)
+.\scripts\install-global-hotkey.ps1
+
+# Remove the shortcut
+.\scripts\install-global-hotkey.ps1 -Remove
+```
+
+The shortcut is installed in the current user's Start Menu Programs folder. Windows resolves the shortcut hotkey globally; if another application already uses Ctrl+Alt+J, choose another combination with `-Hotkey "CTRL+ALT+K"`. The microphone remains off until you explicitly start a voice session in a voice-enabled client. Sensitive JARVIS tools continue to require approval. This is a Windows shortcut integration, not a replacement shell or a background keylogger/hotkey service.
+
 ### Terminal clients
 
 There are two independent terminal chat clients. The default one needs **any one** of `GEMINI_API_KEY`, `OPENROUTER_API_KEY` or `GROQ_API_KEY` — it drives the same local tool-calling brain the browser uses, with no backend process, and automatically falls back through every configured provider (`JARVIS_AI_PROVIDER` controls the order, default `auto`). The floating robot animation itself needs no key. Press `v` in the robot (or run `jarvis call`) to add a live Gemini voice call, which needs `GEMINI_API_KEY`.
