@@ -613,3 +613,8 @@ def enqueue_notification(title: str, body: str, channel: str = "general", due_at
         cur = db.execute("INSERT INTO aether_notifications(title,body,channel,due_at,created_at) VALUES(?,?,?,?,?)",
                          (title[:180], body[:1000], channel[:40], due_at, _now()))
         return int(cur.lastrowid)
+
+
+# Signed inbound report route has its own HMAC/repository boundary, not bearer auth.
+from app.github_alerts import router as github_alert_router  # noqa: E402
+router.include_router(github_alert_router)
