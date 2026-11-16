@@ -723,6 +723,7 @@ private fun CommandCentreScreen() {
         }
 
         PhoneActionsCard()
+        RemoteReadCard()
 
         SectionCard(title = "REMINDERS & ROUTINES") {
             Text(
