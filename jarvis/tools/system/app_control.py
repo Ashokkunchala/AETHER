@@ -10,22 +10,5 @@ def open_app(app_name: str):
 
 
 def close_app(app_name: str):
-    """Close an application"""
-    try:
-        import psutil
-        app_name_lower = app_name.lower()
-        closed = []
-        for proc in psutil.process_iter(['name']):
-            try:
-                if app_name_lower in proc.info['name'].lower():
-                    proc.terminate()
-                    closed.append(proc.info['name'])
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
-        if closed:
-            return f"Closed {', '.join(closed)}"
-        else:
-            return f"No processes found matching {app_name}"
-    except Exception as e:
-        logger.error(f"Failed to close app {app_name}: {e}")
-        raise
+    """Legacy broad process stop fails closed."""
+    return {"success": False, "error": "Name-based process stop disabled. Use exact process identity with fresh confirmation."}
