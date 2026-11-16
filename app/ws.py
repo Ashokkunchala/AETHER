@@ -124,7 +124,7 @@ async def websocket_chat(websocket: WebSocket, token: str = Query(default="")):
         finally:
             pending_confirm.pop(confirm_id, None)
 
-    async def run_turn(message: str, auto_approve: bool) -> None:
+    async def run_turn(message: str) -> None:
         nonlocal turn_task
         turn_cancel.clear()
         try:
@@ -189,7 +189,7 @@ async def websocket_chat(websocket: WebSocket, token: str = Query(default="")):
                 if turn_task and not turn_task.done():
                     await _emit(websocket, {"type": "error", "error": "a turn is already running"})
                     continue
-                turn_task = asyncio.create_task(run_turn(text, bool(message.get("auto_approve", False))))
+                turn_task = asyncio.create_task(run_turn(text))
 
             else:
                 await _emit(websocket, {"type": "error", "error": f"unknown frame type {kind!r}"})
