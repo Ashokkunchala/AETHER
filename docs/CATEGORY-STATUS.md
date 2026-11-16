@@ -95,6 +95,10 @@ No generic wrapper authorizes deployment, destructive operations or spending.
   does not install/run tests, build Docker images, scan live dependencies, publish
   artifacts, deploy/validate staging, watch production or roll back. Those typed
   execution paths and trusted approval/recovery boundaries remain to implement.
+  A separate fresh-approved [local Python test runner](PYTHON-TEST-RUNNER.md) now
+  invokes fixed pytest argv in a trusted selected project using the current
+  interpreter. It discards output and reports direct exit status only, not
+  test counts or product readiness. It is not a sandbox or general CI executor.
 - SRE helpers review supplied logs, telemetry windows, SLO inputs and incident
   timestamps and create postmortem drafts. They do not continuously detect live
   outages, collect/correlate arbitrary metrics/traces, prove root causes, measure
@@ -148,8 +152,8 @@ name/tree/force fallback. Windows termination can lose unsaved work.
 
 Fresh-approved bounded Windows service/startup-name and passive network-link
 snapshots now exist. They do not start/stop/configure services, alter startup
-entries, probe internet reachability or prove effective enabled state. Generic
-command/file/Git tools are not typed, verified installation/update, development,
+entries, probe internet reachability or prove effective enabled state. A fixed fresh-approved trusted-project Python test runner is available separately;
+it does not make generic command/file/Git tools typed, verified installation/update, development,
 merge/conflict/PR or remote-control workflows. The older broad app/website/typing
 launch path fails closed rather than bypassing the app allowlist. Dedicated safe
 URL/typing coverage and typed lifecycle workflows remain to build.
