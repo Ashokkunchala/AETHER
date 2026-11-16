@@ -12,8 +12,10 @@ The new [local phone actions](ANDROID-LOCAL-PHONE-ACTIONS.md) card adds explicit
 ACTION_DIAL, SMS ACTION_SENDTO and calendar ACTION_INSERT composers, a system
 contact picker without number extraction, selected document display metadata,
 image selection without analysis/upload, plain-text foreground clipboard buttons,
-and battery/app-volume/keyguard/own-permission snapshots. No new manifest grant,
-background service, direct call/send/save, broad file/contact read, remote command
+and battery/app-volume/keyguard/own-permission snapshots. These composer/picker
+paths add no new manifest grant. The separate [foreground network snapshot](ANDROID-NETWORK-SNAPSHOT.md)
+adds the normal ACCESS_NETWORK_STATE permission and a local-only capabilities
+button. No background service, direct call/send/save, broad file/contact read, remote command
 or provider disclosure is added. Source/JVM/build tests are distinct from missing
 Android runtime and visual acceptance. The capability matrix below records the
 original reviewed baseline; this addendum supersedes its "not implemented" cells
@@ -23,7 +25,9 @@ phone-number resolution, file organization or confirmed communication delivery.
 ## Original reviewed source baseline
 
 The native app has minSdk 26, targetSdk/compileSdk 35. The manifest declares
-only INTERNET, RECORD_AUDIO and POST_NOTIFICATIONS and one launcher activity.
+only INTERNET, RECORD_AUDIO and POST_NOTIFICATIONS and one launcher activity
+at the original baseline. The network-snapshot addendum adds ACCESS_NETWORK_STATE;
+current source checks cover those four declarations.
 No foreground microphone service, boot receiver, accessibility service,
 notification listener, default-assistant implementation, SMS/call-log/contact/
 calendar/location/storage/camera permission is declared. Permission declaration
