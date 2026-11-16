@@ -11,6 +11,11 @@ class RemoteReadProtocolTest {
             try { remoteReadBase(value); fail("unsupported origin") } catch (_: IllegalArgumentException) {}
         }
     }
+    @Test fun cancellationStatesRemainFixedNotArbitraryCommands() {
+        for (value in listOf("cancelled_before_read", "cancelled_result_suppressed", "result_cleared")) assertTrue(value in REMOTE_READ_STATES)
+        assertFalse("run_shell" in REMOTE_READ_STATES)
+        assertEquals("memory_snapshot", REMOTE_READ_ACTION)
+    }
     @Test fun exactIdsTokensAndMemoryLimits() {
         assertEquals("a".repeat(32), remoteReadId("a".repeat(32)))
         for (value in listOf("A".repeat(32), "../x", "x".repeat(32))) {
