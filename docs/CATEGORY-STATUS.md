@@ -124,7 +124,11 @@ transport and capability flags with one additional normal ACCESS_NETWORK_STATE
 permission; it does not probe internet/backend reachability. They do not directly call/send/save, extract ambiguous contact numbers,
 read selected image pixels or upload selected content.
 
-Remaining implementation includes full contact search/extraction, scoped image
+A separate system specific-number picker now reads only the selected temporary
+row, validates explicit international format and requires candidate review before
+copying into the number field. No broad contact directory access or verified
+recipient identity is implied. Remaining implementation includes general native
+contact search/export beyond system UI, scoped image
 analysis, accessible-file search/organization, calendar read/edit/cancel, location
 reminders, permitted wake-word lifecycle and authenticated
 scoped Windows remote commands/results. Voice notes/security alerts and GitHub/AWS
