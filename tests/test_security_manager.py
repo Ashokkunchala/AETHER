@@ -97,7 +97,10 @@ def test_hardened_low_action_requires_fresh_review_even_auto_approve(policy, tmp
     r, calls = registry(tmp_path)
     assert not asyncio.run(r.execute('change', {}, auto_approve=True)).ok
     assert not calls
-    async def approve(*_): return True
+    async def approve(review, _args):
+        assert review.confirm_required and review.never_auto_approve
+        assert not review.allow_always and not review.allow_auto_approve
+        return True
     assert asyncio.run(r.execute('change', {}, confirm=approve, auto_approve=True)).ok
     assert calls == [1]
 
