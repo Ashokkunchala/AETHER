@@ -29,14 +29,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: aether-windows-setup
-          run-id: 44022966153
+          run-id: 44024346567
           github-token: ${{ github.token }}
           path: staging/windows
       - name: Download exact successful Android artifact
         uses: actions/download-artifact@v4
         with:
           name: jarvis-android-debug-apk
-          run-id: 44022966153
+          run-id: 44024346567
           github-token: ${{ github.token }}
           path: staging/android
       - name: Verify exact bytes and prepare only the requested direct downloads
@@ -47,17 +47,17 @@ jobs:
           import shutil
           import urllib.request
           import json
-          source = '3c381d2238b8b6b2ce2e1515f47ee4cfe437e066'
-          url = 'https://api.github.com/repos/Ashokkunchala/AETHER/actions/runs/44022966153'
+          source = '90dd4063edecb79919a63804a023595bd1335d02'
+          url = 'https://api.github.com/repos/Ashokkunchala/AETHER/actions/runs/44024346567'
           with urllib.request.urlopen(url) as response:
               run = json.load(response)
           assert run['head_sha'] == source and run['status'] == 'completed' and run['conclusion'] == 'success'
           root = pathlib.Path('downloads')
           root.mkdir(exist_ok=True)
           expected = [
-              ('staging/windows/AETHER-Setup.exe', 'AETHER-Setup.exe', 28160, '6ac9849dcbb422ee2fd3f5759a85cf067b2e0a88e83e81029782a9fc9b872be7'),
-              ('staging/android/app-debug.apk', 'AETHER-Android.apk', 100267246, '6b326fded8529407b05b4b08f91c2927455b24fffcca6bfa183791e2929ae508'),
-              ('staging/windows/install-aether-reviewed.ps1', 'install-aether-reviewed.ps1', 4004, 'ce32e37474c0d3134a2460fd0d808b2fb614d1fbee2c68e2fae12e56e94fe30b'),
+              ('staging/windows/AETHER-Setup.exe', 'AETHER-Setup.exe', 28160, 'f0fa3b9dd208cdb70d94342f41f95b810e69d0e75aa91b4a2610b6395f4df3e3'),
+              ('staging/android/app-debug.apk', 'AETHER-Android.apk', 100267246, '23bcf14c6e3513be1a09b209c89bd22caeb1cff3f5d94fee3ac05fd1bbc81367'),
+              ('staging/windows/install-aether-reviewed.ps1', 'install-aether-reviewed.ps1', 4004, '90cd952f4590f9dc388b55988a7e75bae37aeb4580b253fd2148c97eb056f240'),
           ]
           checks = []
           for original, name, size, digest in expected:
@@ -74,8 +74,8 @@ jobs:
           (root / 'SOURCE-COMMIT.txt').write_text(source + '\n')
           (root / 'README.md').write_text('''# AETHER direct setup files
 
-          Built from source commit `3c381d2238b8b6b2ce2e1515f47ee4cfe437e066`.
-          Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44022966153
+          Built from source commit `90dd4063edecb79919a63804a023595bd1335d02`.
+          Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44024346567
 
           - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
           - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
@@ -87,6 +87,8 @@ jobs:
           No public Release was created. These files have the SAME visibility as this repository. No user device was installed, started, paired or changed by publishing them. Do not bypass unexplained antivirus/SmartScreen/TLS warnings. This is tested source/build output, not proof all AETHER abilities work on your devices.
 
           This batch includes custom static dashboards and optional approval-gated public rendered reads. Browser use remains off by default and needs separate reviewed Playwright/Chromium installation plus exact-host opt-in. It does not add logged-in browser actions. See [browser/dashboard guide](../docs/BROWSER-AND-DASHBOARDS.md).
+
+          Also includes owner-configured filename discovery and extension-based grouping suggestions. Metadata only, no file bodies, moves, deletes or uploads. Fresh review required; see [local file guide](../docs/LOCAL-FILE-DISCOVERY.md).
 
           Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
           ''')
