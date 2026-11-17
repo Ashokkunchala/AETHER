@@ -1,7 +1,7 @@
 # AETHER direct setup files
 
-Built from source commit `3c381d2238b8b6b2ce2e1515f47ee4cfe437e066`.
-Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44022966153
+Built from source commit `90dd4063edecb79919a63804a023595bd1335d02`.
+Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44024346567
 
 - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
 - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
@@ -13,5 +13,7 @@ Download an individual file with GitHub's Download raw file button, not the webp
 No public Release was created. These files have the SAME visibility as this repository. No user device was installed, started, paired or changed by publishing them. Do not bypass unexplained antivirus/SmartScreen/TLS warnings. This is tested source/build output, not proof all AETHER abilities work on your devices.
 
 This batch includes custom static dashboards and optional approval-gated public rendered reads. Browser use remains off by default and needs separate reviewed Playwright/Chromium installation plus exact-host opt-in. It does not add logged-in browser actions. See [browser/dashboard guide](../docs/BROWSER-AND-DASHBOARDS.md).
+
+Also includes owner-configured filename discovery and extension-based grouping suggestions. Metadata only, no file bodies, moves, deletes or uploads. Fresh review required; see [local file guide](../docs/LOCAL-FILE-DISCOVERY.md).
 
 Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
