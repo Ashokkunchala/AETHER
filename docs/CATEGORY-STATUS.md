@@ -302,3 +302,15 @@ These are not per-device backend RBAC, universal filesystem confinement,
 tamper-proof audit, pushed login alerts, a TLS bridge, security certification or
 production hardening. Existing memory/stop/device/session paths stay separate
 with their documented limitations.
+
+## Rendered public browsing and custom dashboards
+
+[Browser/dashboard workflow](BROWSER-AND-DASHBOARDS.md) adds a disabled-by-default
+Playwright rendered public-page read and exact actual-link navigation with fresh
+approval, exact host/public-address checks and new-context/no-login lifecycle.
+This is not arbitrary click/form/account automation or an OS/network sandbox.
+It also adds confirmed new local static HTML dashboards from exact supplied
+metrics, nonnegative bar charts and tables; no scripts, hosting or live-data
+connection. Offline Chromium integration tests and sample desktop/mobile pixel
+inspection check this bounded implementation, not arbitrary website/device
+compatibility or every generated dataset. Existing file/web tools remain intact.
