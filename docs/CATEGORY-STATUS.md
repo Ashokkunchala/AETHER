@@ -274,3 +274,17 @@ result publication or clears completed results, without promising OS termination
 undo or recall. Wider commands/results remain unimplemented.
 The earlier broad missing-work paragraphs remain applicable beyond this narrow
 source stage; do not interpret them as denying that this one tested path exists.
+
+## General wellness follow-up
+
+[General wellness support](GENERAL-WELLNESS.md) now registers a local manual
+journal/planner for chosen workouts/walk/run-minute goals, meals/food notes,
+activity/steps/hydration/meditation/habits and explicit-offset sleep routines.
+Descriptive progress/week summaries keep unknown distinct from zero and do not
+score health or infer inactivity. External NHS demonstrations are links only.
+Reviewed one-shot hydration/meditation prompts reuse an already initialized local
+backend reminder store; notification delivery still needs the existing opted-in
+Android/private HTTPS setup and is best-effort. No sensor/wearable/medical or
+personal dietary-suitability claim, media autoplay or provider/device effect is
+added. This is registry functionality, not a dedicated new native wellness UI.
+The older combined habit/workout weekly reviewer remains separate and unchanged.
