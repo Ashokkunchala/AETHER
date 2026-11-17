@@ -25,3 +25,9 @@ internal fun distanceMeters(lat1: Double, lon1: Double, lat2: Double, lon2: Doub
 internal fun definitelyInside(distance: Double, accuracy: Float, radius: Double): Boolean =
     distance.isFinite() && distance >= 0 && accuracy.isFinite() && accuracy >= 0 &&
         radius.isFinite() && radius in 100.0..50000.0 && distance + accuracy <= radius
+
+internal fun reminderWindowValid(createdElapsed: Long, expiresElapsed: Long, nowElapsed: Long,
+    expiresWall: Long, nowWall: Long, savedBoot: Int, currentBoot: Int): Boolean =
+    savedBoot >= 0 && savedBoot == currentBoot && createdElapsed >= 0 && nowElapsed >= createdElapsed &&
+        expiresElapsed > createdElapsed && expiresElapsed - createdElapsed <= 168 * 3_600_000L &&
+        nowElapsed < expiresElapsed && nowWall < expiresWall
