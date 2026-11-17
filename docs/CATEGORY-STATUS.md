@@ -371,3 +371,14 @@ AI/provider access or a network listener. Interactive exact fresh approvals
 reuse the existing registry/stop/policy controls; no generic command or browser
 action is available. This supplies an owner-run test route, not Windows/Android
 hardware, voice, remote bridge or provider acceptance.
+
+
+## Resume/JD literal evidence preparation
+
+[Literal job evidence review](JOB-EVIDENCE-REVIEW.md) adds fresh-reviewed supplied
+resume/JD phrase comparison with exact context excerpts, explicit no-literal-
+mention states and no ATS score, skill inference, ranking or invented experience.
+A provider-free owner-console command is available; the normal AI tool workflow
+can disclose supplied text to its configured provider and requires privacy
+review. It does not select the latest resume, search/verify jobs, tailor factual
+claims, fill forms or apply/contact anyone.
