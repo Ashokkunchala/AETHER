@@ -4,6 +4,17 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class NativeDataPolicyTest {
+    @Test fun backgroundWindowFailsOnRebootExpiryOrBadDuration() {
+        assertTrue(reminderWindowValid(100, 10000, 200, 10000, 200, 2, 2))
+        assertFalse(reminderWindowValid(100, 10000, 200, 10000, 200, 2, 3))
+        assertFalse(reminderWindowValid(100, 10000, 99, 10000, 200, 2, 2))
+        assertFalse(reminderWindowValid(100, 10000, 10000, 10000, 200, 2, 2))
+        assertFalse(reminderWindowValid(100, 10000, 200, 10000, 10000, 2, 2))
+        assertFalse(reminderWindowValid(100, Long.MAX_VALUE, 200, 10000, 200, 2, 2))
+        assertFalse(reminderWindowValid(-1, 10000, 200, 10000, 200, 2, 2))
+        assertFalse(reminderWindowValid(100, 10000, 200, 10000, 200, -1, -1))
+    }
+
     @Test fun sampleBoundsAndRounding() {
         assertEquals(1, imageSampleSize(512, 1))
         assertEquals(2, imageSampleSize(513, 512))
