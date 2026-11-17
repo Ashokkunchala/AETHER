@@ -725,6 +725,7 @@ private fun CommandCentreScreen() {
         PhoneActionsCard()
         RemoteReadCard()
         NativeDataCard()
+        AdvancedCompanionCard()
 
         SectionCard(title = "REMINDERS & ROUTINES") {
             Text(
