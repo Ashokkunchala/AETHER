@@ -93,9 +93,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
-[assembly: AssemblyTitle("JARVIS Personal AI Setup")]
-[assembly: AssemblyProduct("JARVIS Personal AI")]
-[assembly: AssemblyDescription("Single-click Windows installer for JARVIS Personal AI")]
+[assembly: AssemblyTitle("AETHER Personal AI Setup")]
+[assembly: AssemblyProduct("AETHER Personal AI")]
+[assembly: AssemblyDescription("Single-click Windows installer for AETHER Personal AI")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
@@ -137,7 +137,7 @@ namespace JarvisSetup
                     childArguments += " \"" + argument.Replace("\"", "\\\"") + "\"";
                 }
 
-                Console.WriteLine("JARVIS Personal AI - Setup");
+                Console.WriteLine("AETHER Personal AI - Setup");
                 Console.WriteLine("Starting the Windows installer in this window...");
                 Console.WriteLine();
 
@@ -219,7 +219,7 @@ function Build-LauncherExe {
 
 # ------------------------------------------------------------ 3. build exe
 Write-Host ""
-Write-Host "JARVIS installer exe builder" -ForegroundColor Cyan
+Write-Host "AETHER installer exe builder" -ForegroundColor Cyan
 Write-Host "=============================" -ForegroundColor Cyan
 
 $installerBytes = [System.IO.File]::ReadAllBytes($InstallerPath)
@@ -290,7 +290,7 @@ if ($selfTestFailed) {
     Write-Host "BUILD FAILED (self-test)" -ForegroundColor Red
     exit 1
 }
-Write-Host "Done. Double-click $OutFile to install JARVIS in one click." -ForegroundColor Green
-Write-Host "Note: unsigned exe - SmartScreen may ask 'More info > Run anyway' on other machines." -ForegroundColor DarkGray
-Write-Host "Note: the exe installs the published branch; push commits before distributing it." -ForegroundColor DarkGray
+Write-Host "Done. Double-click $OutFile to review the AETHER installer." -ForegroundColor Green
+Write-Host "Note: unsigned executable. Verify its source and hash; do not bypass an unexplained security warning." -ForegroundColor DarkGray
+Write-Host "Note: behavior is determined by the embedded payload. Reviewed CI payloads use an exact source commit." -ForegroundColor DarkGray
 exit 0
