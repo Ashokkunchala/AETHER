@@ -183,6 +183,8 @@ def build_registry(force: bool = False) -> ToolRegistry:
     from jarvis.mentor import register_mentor_tools
 
     register_mentor_tools(registry)
+    from jarvis.mentor_deep import register_deep_mentor
+    register_deep_mentor(registry)
     from jarvis.mentor_python import register_python_review
     register_python_review(registry)
     from jarvis.mentor_projects import register_project_tools
