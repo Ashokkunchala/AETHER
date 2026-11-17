@@ -23,7 +23,7 @@ def answer(mentor, session, right=True):
 
 
 def test_three_levels_each_track_and_every_objective_feedback(mentor):
-    assert len(mentor.catalog()) == 12
+    assert len(mentor.catalog()) == 36
     for track in TRACKS:
         for locked in (2, 3):
             with pytest.raises(ValueError): mentor.start(f"{track}-{locked}")
