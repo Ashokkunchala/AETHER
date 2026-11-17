@@ -213,6 +213,8 @@ def build_registry(force: bool = False) -> ToolRegistry:
     from jarvis.rendered_browser import register_rendered_browser
     register_dashboard_tools(registry)
     register_rendered_browser(registry)
+    from jarvis.file_discovery import register_file_discovery
+    register_file_discovery(registry)
 
     from jarvis.control.windows_inspection import register_windows_inspection_tools
 
