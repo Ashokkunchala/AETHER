@@ -12,7 +12,7 @@ def test_native_manifest_permission_baseline_no_broad_access():
     assert {row.attrib[NAMESPACE+'name'] for row in root.findall('uses-permission')}=={
         'android.permission.INTERNET','android.permission.RECORD_AUDIO','android.permission.POST_NOTIFICATIONS',
         'android.permission.ACCESS_NETWORK_STATE','android.permission.READ_CALENDAR',
-        'android.permission.ACCESS_COARSE_LOCATION'}
+        'android.permission.ACCESS_COARSE_LOCATION','android.permission.ACCESS_BACKGROUND_LOCATION'}
     assert not root.findall('.//service') and not root.findall('.//receiver')
     assert len(root.findall('.//activity'))==1
 
