@@ -1,0 +1,9 @@
+{
+  "resume_text": "FICTIONAL PRACTICE RESUME\nBuilt a Python demo with SQLite in a disposable local project.\nNo Kubernetes production experience.\nThis is example text, not the owner's work history.",
+  "job_text": "FICTIONAL PRACTICE JOB DESCRIPTION\nPython and SQL are required.\nKubernetes exposure is preferred.\nNo actual employer or vacancy is represented.",
+  "requirements": [
+    {"phrase": "Python", "importance": "required"},
+    {"phrase": "SQL", "importance": "required"},
+    {"phrase": "Kubernetes", "importance": "preferred"}
+  ]
+}
