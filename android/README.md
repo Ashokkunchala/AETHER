@@ -221,3 +221,11 @@ optional card: system dial/SMS/calendar composers, selected contact/item UI,
 foreground plain clipboard controls and limited local device snapshots. No direct
 call/send/save, data upload or new broad permission. Build/source/JVM tests do not
 replace pending emulator/device and visual acceptance.
+
+## Image understanding and background proximity update
+
+See [four-capability follow-up](../docs/FOUR-CAPABILITIES.md) for bundled image
+labels/Latin OCR, system camera thumbnail handling, optional background/notification
+grants, a single-target best-effort15-minute local proximity worker, expiry and
+Disable behavior. No AETHER image/location upload. Models and runtime/native pixels,
+OEM permissions and actual background delivery still need device acceptance.
