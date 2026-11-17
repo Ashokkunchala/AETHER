@@ -43,6 +43,7 @@ dependencies = [
 jarvis = "jarvis_cli:app"
 
 [project.optional-dependencies]
+security = ["keyring>=25,<26", "pip-audit>=2.7,<3"]
 typed-live = ["boto3>=1.35,<2.0", "kubernetes>=31,<36"]
 windows = [
     "pywin32>=306",
