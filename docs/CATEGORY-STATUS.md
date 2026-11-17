@@ -326,3 +326,14 @@ and never reads file bodies/hashes or moves, deletes, renames, opens or uploads.
 This narrows the earlier accessible-file search/organization gap to one review-only
 workflow, not a content index, duplicate finder, automatic organizer or sandbox.
 Real laptop filesystem and provider/device acceptance remain unverified.
+
+
+## Passive owner setup preflight
+
+[Passive setup inventory](PASSIVE-SETUP-PREFLIGHT.md) now provides a separate
+owner-run command that reads package metadata and configuration presence/shape
+without optional SDK initialization, ADB/audio/provider/network probes or
+application database writes. It omits secret values, folder paths and host names,
+and distinguishes presence from runtime-tested behavior. It does not replace
+device acceptance, dependency compatibility checks or existing active doctor
+probes, and does not auto-install/repair anything.
