@@ -1,0 +1,48 @@
+{
+  "title": "Release readiness",
+  "subtitle": "Explicit sample data, not live systems",
+  "source_note": "Test fixture supplied by owner",
+  "as_of": "2026-11-17",
+  "metrics": [
+    {
+      "label": "Checks passed",
+      "value": "12 / 14",
+      "note": "Two manual checks pending"
+    }
+  ],
+  "chart": {
+    "title": "Checks by area",
+    "unit": "checks",
+    "points": [
+      {
+        "label": "Backend",
+        "value": 5
+      },
+      {
+        "label": "Android",
+        "value": 4
+      },
+      {
+        "label": "Windows",
+        "value": 3
+      }
+    ]
+  },
+  "table": {
+    "title": "Review queue",
+    "columns": [
+      "Area",
+      "Status"
+    ],
+    "rows": [
+      [
+        "Phone pairing",
+        "Not tested"
+      ],
+      [
+        "Microphone",
+        "Needs owner test"
+      ]
+    ]
+  }
+}
