@@ -15,7 +15,7 @@ import logging
 import time
 import uuid
 from collections.abc import Awaitable, Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import IntEnum
 from typing import Any
 
@@ -265,7 +265,8 @@ class ToolRegistry:
                 confirmation_args = {**args, "_preview": preview}
             try:
                 approval_id = store.request(name, args, task_scope)
-                approved = (await confirm(tool, copy.deepcopy(confirmation_args))) is True
+                review_tool = replace(tool, requires_confirmation=True, never_auto_approve=True, allow_auto_approve=False, allow_always=False) if policy else tool
+                approved = (await confirm(review_tool, copy.deepcopy(confirmation_args))) is True
                 store.decide(approval_id, bool(approved))
             except Exception:
                 logger.exception("Confirmation callback failed")
