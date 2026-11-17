@@ -126,3 +126,15 @@ network, provider send or account was used. Native card pixels, real TLS, device
 latency, keyboard/privacy/rotation/cancellation and Windows runtime remain
 unverified. CI compilation is not device/UI acceptance. This is not full remote
 Windows control or completion of categories 1-6.
+
+
+## Separate dedicated HTTPS source option
+
+[Dedicated HTTPS listener](REMOTE-READ-HTTPS.md) now provides a separate closed
+queue/status/cancel app and offline certificate/target validator. It never
+exposes/proxies the general agent or approves/executes a remote read. Only
+ephemeral loopback TLS fixtures have been exercised. Owner-approved network
+launch, reviewed certificate-chain/phone trust and actual private-network/device
+acceptance remain separate and unverified. Existing helper loopback defaults
+and Android TLS/443 restrictions are unchanged. Do not run network exposure
+merely because this source option exists.
