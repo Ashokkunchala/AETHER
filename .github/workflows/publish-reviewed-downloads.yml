@@ -29,14 +29,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: aether-windows-setup
-          run-id: 44024346567
+          run-id: 44026760400
           github-token: ${{ github.token }}
           path: staging/windows
       - name: Download exact successful Android artifact
         uses: actions/download-artifact@v4
         with:
           name: jarvis-android-debug-apk
-          run-id: 44024346567
+          run-id: 44026760400
           github-token: ${{ github.token }}
           path: staging/android
       - name: Verify exact bytes and prepare only the requested direct downloads
@@ -47,17 +47,17 @@ jobs:
           import shutil
           import urllib.request
           import json
-          source = '90dd4063edecb79919a63804a023595bd1335d02'
-          url = 'https://api.github.com/repos/Ashokkunchala/AETHER/actions/runs/44024346567'
+          source = 'c9b6cbfcf9d726a2d8982b7fb19cdbc204ef68b6'
+          url = 'https://api.github.com/repos/Ashokkunchala/AETHER/actions/runs/44026760400'
           with urllib.request.urlopen(url) as response:
               run = json.load(response)
           assert run['head_sha'] == source and run['status'] == 'completed' and run['conclusion'] == 'success'
           root = pathlib.Path('downloads')
           root.mkdir(exist_ok=True)
           expected = [
-              ('staging/windows/AETHER-Setup.exe', 'AETHER-Setup.exe', 28160, 'f0fa3b9dd208cdb70d94342f41f95b810e69d0e75aa91b4a2610b6395f4df3e3'),
-              ('staging/android/app-debug.apk', 'AETHER-Android.apk', 100267246, '23bcf14c6e3513be1a09b209c89bd22caeb1cff3f5d94fee3ac05fd1bbc81367'),
-              ('staging/windows/install-aether-reviewed.ps1', 'install-aether-reviewed.ps1', 4004, '90cd952f4590f9dc388b55988a7e75bae37aeb4580b253fd2148c97eb056f240'),
+              ('staging/windows/AETHER-Setup.exe', 'AETHER-Setup.exe', 28160, '0f677841134613722b4050b949859ae2a36b66db276b03e642d29c6186b7265a'),
+              ('staging/android/app-debug.apk', 'AETHER-Android.apk', 100267246, '48e3f9408ffc65682b2828c98ce15824aa660c64295374c46ed89c852eecbbdd'),
+              ('staging/windows/install-aether-reviewed.ps1', 'install-aether-reviewed.ps1', 4004, '3ff8b66f698d990a6ef876194535e8d39adf1f377f14343564fa33d08bbce874'),
           ]
           checks = []
           for original, name, size, digest in expected:
@@ -74,8 +74,8 @@ jobs:
           (root / 'SOURCE-COMMIT.txt').write_text(source + '\n')
           (root / 'README.md').write_text('''# AETHER direct setup files
 
-          Built from source commit `90dd4063edecb79919a63804a023595bd1335d02`.
-          Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44024346567
+          Built from source commit `c9b6cbfcf9d726a2d8982b7fb19cdbc204ef68b6`.
+          Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44026760400
 
           - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
           - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
@@ -89,6 +89,8 @@ jobs:
           This batch includes custom static dashboards and optional approval-gated public rendered reads. Browser use remains off by default and needs separate reviewed Playwright/Chromium installation plus exact-host opt-in. It does not add logged-in browser actions. See [browser/dashboard guide](../docs/BROWSER-AND-DASHBOARDS.md).
 
           Also includes owner-configured filename discovery and extension-based grouping suggestions. Metadata only, no file bodies, moves, deletes or uploads. Fresh review required; see [local file guide](../docs/LOCAL-FILE-DISCOVERY.md).
+
+          This consolidated source also includes passive package/configuration inventory,36 source-linked mentor scenario lessons and one-reviewed-step-at-a-time offline evidence workflows. These are not device acceptance, full courses, live cloud or unrestricted autonomous execution. Guides: [preflight](../docs/PASSIVE-SETUP-PREFLIGHT.md), [mentor](../docs/MENTOR-EXPANDED-TRACKS.md), [offline workflows](../docs/OFFLINE-WORKFLOWS.md).
 
           Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
           ''')
