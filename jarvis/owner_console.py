@@ -13,7 +13,7 @@ from pathlib import Path
 
 
 ALLOWED = frozenset({
-    'create_custom_dashboard', 'discover_local_files',
+    'create_custom_dashboard', 'discover_local_files', 'review_job_evidence',
     'offline_workflow_create', 'offline_workflow_status',
     'offline_workflow_run_next', 'offline_workflow_result', 'offline_workflow_cancel',
 })
@@ -28,6 +28,8 @@ def registry():
     register_dashboard_tools(result)
     register_file_discovery(result)
     register_offline_workflows(result)
+    from jarvis.job_evidence import register_job_evidence
+    register_job_evidence(result)
     return result
 
 
@@ -70,6 +72,8 @@ def parser():
     files.add_argument('--root', required=True)
     files.add_argument('--query', default='')
     files.add_argument('--mode', choices=['search', 'plan'], default='search')
+    job = commands.add_parser('job-review', help='Compare exact supplied resume/JD text, no scoring or sends')
+    job.add_argument('--spec', required=True)
     create = commands.add_parser('workflow-create', help='Review JSON and save a new offline workflow, no analysis')
     create.add_argument('--spec', required=True)
     for name in ['workflow-status', 'workflow-next', 'workflow-cancel', 'workflow-result']:
@@ -96,6 +100,11 @@ def main():
             name, values = 'create_custom_dashboard', {'name': args.name, 'spec': spec}
         elif args.command == 'files':
             name, values = 'discover_local_files', {'root': args.root, 'query': args.query, 'mode': args.mode}
+        elif args.command == 'job-review':
+            values = load_json(args.spec)
+            if not isinstance(values, dict) or set(values) != {'resume_text', 'job_text', 'requirements'}:
+                raise ValueError('Exact resume_text/job_text/requirements spec required.')
+            name = 'review_job_evidence'
         elif args.command == 'workflow-create':
             spec = load_json(args.spec)
             name, values = 'offline_workflow_create', {'spec': spec}
