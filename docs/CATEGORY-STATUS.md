@@ -361,3 +361,13 @@ dynamic code, automatic next-step/retry, event trigger or deployment exists.
 Failed/crashed claims block continuation rather than replaying; journals are
 private local data, not encrypted or tamper-proof. This is a narrow executable
 offline-plan stage, not general autonomous multi-agent effects.
+
+
+## Provider-free owner console
+
+[Local owner console](OWNER-CONSOLE.md) exposes passive setup inventory and the
+new dashboard, exact-folder filename and fixed offline-workflow paths without
+AI/provider access or a network listener. Interactive exact fresh approvals
+reuse the existing registry/stop/policy controls; no generic command or browser
+action is available. This supplies an owner-run test route, not Windows/Android
+hardware, voice, remote bridge or provider acceptance.
