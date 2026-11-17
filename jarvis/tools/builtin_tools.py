@@ -209,6 +209,10 @@ def build_registry(force: bool = False) -> ToolRegistry:
     register_wellness_journal(registry)
     from jarvis.security_manager import register_security_manager
     register_security_manager(registry)
+    from jarvis.custom_dashboard import register_dashboard_tools
+    from jarvis.rendered_browser import register_rendered_browser
+    register_dashboard_tools(registry)
+    register_rendered_browser(registry)
 
     from jarvis.control.windows_inspection import register_windows_inspection_tools
 
