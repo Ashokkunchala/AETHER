@@ -78,6 +78,7 @@ jobs:
             "scripts/https-smoke-test.ps1",
             "scripts/verify-mobile-common.ps1",
             "scripts/build-installer-exe.ps1",
+            "scripts/install-aether-reviewed.ps1",
             "scripts/uninstall-jarvis.ps1",
             "scripts/start-windows.ps1",
             "scripts/start-jarvis-session.ps1",
@@ -125,6 +126,37 @@ jobs:
           if ($mobileScripts -match 'Write-Host[^\r\n]*\$token') { throw "A mobile setup script appears to print a token." }
           $mobileCommon = Get-Content scripts/mobile-common.ps1 -Raw
           if ($mobileCommon -match 'ServerCertificateValidationCallback') { throw "A process-wide TLS validation callback is forbidden." }
+
+
+      - name: Build reviewed commit-pinned AETHER Windows installer and source bundle
+        shell: pwsh
+        run: |
+          $payload = Get-Content scripts/install-aether-reviewed.ps1 -Raw
+          if ($env:GITHUB_SHA -notmatch '^[0-9a-f]{40}$') { throw "Invalid build commit." }
+          $payload = $payload.Replace('__AETHER_BUILD_COMMIT__', $env:GITHUB_SHA)
+          New-Item -ItemType Directory -Force dist | Out-Null
+          [System.IO.File]::WriteAllText((Join-Path $PWD 'dist/install-aether-reviewed.ps1'), $payload, [System.Text.UTF8Encoding]::new($false))
+          .\scripts\build-installer-exe.ps1 -InstallerPath (Join-Path $PWD 'dist/install-aether-reviewed.ps1') -OutFile (Join-Path $PWD 'dist/AETHER-Setup.exe') -SelfTest
+          if ($LASTEXITCODE -ne 0) { throw "Installer build/self-test failed." }
+          git archive --format=zip --output=dist/AETHER-Source.zip HEAD
+          if ($LASTEXITCODE -ne 0) { throw "Source archive failed." }
+          Copy-Item docs/INSTALLABLE-FILES.md dist/INSTALLABLE-FILES.md
+          $env:GITHUB_SHA | Set-Content dist/SOURCE-COMMIT.txt -Encoding ASCII
+          Get-FileHash dist/AETHER-Setup.exe,dist/AETHER-Source.zip,dist/install-aether-reviewed.ps1 -Algorithm SHA256 | ForEach-Object { $_.Hash.ToLower() + '  ' + (Split-Path $_.Path -Leaf) } | Set-Content dist/SHA256SUMS.txt -Encoding ASCII
+
+      - name: Upload reviewed Windows installer and setup source
+        uses: actions/upload-artifact@v4
+        with:
+          name: aether-windows-setup
+          path: |
+            dist/AETHER-Setup.exe
+            dist/AETHER-Source.zip
+            dist/install-aether-reviewed.ps1
+            dist/INSTALLABLE-FILES.md
+            dist/SOURCE-COMMIT.txt
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
 
 
   container-build:
