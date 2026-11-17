@@ -55,6 +55,13 @@ Sources: `app/personality.py`, `app/live_voice.py`, `app/static/live_voice.js`,
 
 ## 3. Mentor
 
+The [four-capability follow-up](FOUR-CAPABILITIES.md) adds twelve deeper open-book
+scenario lessons across four three-stage tracks, randomized multi-decision checks,
+prerequisite progression, persisted weak areas/explanations and spaced-review
+suggestions. Objective decision feedback is implemented, not free-text mastery
+grading, an advanced curriculum for all subjects or live coding/cloud labs.
+
+
 Twelve starter domains have introductory material, objective checkpoints,
 feedback, study plans, latest progress/weak-area summaries, mock-interview and
 practice-project material, an offline Terraform lab and new daily checkpoint
@@ -123,8 +130,12 @@ No generic wrapper authorizes deployment, destructive operations or spending.
   dispatch scope, returns a canonical digest and required approval/live-verification
   gates, and tests a pure no-effect state graph. Every response remains design-only,
   unverified and unauthorized. There are no effect adapters, approval receipts,
-  persistent claims or live identity/cost checks. It does not retrofit or authorize
-  the older generic tools, deploy anything or complete typed cloud/K8s/CI execution.
+  persistent claims or live identity/cost checks in that original design module.
+  The newer [disabled typed runtime](FOUR-CAPABILITIES.md) adds local TTY approval,
+  durable claim/reconciliation and fake-tested EC2/Kubernetes SDK adapters. It stays
+  disabled pending real-target authority/setup; GitHub's typed injected transport
+  remains blocked from live HTTP until artifact/ref/effect review is solved. No
+  production acceptance, dollar-budget enforcement or generic-tool retrofit is claimed.
 - SRE helpers review supplied logs, telemetry windows, SLO inputs and incident
   timestamps and create postmortem drafts. They do not continuously detect live
   outages, collect/correlate arbitrary metrics/traces, prove root causes, measure
@@ -175,7 +186,17 @@ exact repo scope and replay claims. Hosted delivery cannot reach localhost;
 reviewed HTTPS/provider setup and actual Windows/Android display remain unverified. Existing Android ADB tools are
 not a native remote Windows service or authorization model.
 
-CI assembled a debug APK and ran JVM validator tests after the local action
+The [four-capability follow-up](FOUR-CAPABILITIES.md) now adds a separate native
+card with bundled on-device image labels/Latin OCR, system-camera thumbnail
+capture and an explicitly reviewed single-target background approximate proximity
+reminder. The latter uses best-effort15-minute WorkManager checks, separate
+background/notification grants, expiry/reboot/cancellation guards and no AETHER
+upload. It is not an exact geofence, guaranteed arrival alert, Telugu OCR,
+identity/safety assessment or all-gallery understanding. These source additions
+supersede the narrow semantic-image/camera/background gaps above, not the lack
+of real-device/runtime/model/notification/visual acceptance.
+
+CI assembled a debug APK and ran JVM validator tests after the earlier local action
 addition. The new card has not been run or pixel-inspected on an emulator/device.
 Runtime/layout acceptance, denied/revoked permissions, OS background restrictions,
 system composer outcomes and real notification delivery remain unverified. No
