@@ -205,6 +205,8 @@ def build_registry(force: bool = False) -> ToolRegistry:
     from jarvis.wellness import register_wellness_tools
 
     register_wellness_tools(registry)
+    from jarvis.wellness_journal import register_wellness_journal
+    register_wellness_journal(registry)
 
     from jarvis.control.windows_inspection import register_windows_inspection_tools
 
