@@ -1,4 +1,8 @@
-# Security Notes
+# AETHER security notes
+
+See [security/privacy manager](SECURITY-PRIVACY-MANAGER.md) for the current
+control-by-control inventory, opt-in native secret storage/local policy/scanner
+adapters and limits. Those optional modes are not enabled by publishing source.
 
 ## Current implementation and limits
 
@@ -57,7 +61,7 @@ requests.
 - Replace the local IP limiter with distributed per-device request limits, request/time/token budgets, provider usage alerts, and abuse detection.
 - Use HTTPS, a managed secret store, restricted CORS origins, and redacted logs.
 - Set matching upstream request-size, connection, and timeout limits; keep safe error responses and verify the proxy and app limits together.
-- Add dependency/security scanning, backup/restore tests, and a threat model.
+- The optional owner-reviewed scanner adapters do not replace dependency/security scanning in a production release process. Add backup/restore tests and a threat model.
 - Disable or protect interactive API docs in production as appropriate.
 - Test auth failures, rate limits, replay/abuse cases, and credential rotation.
 
