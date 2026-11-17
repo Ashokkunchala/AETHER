@@ -382,3 +382,16 @@ A provider-free owner-console command is available; the normal AI tool workflow
 can disclose supplied text to its configured provider and requires privacy
 review. It does not select the latest resume, search/verify jobs, tailor factual
 claims, fill forms or apply/contact anyone.
+
+
+## Dedicated remote-read HTTPS source option
+
+A [separate minimal HTTPS listener](REMOTE-READ-HTTPS.md) exposes only the existing
+inert remote-read queue/status/cancel protocol, not the general Windows agent.
+Its offline plan check validates an exact private IPv4/host and reviewed leaf
+certificate/key; network launch needs a separate exact interactive review.
+Loopback TLS/authentication/closed-surface tests pass. No LAN/public listener,
+firewall, certificate trust installation or device deployment was performed.
+Actual network/certificate-chain/Android trust, private reachability and owner
+device acceptance remain unverified; this is not arbitrary remote commands or
+production hardening.
