@@ -2,6 +2,8 @@
 
 ## 2026-11-17 - reviewed local workflow expansion
 
+- Added separate dedicated remote-read HTTPS source option and offline certificate/target validation; only loopback TLS fixtures tested, no network deployment/device acceptance.
+
 - Literal supplied resume/JD evidence preparation with exact negation-preserving context and no ranking/ATS score or sends, available in the provider-free console.
 - New static custom dashboard generator from supplied metric/bar/table data, with responsive sample pixel checks and no scripts/network/hosting.
 - Optional off-by-default isolated public rendered-page reads and exact actual-link follow, with fresh approval and exact public host checks. Not logged-in form/account automation or an OS network sandbox.
