@@ -348,3 +348,16 @@ readiness, traces, AI tool/content safety and credential lifecycle. Existing
 prerequisites, randomized objective checks, persisted weak areas, explanation
 self-review and spaced-review suggestions remain. This is not full advanced
 curriculum coverage, code execution/evaluation, certification or mastery grading.
+
+
+## Resumable offline evidence workflows
+
+[Fixed offline workflow journal](OFFLINE-WORKFLOWS.md) adds owner-authored
+sequences of1-10 supplied-data analyzers with exact digest/step review, atomic
+single claims, restart/resume, persistent outputs and stop/cancel suppression.
+Only the existing Terraform-plan, security-group, daily-cost and SLO arithmetic
+reviewers are callable. No shell, live account, network, file-content input,
+dynamic code, automatic next-step/retry, event trigger or deployment exists.
+Failed/crashed claims block continuation rather than replaying; journals are
+private local data, not encrypted or tamper-proof. This is a narrow executable
+offline-plan stage, not general autonomous multi-agent effects.
