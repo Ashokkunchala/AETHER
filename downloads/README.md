@@ -1,7 +1,7 @@
 # AETHER direct setup files
 
-Built from source commit `a5712ff70a246b22d93a06c41914f3460df29729`.
-Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44030030267
+Built from source commit `52f06ef5bf1118242dcb0d1ade1252807c0b1f14`.
+Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44032465798
 
 - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
 - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
@@ -21,5 +21,7 @@ This consolidated source also includes passive package/configuration inventory,3
 A provider-free interactive local console is now included for reviewing preflight, dashboard, filename and offline workflow actions without starting a backend/model. No generic shell or live browser in that console: [owner console guide](../docs/OWNER-CONSOLE.md).
 
 Also includes literal supplied resume/JD evidence navigation, exact context and explicit no-score/no-inference limits. No latest-resume selection or application/contact: [job evidence guide](../docs/JOB-EVIDENCE-REVIEW.md).
+
+Includes a separately reviewed dedicated remote-read HTTPS source option and offline TLS/target validation. No network deployment or phone trust/acceptance: [HTTPS guide](../docs/REMOTE-READ-HTTPS.md).
 
 Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
