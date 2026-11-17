@@ -6,7 +6,7 @@ import re
 import uuid
 from datetime import UTC, datetime, timedelta
 
-# Four three-stage tracks extend, rather than replace, the twelve starter domains.
+# Source-linked scenario tracks extend, rather than replace, starter domains.
 TRACKS = {
     "python": ("https://docs.python.org/3/library/asyncio-task.html", [
         ("Cancellation cleanup", "A file-processing coroutine is cancelled while awaiting a read.",
@@ -67,8 +67,15 @@ TRACKS = {
 }
 
 
+from jarvis.mentor_tracks import EXTRA_TRACKS
+TRACKS.update(EXTRA_TRACKS)
+
+
 def _lesson(key):
-    if type(key) is not str or re.fullmatch(r"(python|backend|kubernetes|aws)-[1-3]", key) is None:
+    if type(key) is not str or len(key) > 60 or "-" not in key:
+        raise ValueError("Choose a deep lesson from mentor_deep_catalog.")
+    track, level = key.rsplit("-", 1)
+    if track not in TRACKS or level not in ("1", "2", "3"):
         raise ValueError("Choose a deep lesson from mentor_deep_catalog.")
     track, level = key.rsplit("-", 1)
     return track, int(level), TRACKS[track][1][int(level) - 1]
@@ -182,7 +189,7 @@ def register_deep_mentor(registry):
     def store():
         return DeepMentor(MentorStore())
     definitions = [
-        ("mentor_deep_catalog", "List twelve deeper scenario lessons across Python, backend, Kubernetes and AWS, with three gated stages each.", {}, [], lambda: DeepMentor.catalog(), Risk.SAFE),
+        ("mentor_deep_catalog", "List source-linked scenario lessons across twelve tracks, with three gated stages each. Not full courses or mastery grading.", {}, [], lambda: DeepMentor.catalog(), Risk.SAFE),
         ("mentor_deep_start", "Start local open-book scenario practice. Stores a randomized session; later stages require two objective prerequisite passes. Does not execute labs.", {"lesson_id": {"type": "string"}}, ["lesson_id"], lambda lesson_id: store().start(lesson_id), Risk.LOW),
         ("mentor_deep_submit", "Submit exact scenario decisions and reasoning, record objective feedback and next spaced review. Free-text reasoning is not auto-graded.", {"session_id": {"type": "string"}, "choices": {"type": "array", "items": {"type": "integer"}}, "reasoning": {"type": "string"}}, ["session_id", "choices", "reasoning"], lambda session_id, choices, reasoning: store().submit(session_id, choices, reasoning), Risk.LOW),
         ("mentor_deep_progress", "Read adaptive weak-area/progression and due-review recommendations from local deep practice attempts.", {}, [], lambda: store().progress(), Risk.SAFE),
