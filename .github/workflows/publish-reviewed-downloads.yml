@@ -1,0 +1,103 @@
+name: Publish reviewed setup files to repository
+
+on:
+  push:
+    branches: [jarvis-cinematic-local-voice]
+    paths: [.github/workflows/publish-reviewed-downloads.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: aether-reviewed-binary-publication
+  cancel-in-progress: false
+
+jobs:
+  publish-exact-reviewed-files:
+    if: github.repository == 'Ashokkunchala/AETHER' && github.ref == 'refs/heads/jarvis-cinematic-local-voice'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: jarvis-cinematic-local-voice
+      - name: Download exact successful Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: aether-windows-setup
+          run-id: 44003335873
+          github-token: ${{ github.token }}
+          path: staging/windows
+      - name: Download exact successful Android artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jarvis-android-debug-apk
+          run-id: 44003335873
+          github-token: ${{ github.token }}
+          path: staging/android
+      - name: Verify exact bytes and prepare only the requested direct downloads
+        shell: python
+        run: |
+          import hashlib
+          import pathlib
+          import shutil
+          import urllib.request
+          import json
+          source = 'bdb5ac93dbe4f49da75789c00d77c432494b99ae'
+          url = 'https://api.github.com/repos/Ashokkunchala/AETHER/actions/runs/44003335873'
+          with urllib.request.urlopen(url) as response:
+              run = json.load(response)
+          assert run['head_sha'] == source and run['status'] == 'completed' and run['conclusion'] == 'success'
+          root = pathlib.Path('downloads')
+          root.mkdir(exist_ok=True)
+          expected = [
+              ('staging/windows/AETHER-Setup.exe', 'AETHER-Setup.exe', 28160, '9b5be26856a8a2413432ae3f8fec4636f54795bf85b13a96b09256092ecdebb0'),
+              ('staging/android/app-debug.apk', 'AETHER-Android.apk', 100267246, '28b1f9de28760abba8a1cf2cd64c8148badb646d311325bcd2f2d56a9cf41aff'),
+              ('staging/windows/install-aether-reviewed.ps1', 'install-aether-reviewed.ps1', 4004, '31f2bd3c68901b3f62f1ca0ec457b9cd3dfc251a7c682365fed5acbd61447cb6'),
+          ]
+          checks = []
+          for original, name, size, digest in expected:
+              data = pathlib.Path(original).read_bytes()
+              assert len(data) == size and hashlib.sha256(data).hexdigest() == digest, name
+              destination = root / name
+              assert not destination.is_symlink(), 'Refuse a linked destination'
+              destination.write_bytes(data)
+              checks.append(digest + '  ' + name)
+          payload = (root / 'install-aether-reviewed.ps1').read_text(encoding='utf-8-sig')
+          assert source in payload and '__AETHER_BUILD_COMMIT__' not in payload
+          assert pathlib.Path('staging/windows/SOURCE-COMMIT.txt').read_text().strip() == source
+          (root / 'SHA256SUMS.txt').write_text('\n'.join(checks) + '\n')
+          (root / 'SOURCE-COMMIT.txt').write_text(source + '\n')
+          (root / 'README.md').write_text('''# AETHER direct setup files
+
+          Built from source commit `bdb5ac93dbe4f49da75789c00d77c432494b99ae`.
+          Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44003335873
+
+          - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
+          - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
+          - `install-aether-reviewed.ps1`: the readable Windows payload embedded in the executable.
+          - `SHA256SUMS.txt` and `SOURCE-COMMIT.txt`: exact binary integrity/source references. These are not a code signature or safety guarantee.
+
+          Download an individual file with GitHub's Download raw file button, not the webpage saved as HTML. The repository has the files directly; no Actions artifact ZIP is required. Use the raw links supplied with the completion report.
+
+          No public Release was created. These files have the SAME visibility as this repository. No user device was installed, started, paired or changed by publishing them. Do not bypass unexplained antivirus/SmartScreen/TLS warnings. This is tested source/build output, not proof all AETHER abilities work on your devices.
+
+          Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
+          ''')
+      - name: Commit only verified requested binary files, no force push
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- downloads/AETHER-Setup.exe downloads/AETHER-Android.apk downloads/install-aether-reviewed.ps1 downloads/SHA256SUMS.txt downloads/SOURCE-COMMIT.txt downloads/README.md
+          if git diff --cached --quiet; then
+            echo 'Exact reviewed downloads already committed; nothing to change.'
+            exit 0
+          fi
+          git commit -m 'Add owner-requested verified Windows EXE and Android APK downloads'
+          git push origin HEAD:refs/heads/jarvis-cinematic-local-voice
