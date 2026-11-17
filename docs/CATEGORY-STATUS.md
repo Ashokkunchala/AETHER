@@ -337,3 +337,14 @@ application database writes. It omits secret values, folder paths and host names
 and distinguishes presence from runtime-tested behavior. It does not replace
 device acceptance, dependency compatibility checks or existing active doctor
 probes, and does not auto-install/repair anything.
+
+
+## Expanded source-linked mentor scenarios
+
+[Expanded mentor tracks](MENTOR-EXPANDED-TRACKS.md) add24 scenario lessons, bringing
+the existing deeper engine to36 lessons across12 tracks. New tracks cover React
+state/effects, TypeScript, CI/CD security, Terraform locking, Linux service
+readiness, traces, AI tool/content safety and credential lifecycle. Existing
+prerequisites, randomized objective checks, persisted weak areas, explanation
+self-review and spaced-review suggestions remain. This is not full advanced
+curriculum coverage, code execution/evaluation, certification or mastery grading.
