@@ -314,3 +314,15 @@ metrics, nonnegative bar charts and tables; no scripts, hosting or live-data
 connection. Offline Chromium integration tests and sample desktop/mobile pixel
 inspection check this bounded implementation, not arbitrary website/device
 compatibility or every generated dataset. Existing file/web tools remain intact.
+
+
+## Local filename discovery follow-up
+
+[Owner-selected file discovery](LOCAL-FILE-DISCOVERY.md) adds a fresh-approved,
+bounded metadata-only filename search under exact configured local folders, with
+optional extension-based grouping suggestions. It skips hidden entries, links/
+reparse points and special files; reports limits/errors without claiming absence;
+and never reads file bodies/hashes or moves, deletes, renames, opens or uploads.
+This narrows the earlier accessible-file search/organization gap to one review-only
+workflow, not a content index, duplicate finder, automatic organizer or sandbox.
+Real laptop filesystem and provider/device acceptance remain unverified.
