@@ -89,7 +89,10 @@ class IncomingFrame(RootModel[FrameType]):
 async def create_ws_ticket(request: Request, profile: Literal["legacy", "personal-readonly", "personal-local"] = "legacy") -> dict[str, int | str]:
     """Exchange a bearer credential for a short-lived, one-use WebSocket ticket."""
     identity = SessionIdentity.authenticate(request.headers.get("authorization"))
-    return {"ticket": _tickets.issue(replace(identity, profile=profile)), "expires_in": _WS_TICKET_TTL_SECONDS}
+    ticket = _tickets.issue(replace(identity, profile=profile))
+    from app.core.auth import token_auth
+    token_auth._log_audit("ws_session_issued", device_id=identity.device_id, success=True)
+    return {"ticket": ticket, "expires_in": _WS_TICKET_TTL_SECONDS}
 
 
 # Free-tier Gemini quotas are tiny; never let one browser melt them.
