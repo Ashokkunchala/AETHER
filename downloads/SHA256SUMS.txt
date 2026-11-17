@@ -1,0 +1,3 @@
+9b5be26856a8a2413432ae3f8fec4636f54795bf85b13a96b09256092ecdebb0  AETHER-Setup.exe
+28b1f9de28760abba8a1cf2cd64c8148badb646d311325bcd2f2d56a9cf41aff  AETHER-Android.apk
+31f2bd3c68901b3f62f1ca0ec457b9cd3dfc251a7c682365fed5acbd61447cb6  install-aether-reviewed.ps1
