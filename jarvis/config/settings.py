@@ -13,10 +13,13 @@ except ImportError:  # pragma: no cover - dotenv is optional for library use
     pass
 
 
+from jarvis.secret_store import secret
+
+
 @dataclass
 class JarvisConfig:
     # API
-    gemini_api_key: str = os.getenv("GEMINI_API_KEY", "")
+    gemini_api_key: str = field(default_factory=lambda: secret("GEMINI_API_KEY", os.getenv("GEMINI_API_KEY", "")), repr=False)
     gemini_model: str = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
     use_gemini_live: bool = os.getenv("USE_GEMINI_LIVE", "true").lower() == "true"
 
@@ -56,7 +59,7 @@ class JarvisConfig:
     # Shared speech backends (jarvis.core.voice.speech): local-first by default.
     # JARVIS_TTS_BACKEND: "local" (default), "elevenlabs", or a comma list like
     # "elevenlabs,local". ElevenLabs needs BOTH of these (two different values):
-    elevenlabs_api_key: str = os.getenv("ELEVENLABS_API_KEY", "")
+    elevenlabs_api_key: str = field(default_factory=lambda: secret("ELEVENLABS_API_KEY", os.getenv("ELEVENLABS_API_KEY", "")), repr=False)
     elevenlabs_voice_id: str = os.getenv("ELEVENLABS_VOICE_ID", "")
     elevenlabs_model: str = os.getenv("ELEVENLABS_MODEL", "eleven_multilingual_v2")
 
