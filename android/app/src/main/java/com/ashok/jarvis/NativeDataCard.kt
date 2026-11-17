@@ -86,7 +86,7 @@ private fun inspectImage(context: Context, uri: Uri): String {
     } finally { bitmap.recycle() }
 }
 
-private suspend fun readApproximateLocation(context: Context): Location? = withTimeout(20_000) {
+internal suspend fun readApproximateLocation(context: Context): Location? = withTimeout(20_000) {
     require(Build.VERSION.SDK_INT >= 30) { "One-shot location requires Android 11+ in this version" }
     val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     require(manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
