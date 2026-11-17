@@ -6,14 +6,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # AI providers (Gemini for text + live voice; OpenRouter/Groq for text)
-    gemini_api_key: str = ""
+    gemini_api_key: str = Field(default="", repr=False)
     gemini_model: str = "gemini-3.5-flash"
     gemini_model_fallback: str = "gemini-3.1-flash-lite,gemini-3.6-flash,gemini-3.7-flash"
     gemini_live_model: str = "gemini-3.8-live"
     gemini_live_voice: str = "Charon"
-    openrouter_api_key: str = ""
+    openrouter_api_key: str = Field(default="", repr=False)
     openrouter_model: str = "openai/gpt-4o-mini"
-    groq_api_key: str = ""
+    groq_api_key: str = Field(default="", repr=False)
     groq_model: str = "llama-3.3-70b-versatile"
     jarvis_ai_provider: str = "auto"
 
@@ -26,8 +26,8 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:8000,http://127.0.0.1:8000"
 
     # Security
-    jarvis_api_token: str = ""
-    secret_key: str = ""
+    jarvis_api_token: str = Field(default="", repr=False)
+    secret_key: str = Field(default="", repr=False)
     token_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24 * 30  # 30 days
 
@@ -36,9 +36,9 @@ class Settings(BaseSettings):
 
     # AETHER external integrations (credentials are server-side only)
     google_oauth_client_id: str = ""
-    google_oauth_client_secret: str = ""
+    google_oauth_client_secret: str = Field(default="", repr=False)
     google_oauth_redirect_uri: str = "http://127.0.0.1:8000/api/integrations/google/callback"
-    whatsapp_access_token: str = ""
+    whatsapp_access_token: str = Field(default="", repr=False)
     whatsapp_phone_number_id: str = ""
     document_allowed_roots: str = ""  # semicolon-separated absolute paths; no implicit home-folder scan
 
@@ -68,6 +68,12 @@ class Settings(BaseSettings):
     @property
     def allowed_origins(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
+
+    @field_validator('gemini_api_key', 'openrouter_api_key', 'groq_api_key', 'jarvis_api_token', 'secret_key', 'google_oauth_client_secret', 'whatsapp_access_token', 'github_alert_webhook_secret', mode='before')
+    @classmethod
+    def native_credentials(cls, value, info):
+        from jarvis.secret_store import secret
+        return secret(info.field_name.upper(), value)
 
     @field_validator('jarvis_api_token')
     @classmethod
