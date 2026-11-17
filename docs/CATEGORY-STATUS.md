@@ -288,3 +288,17 @@ Android/private HTTPS setup and is best-effort. No sensor/wearable/medical or
 personal dietary-suitability claim, media autoplay or provider/device effect is
 added. This is registry functionality, not a dedicated new native wellness UI.
 The older combined habit/workout weekly reviewer remains separate and unchanged.
+
+## Security/privacy manager follow-up
+
+[Control inventory and owner-run setup](SECURITY-PRIVACY-MANAGER.md) maps all13
+requested controls to existing paths, additions and remaining gaps. New source
+adds opt-in native OS credentials for integrated key lookups, an owner-configured
+local four-level/exact-tool registry policy with post-review revalidation,
+restricted exact file arguments, a master-only local authentication-event feed,
+and owner-reviewed fixed ClamAV/pip-audit adapters. No policy or native key mode
+is enabled automatically; no scanner or real key/device/provider action ran.
+These are not per-device backend RBAC, universal filesystem confinement,
+tamper-proof audit, pushed login alerts, a TLS bridge, security certification or
+production hardening. Existing memory/stop/device/session paths stay separate
+with their documented limitations.
