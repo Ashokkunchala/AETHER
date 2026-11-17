@@ -15,9 +15,10 @@ class LiveDrivers:
 
     def _driver(self, plan):
         operation = plan["operation"]
-        key = "ec2" if operation.startswith("ec2_") else operation
+        kind = "ec2" if operation.startswith("ec2_") else operation
+        key = (kind, plan["profile"], plan["region"]) if kind == "ec2" else (kind, plan.get("context"), plan.get("cluster_ca_sha256"))
         if key not in self._drivers:
-            if key == "ec2":
+            if kind == "ec2":
                 import boto3
                 from botocore.config import Config
                 session = boto3.Session(profile_name=plan["profile"], region_name=plan["region"])
@@ -29,7 +30,7 @@ class LiveDrivers:
                 ec2 = session.client("ec2", config=config)
                 sts = session.client("sts", config=config)
                 self._drivers[key] = EC2Driver(ec2, sts)
-            elif key == "k8s_scale":
+            elif kind == "k8s_scale":
                 from kubernetes import client, config
                 import yaml
                 paths = os.getenv("KUBECONFIG", str(__import__("pathlib").Path.home() / ".kube" / "config")).split(os.pathsep)
