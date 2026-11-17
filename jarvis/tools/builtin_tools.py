@@ -215,6 +215,8 @@ def build_registry(force: bool = False) -> ToolRegistry:
     register_rendered_browser(registry)
     from jarvis.file_discovery import register_file_discovery
     register_file_discovery(registry)
+    from jarvis.offline_workflows import register_offline_workflows
+    register_offline_workflows(registry)
 
     from jarvis.control.windows_inspection import register_windows_inspection_tools
 
