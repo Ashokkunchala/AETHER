@@ -33,10 +33,20 @@ occurrences in a seven-day window, hand a selected event to the system editor,
 process one selected image into bounded local pixel statistics, and obtain one
 foreground approximate location on Android11+ with an optional explicit-check
 proximity reminder. There is no direct calendar write, semantic image analysis,
-precise/background location, automatic geofence or backend/model upload. Current
-manifest checks cover exactly six declarations. Older composer/picker cards
+precise/background location, automatic geofence or backend/model upload. That stage added six declarations; the background follow-up below adds a seventh. Older composer/picker cards
 retain their narrower behavior. These additions do not establish device/runtime
 acceptance or complete the ability matrix below.
+
+## Image/background follow-up addendum
+
+The [four-capability follow-up](FOUR-CAPABILITIES.md) adds a separate native card
+for bundled labels/Latin OCR and a system-camera thumbnail, plus an optional
+single-target best-effort background proximity reminder. Current manifest checks
+now cover seven permissions including ACCESS_BACKGROUND_LOCATION, requested
+through an explicit optional Android Settings review after foreground permission.
+No precise/GPS/CAMERA or broad media permission is added. No actual permission,
+image, location or notification acceptance is claimed. The earlier manual-only
+card keeps its original behavior; background enabling/disabling is separate.
 
 ## Original reviewed source baseline
 
