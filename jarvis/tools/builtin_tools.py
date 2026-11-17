@@ -217,6 +217,8 @@ def build_registry(force: bool = False) -> ToolRegistry:
     register_file_discovery(registry)
     from jarvis.offline_workflows import register_offline_workflows
     register_offline_workflows(registry)
+    from jarvis.job_evidence import register_job_evidence
+    register_job_evidence(registry)
 
     from jarvis.control.windows_inspection import register_windows_inspection_tools
 
