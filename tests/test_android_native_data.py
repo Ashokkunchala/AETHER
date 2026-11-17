@@ -23,7 +23,8 @@ def test_permissions_are_readonly_foreground_and_picker_scoped():
     permissions = {row.attrib[name] for row in manifest.findall("uses-permission")}
     assert "android.permission.READ_CALENDAR" in permissions
     assert "android.permission.ACCESS_COARSE_LOCATION" in permissions
-    for suffix in ("WRITE_CALENDAR", "ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION", "READ_MEDIA_IMAGES", "READ_EXTERNAL_STORAGE", "CAMERA"):
+    assert "android.permission.ACCESS_BACKGROUND_LOCATION" in permissions  # Separate explicit opt-in card/worker.
+    for suffix in ("WRITE_CALENDAR", "ACCESS_FINE_LOCATION", "READ_MEDIA_IMAGES", "READ_EXTERNAL_STORAGE", "CAMERA"):
         assert "android.permission." + suffix not in permissions
 
 
