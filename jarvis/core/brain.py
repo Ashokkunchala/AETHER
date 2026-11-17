@@ -206,7 +206,8 @@ class JarvisBrain:
         provider: str | None = None,
     ) -> None:
         load_env()
-        self.api_key = (api_key or os.getenv("GEMINI_API_KEY", "")).strip()
+        from jarvis.secret_store import secret
+        self.api_key = secret("GEMINI_API_KEY", api_key or os.getenv("GEMINI_API_KEY", "")).strip()
         self.model = (model or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")).strip()
         self.provider_preference = (
             provider or os.getenv("JARVIS_AI_PROVIDER", "auto") or "auto"
@@ -223,7 +224,8 @@ class JarvisBrain:
     @staticmethod
     def _configured_key(name: str) -> str:
         """Read a provider key from the environment; blanks out placeholders."""
-        value = (os.getenv(name, "") or "").strip()
+        from jarvis.secret_store import secret
+        value = secret(name, os.getenv(name, "") or "").strip()
         if not value or value.lower().startswith("replace"):
             return ""
         return value
