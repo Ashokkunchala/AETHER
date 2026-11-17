@@ -215,3 +215,24 @@ def test_admin_can_issue_list_and_revoke_device_tokens():
         assert revoked.status_code == 200
         assert revoked.json()["revoked"] is True
         assert client.get("/api/health/detailed", headers=device_auth).status_code == 401
+
+
+def test_security_alerts_master_only_cursor_redacted():
+    from app.core.auth import token_auth
+    device = token_auth.issue_device_token('test device')
+    with TestClient(app) as client:
+        bad = client.get('/api/devices', headers={'Authorization': 'Bearer not-a-real-token'})
+        assert bad.status_code == 401
+        assert client.get('/api/security/alerts').status_code == 401
+        assert client.get('/api/security/alerts', headers={'Authorization': 'Bearer ' + device['token']}).status_code == 403
+        ticket = client.post('/api/ws-ticket', headers=AUTH)
+        assert ticket.status_code == 200
+        result = client.get('/api/security/alerts', headers=AUTH).json()
+        actions = {item['action'] for item in result['alerts']}
+        assert {'device_token_issued', 'token_invalid', 'ws_session_issued'} <= actions
+        assert all(set(item) == {'id', 'device_id', 'action', 'timestamp', 'success'} for item in result['alerts'])
+        assert device['token'] not in str(result) and TOKEN not in str(result)
+        cursor = result['alerts'][-1]['id']
+        assert client.get('/api/security/alerts', params={'after_id': cursor}, headers=AUTH).json()['alerts'] == []
+        assert client.get('/api/security/alerts', params={'limit': 10000}, headers=AUTH).status_code == 422
+        assert client.get('/api/security/alerts', params={'after_id': -1}, headers=AUTH).status_code == 422
