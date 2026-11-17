@@ -153,6 +153,14 @@ class TokenAuth:
             ).fetchall()
         return [dict(row) for row in rows]
 
+    def security_alerts(self, after_id: int = 0, limit: int = 50) -> list[dict]:
+        """Local master-only feed, not pushed alerts or guaranteed login detection."""
+        if type(after_id) is not int or after_id < 0 or type(limit) is not int or not 1 <= limit <= 100:
+            raise ValueError("Bounded cursor and limit required.")
+        with get_db_connection() as conn:
+            rows = conn.execute("SELECT id,device_id,action,timestamp,success FROM auth_audit WHERE id>? AND action IN ('token_invalid','device_token_issued','device_token_revoked','ws_session_issued') ORDER BY id LIMIT ?", (after_id, limit)).fetchall()
+        return [dict(row) for row in rows]
+
     def _log_audit(self, action: str, device_id: str = None, success: bool = True, ip_address: str = None, user_agent: str = None, details: str = None):
         try:
             with get_db_connection() as conn:
