@@ -260,6 +260,14 @@ def issue_device_token(request: Request, body: DeviceIssueRequest, _=Depends(req
     return result
 
 
+@app.get("/api/security/alerts")
+def local_security_alerts(after_id: int = 0, limit: int = 50, _=Depends(require_master_token)):
+    if after_id < 0 or not 1 <= limit <= 100:
+        from fastapi import HTTPException
+        raise HTTPException(422, "Choose a nonnegative cursor and limit1-100.")
+    return {"alerts": token_auth.security_alerts(after_id, limit), "notice": "Local audit feed only, not push delivery or a complete login detector. Audit can be altered by a local administrator; no credentials, raw errors or IP addresses returned."}
+
+
 @app.get("/api/devices")
 @limiter.limit("30/minute")
 def list_devices(request: Request, _=Depends(require_master_token)):
