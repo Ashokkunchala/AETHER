@@ -36,7 +36,7 @@ Python source-contract checks cover integration and the absence of network/shell
 
 No actual calendar read/edit, image selection/read, permission grant, location acquisition or device action was performed while building this stage. Native pixels and runtime remain unverified on a phone/emulator. Device acceptance must check denial/revocation, repeated request cancellation, leaving the app during reads, recurring/all-day/DST calendar rows, missing editors/providers, malformed/oversize/nonseekable images and coarse/disabled/stale/timeout locations. Real device work and any external effects remain separate approval items.
 
-Semantic image analysis, camera capture, automatic location reminders and direct calendar writes remain unimplemented. Do not describe this stage as completing all Android capabilities.
+This original card still has no semantic analysis, camera capture or automatic reminder. The separate [four-capability follow-up](FOUR-CAPABILITIES.md) now adds bundled labels/Latin OCR, camera thumbnail handling and an opt-in best-effort background proximity worker; those paths have their own permissions and limits. Direct calendar writes remain unimplemented. Do not describe this stage as completing all Android capabilities.
 
 ## Android references
 
