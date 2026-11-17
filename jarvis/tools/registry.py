@@ -220,6 +220,17 @@ class ToolRegistry:
                 return ToolResult(name, False, error="Emergency stop is active.")
         except Exception:
             return ToolResult(name, False, error="Execution safety store unavailable; action blocked.")
+        from jarvis.access_policy import check_policy
+        try:
+            policy = check_policy(tool, args)
+        except Exception:
+            store.audit(name, "blocked_access_policy")
+            return ToolResult(name, False, error="Owner access policy refused this action or is unavailable.")
+        if policy and policy.confirm and store.stopped():
+            store.audit(name, "blocked_emergency_stop")
+            return ToolResult(name, False, error="Emergency stop is active.")
+        needs_confirmation = tool.confirm_required or bool(policy and policy.confirm)
+        # A local policy can strengthen but never weaken existing confirmation.
         task_scope = uuid.uuid4().hex
         approval_id = None
         emit({"type": "tool_start", "tool": name, "args": copy.deepcopy(args), "risk": tool.risk.name, "category": tool.category})
@@ -227,7 +238,7 @@ class ToolRegistry:
         if tool.never_auto_approve or tool.risk >= Risk.MEDIUM or tool.confirm_required:
             auto_approve = False  # cloud-changing tools always need an explicit yes
         confirmation_args = args
-        if tool.confirm_required and (not auto_approve or not tool.allow_auto_approve):
+        if needs_confirmation and (bool(policy) or not auto_approve or not tool.allow_auto_approve):
             if confirm is None:
                 # Fail closed: a tool that needs approval never runs without
                 # a way to ask the user.
@@ -265,9 +276,13 @@ class ToolRegistry:
 
         try:
             # Recheck after the confirmation wait: a stop must block queued writes.
-            if tool.risk > Risk.SAFE and store.stopped():
+            if (tool.risk > Risk.SAFE or bool(policy and policy.confirm)) and store.stopped():
                 store.audit(name, "blocked_emergency_stop")
                 return ToolResult(name, False, error="Emergency stop is active.")
+            current_policy = check_policy(tool, args)
+            if current_policy != policy:
+                store.audit(name, "blocked_policy_changed")
+                return ToolResult(name, False, error="Owner policy changed during review; request a fresh review.")
             if approval_id is not None:
                 store.consume(approval_id, name, args, task_scope)
             store.audit(name, "started")
