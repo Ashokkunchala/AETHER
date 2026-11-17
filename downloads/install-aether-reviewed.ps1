@@ -5,7 +5,7 @@ existing installation overwrite, environment secret entry, firewall or device ac
 param()
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$commit = 'db1d4bf953185b4fe01891d15f6a29179b5412ba'
+$commit = 'a5712ff70a246b22d93a06c41914f3460df29729'
 if ($commit -notmatch '^[0-9a-f]{40}$') { throw 'This payload must be stamped with the verified CI commit before distribution.' }
 Write-Host 'AETHER - reviewed Windows setup' -ForegroundColor Cyan
 Write-Host "Source commit: $commit"

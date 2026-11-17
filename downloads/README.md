@@ -1,7 +1,7 @@
 # AETHER direct setup files
 
-Built from source commit `db1d4bf953185b4fe01891d15f6a29179b5412ba`.
-Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44027969152
+Built from source commit `a5712ff70a246b22d93a06c41914f3460df29729`.
+Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44030030267
 
 - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
 - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
@@ -19,5 +19,7 @@ Also includes owner-configured filename discovery and extension-based grouping s
 This consolidated source also includes passive package/configuration inventory,36 source-linked mentor scenario lessons and one-reviewed-step-at-a-time offline evidence workflows. These are not device acceptance, full courses, live cloud or unrestricted autonomous execution. Guides: [preflight](../docs/PASSIVE-SETUP-PREFLIGHT.md), [mentor](../docs/MENTOR-EXPANDED-TRACKS.md), [offline workflows](../docs/OFFLINE-WORKFLOWS.md).
 
 A provider-free interactive local console is now included for reviewing preflight, dashboard, filename and offline workflow actions without starting a backend/model. No generic shell or live browser in that console: [owner console guide](../docs/OWNER-CONSOLE.md).
+
+Also includes literal supplied resume/JD evidence navigation, exact context and explicit no-score/no-inference limits. No latest-resume selection or application/contact: [job evidence guide](../docs/JOB-EVIDENCE-REVIEW.md).
 
 Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
