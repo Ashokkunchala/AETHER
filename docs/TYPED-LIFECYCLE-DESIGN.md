@@ -4,6 +4,15 @@ Status: executable proposal validation and pure protocol simulation, **no effect
 
 The `design_lifecycle_change` tool is registered in the existing AETHER tool registry. It accepts a single closed JSON object, validates an exact target and computes an order-independent SHA-256 digest of the supplied scope. It returns operation-specific live checks, approval binding requirements and the proposed state graph. Its mode is always `design_only`; execution, authority, current-state verification, cost verification and external-outcome verification remain false. It never records an approval or creates an execution receipt. A digest detects changes in supplied bytes; it does not prove identity, ownership, provenance or safety.
 
+## Runtime addendum
+
+The separate [four-capability follow-up](FOUR-CAPABILITIES.md) adds a disabled
+local TTY runtime, durable approval/claim/reconciliation and typed EC2/Kubernetes
+SDK drivers tested against fakes. GitHub has only an injected typed transport,
+not live HTTP. This original design tool and simulator remain design-only and
+cannot create runtime approvals. The addendum does not retrofit generic tools,
+grant actual-target authority or claim provider acceptance.
+
 ## Supported proposal shapes
 
 All keys shown are required, and extra keys are refused. No caller `approved`, approval ID, raw CLI args, shell, credentials, arbitrary URLs, wildcard targets, force options or workflow inputs are accepted. Keep input within 8 KiB. Only the narrow shown operations are supported; destroy, delete, terminate, rollout restart/rollback, Helm, ECK, Terraform apply and CloudFormation execution are not included.
