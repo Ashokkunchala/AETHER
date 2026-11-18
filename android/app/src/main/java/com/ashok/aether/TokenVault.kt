@@ -15,6 +15,7 @@ object TokenVault {
     private const val TOKEN_ENTRY = "encrypted_device_token"
     private const val BACKEND_ENTRY = "encrypted_backend_url"
     private const val DEVICE_ID_ENTRY = "encrypted_device_id"
+    private const val GEMINI_KEY_ENTRY = "encrypted_gemini_api_key"
     private const val KEY_ALIAS = "aether_device_token_key"
 
     private fun key(): SecretKey {
@@ -80,5 +81,17 @@ object TokenVault {
     fun clear(context: android.content.Context) {
         context.getSharedPreferences(STORE, android.content.Context.MODE_PRIVATE)
             .edit().remove(TOKEN_ENTRY).remove(BACKEND_ENTRY).remove(DEVICE_ID_ENTRY).apply()
+    }
+
+    /** Owner-entered Gemini API key, stored only when the owner ticks "save on this device". */
+    fun storeGeminiKey(context: android.content.Context, key: String) =
+        storeEncrypted(context, GEMINI_KEY_ENTRY, key)
+
+    fun readGeminiKey(context: android.content.Context): String? =
+        runCatching { readEncrypted(context, GEMINI_KEY_ENTRY) }.getOrNull()
+
+    fun clearGeminiKey(context: android.content.Context) {
+        context.getSharedPreferences(STORE, android.content.Context.MODE_PRIVATE)
+            .edit().remove(GEMINI_KEY_ENTRY).apply()
     }
 }

@@ -264,6 +264,50 @@ private fun CommandCentreScreen() {
         if (granted) startLiveVoice()
         else liveVoiceStatus = "Microphone permission was denied. Typed chat remains available."
     }
+    var wakePhraseEnabled by remember { mutableStateOf(false) }
+    var wakePhraseStatus by remember {
+        mutableStateOf("Wake phrase is off. Optional on-device \"Hey Aether\" listening, foreground only.")
+    }
+    val wakePhraseController = remember(context) {
+        WakePhraseController(
+            context = context,
+            language = { language },
+            onWake = {
+                wakePhraseEnabled = false
+                wakePhraseStatus = "\"Hey Aether\" heard. Opening voice capture; review the transcript before sending."
+                launchSpeech(speechLauncher, language) { voiceBusy = it }
+            },
+            onStatus = { wakePhraseStatus = it },
+        )
+    }
+    DisposableEffect(wakePhraseController, lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP && wakePhraseEnabled) {
+                wakePhraseController.stop()
+                wakePhraseEnabled = false
+                wakePhraseStatus = "Wake phrase listener stopped because the app went to background."
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            wakePhraseController.stop()
+        }
+    }
+    val wakePhrasePermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            try {
+                wakePhraseController.start()
+                wakePhraseEnabled = true
+            } catch (error: Exception) {
+                wakePhraseStatus = error.message ?: "Wake phrase listener unavailable on this device."
+            }
+        } else {
+            wakePhraseStatus = "Microphone permission was denied; wake phrase stays off."
+        }
+    }
     val tts = remember {
         TextToSpeech(context) { result ->
             if (result == TextToSpeech.SUCCESS) {
@@ -620,6 +664,32 @@ private fun CommandCentreScreen() {
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
+            Button(
+                enabled = !busy && !voiceBusy,
+                onClick = {
+                    if (wakePhraseEnabled) {
+                        wakePhraseController.stop()
+                        wakePhraseEnabled = false
+                    } else if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) ==
+                        android.content.pm.PackageManager.PERMISSION_GRANTED
+                    ) {
+                        try {
+                            wakePhraseController.start()
+                            wakePhraseEnabled = true
+                        } catch (error: Exception) {
+                            wakePhraseStatus = error.message ?: "Wake phrase listener unavailable on this device."
+                        }
+                    } else {
+                        wakePhrasePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                    }
+                }
+            ) { Text(if (wakePhraseEnabled) "\"Hey Aether\" listening: on (tap to stop)" else "Enable \"Hey Aether\" wake phrase") }
+            Text(
+                "On-device wake phrase only while this screen is open. No audio is recorded or sent; hearing it just opens the normal voice capture for your review.",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted,
+            )
+            Text(wakePhraseStatus, style = MaterialTheme.typography.bodySmall, color = TextMuted)
             Button(
                 enabled = !busy && message.isNotBlank(),
                 onClick = {

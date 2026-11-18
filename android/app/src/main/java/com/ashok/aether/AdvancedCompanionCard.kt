@@ -12,8 +12,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -38,10 +40,13 @@ fun AdvancedCompanionCard() {
     var radius by remember { mutableStateOf("2000") }; var hours by remember { mutableStateOf("24") }
     var note by remember { mutableStateOf("") }
     var reviewReminder by remember { mutableStateOf(false) }
+    var geminiKey by remember { mutableStateOf(TokenVault.readGeminiKey(context) ?: "") }
+    var rememberGeminiKey by remember { mutableStateOf(TokenVault.readGeminiKey(context) != null) }
+    var cloudConsentVersion by remember { mutableIntStateOf(-1) }
     var status by remember { mutableStateOf("Bundled on-device image models. Background reminder stays off until separate permission, review and enable.") }
     fun clearImage(invalidateSelection: Boolean = true) { if (invalidateSelection) { selectionVersion++; pendingPicker = null; pendingCamera = null }; generation++; job?.cancel(); job = null; image = null; camera = null; status = "Local image selection/results cleared. Separately enabled background reminders are unchanged." }
     DisposableEffect(owner) {
-        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) { clearImage(false); reviewReminder = false } }
+        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) { clearImage(false); reviewReminder = false; cloudConsentVersion = -1 } }
         owner.lifecycle.addObserver(observer)
         onDispose { owner.lifecycle.removeObserver(observer); job?.cancel() }
     }
@@ -75,7 +80,36 @@ fun AdvancedCompanionCard() {
                         finally { if (ticket == generation) job = null }
                     }
                 }) { Text("Understand selected image locally") }
-                TextButton(onClick = { clearImage(); status = "Local selection/results cleared. No secure-erasure or external camera/gallery deletion claim." }) { Text("Clear image and local result") }
+                HorizontalDivider()
+                Text("Optional cloud description: sends ONLY this one selected image (downsized to at most 512px JPEG) over HTTPS to Google Gemini under YOUR own API key. Nothing is sent until you confirm for this exact photo. If you save the key it stays encrypted on this device and is sent nowhere except Google's API.")
+                OutlinedTextField(geminiKey, { geminiKey = it.take(400); cloudConsentVersion = -1 }, label = { Text("Your Gemini API key") }, visualTransformation = PasswordVisualTransformation())
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = rememberGeminiKey, onCheckedChange = { rememberGeminiKey = it })
+                    Text("Save key encrypted on this device (optional)")
+                }
+                Button(enabled = job == null && (image != null || camera != null) && geminiKey.isNotBlank(), onClick = { cloudConsentVersion = selectionVersion }) { Text("Prepare Gemini cloud description for this photo") }
+                if (cloudConsentVersion == selectionVersion && (image != null || camera != null)) {
+                    Text("Send THIS selected photo (one downsized JPEG, nothing else) to Google Gemini? Google processes it under your own API account and policies. AETHER keeps no copy and includes no other data.")
+                    Button(enabled = job == null, onClick = {
+                        val selected = image; val thumbnail = camera; val key = geminiKey
+                        val ticket = ++generation
+                        cloudConsentVersion = -1
+                        status = "Sending this one photo to Google Gemini..."
+                        job = scope.launch {
+                            try {
+                                val checked = GeminiCloudVision.checkedApiKey(key)
+                                val description = describeSelectedImageWithGemini(context, selected, thumbnail, checked)
+                                if (rememberGeminiKey) TokenVault.storeGeminiKey(context, checked) else TokenVault.clearGeminiKey(context)
+                                currentCoroutineContext().ensureActive()
+                                if (ticket == generation && expanded) status = description
+                            } catch (e: CancellationException) { throw e }
+                            catch (e: Exception) { if (ticket == generation && expanded) status = e.message ?: "Cloud description failed. No success claimed." }
+                            finally { if (ticket == generation) job = null }
+                        }
+                    }) { Text("Confirm: send THIS photo to Gemini") }
+                    TextButton(onClick = { cloudConsentVersion = -1; status = "Cloud description cancelled. Nothing was sent." }) { Text("Cancel, do not send") }
+                }
+                TextButton(onClick = { clearImage(); cloudConsentVersion = -1; status = "Local selection/results cleared. No secure-erasure or external camera/gallery deletion claim." }) { Text("Clear image and local result") }
                 HorizontalDivider()
                 Text("Background proximity reminder: one stored target, approximate network location, best-effort every 15 minutes. Android may delay/miss checks due to power/network/force-stop/permission rules. Not an exact geofence or safety reminder. Use a separate time reminder when missing it matters. Requires Allow all the time plus notifications. No server upload/history. Expires after 1-168 hours, fires at most once; reboot invalidates it.")
                 Button(onClick = { coarse.launch(Manifest.permission.ACCESS_COARSE_LOCATION) }) { Text("Request approximate foreground permission first") }
