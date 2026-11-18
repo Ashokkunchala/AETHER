@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-18 - dashboard recorded provider summary panel
+
+- The Command Center dashboard (`/dashboard`) gains an AI providers panel with a "Refresh recorded summary" button that calls the authenticated `/api/provider/health` endpoint and renders recorded attempts, success rate, latest retained result and measured average latency per provider. Every value renders through `textContent`, and the panel is labelled recorded-only: no live provider, quota or billing call is made and the latest retained result is not current account health.
+- A token change invalidates in-flight responses so values from the previous session are never shown, and the button re-enables after every completion. Real-Chromium tests cover the authenticated fetch, markup-safe rendering, 390px and 1280px layouts and stale-response handling.
+- Fixed two pre-existing dashboard script bugs found by the new browser tests: the live chart polyline crashed on the first telemetry sample (`.join` called on a string), and the RAM gauge never drew because it read `ram_percent` instead of the payload's `memory_percent` field.
+
 ## 2026-11-18 - measured provider health summaries
 
 - Added an authenticated `/api/provider/health` endpoint and SAFE `provider_health_summary` tool that aggregate the existing bounded runtime-event history by provider: recorded attempts, explicit success/failure counts and rate, measured latency samples, models seen and latest retained result.
