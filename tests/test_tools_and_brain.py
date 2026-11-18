@@ -88,8 +88,14 @@ def test_open_app_and_type_checks_focus_and_reports_failures(monkeypatch) -> Non
     assert unavailable.launched == []
 
 
-def test_registry_lookup_helpers(registry: ToolRegistry) -> None:
+def test_registry_lookup_helpers(registry: ToolRegistry, monkeypatch, tmp_path) -> None:
     assert "battery_status" in registry.names("system")
+    assert "provider_health_summary" in registry.names("system")
+    tool = registry.get("provider_health_summary")
+    assert tool.risk is Risk.SAFE
+    assert tool.requires_confirmation is False
+    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "tool-health.sqlite3"))
+    assert tool.handler()["measured_only"] is True
     assert registry.get("battery_status") is not None
     assert registry.get("definitely_not_a_tool") is None
 
