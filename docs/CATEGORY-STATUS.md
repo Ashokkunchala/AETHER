@@ -227,9 +227,11 @@ it does not make generic command/file/Git tools typed, verified installation/upd
 merge/conflict/PR or remote-control workflows. The older broad app/website/typing
 launch path fails closed rather than bypassing the app allowlist. Legacy
 default-handler open_path/open_file also fail closed for all paths so an executable
-or script cannot bypass policy through a file-opening label. Scoped default
-document/folder-handler launch remains unimplemented; data preview/read is separate. Dedicated safe
-URL/typing coverage and typed lifecycle workflows remain to build.
+or script cannot bypass policy through a file-opening label. A separate reviewed
+document/folder workflow now plans an exact digest and launches one approved
+handler with one local path argument; default associations remain closed. Data
+preview/read is separate. Dedicated safe URL/typing coverage and typed lifecycle
+workflows remain to build.
 
 The loopback Windows HTTP helper accepts status and narrow URL requests. It is not
 a remote arbitrary shell/app/file service. Android-to-Windows scoped commands,
@@ -395,3 +397,17 @@ firewall, certificate trust installation or device deployment was performed.
 Actual network/certificate-chain/Android trust, private reachability and owner
 device acceptance remain unverified; this is not arbitrary remote commands or
 production hardening.
+
+
+## Reviewed document and folder opening
+
+[Reviewed path opening](REVIEWED-PATH-OPEN.md) adds owner-configured local
+handler IDs bound to exact approved applications, roots, target kinds and file
+extensions. A safe planning step hashes one selected file or fingerprints one
+bounded folder listing; the fresh-approved action revalidates configuration,
+handler bytes and digest before starting the exact handler with one path
+argument. Known executable/script/web/macro formats, network paths, links and
+unapproved roots are refused. Legacy default-handler `open_path` remains closed.
+This is not content-safety verification, application sandboxing, URL opening,
+general typing or remote device control. Tests use fake bytes and mocked process
+launch; real Windows application/UI/filesystem acceptance remains unverified.
