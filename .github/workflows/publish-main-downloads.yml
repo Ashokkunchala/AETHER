@@ -17,19 +17,19 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: aether-windows-setup
-          run-id: 44298181462
+          run-id: 44309153096
           github-token: ${{ github.token }}
           path: staging/windows
       - uses: actions/download-artifact@v4
         with:
           name: aether-android-debug-apk
-          run-id: 44298181462
+          run-id: 44309153096
           github-token: ${{ github.token }}
           path: staging/android
       - name: Verify and publish
         run: |
           set -euo pipefail
-          SRC=b25f8e542095cfe282a248706789a89bbab3e54e
+          SRC=b44b4ea28612abe7edf7f3efe4a5230cfa948e49
           test "$(cat staging/windows/SOURCE-COMMIT.txt | tr -d '[:space:]')" = "$SRC"
           grep -q "$SRC" staging/windows/install-aether-reviewed.ps1
           ! grep -q __AETHER_BUILD_COMMIT__ staging/windows/install-aether-reviewed.ps1
@@ -38,8 +38,8 @@ jobs:
           cp staging/windows/install-aether-reviewed.ps1 downloads/install-aether-reviewed.ps1
           (cd downloads && sha256sum AETHER-Setup.exe AETHER-Android.apk install-aether-reviewed.ps1 > SHA256SUMS.txt)
           echo "$SRC" > downloads/SOURCE-COMMIT.txt
-          OLD=286224d7bf3b432acecf1a13603d7636ba98ceb3
-          sed -i "s/$OLD/$SRC/g; s#actions/runs/44293636279#actions/runs/44298181462#g" downloads/README.md
+          OLD=b25f8e542095cfe282a248706789a89bbab3e54e
+          sed -i "s/$OLD/$SRC/g; s#actions/runs/44298181462#actions/runs/44309153096#g" downloads/README.md
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add downloads
