@@ -265,6 +265,8 @@ def build_registry(force: bool = False) -> ToolRegistry:
     from aether.rendered_browser import register_rendered_browser
     register_dashboard_tools(registry)
     register_rendered_browser(registry)
+    from aether.profile_browser import register_profile_browser
+    register_profile_browser(registry)
     from aether.file_discovery import register_file_discovery
     register_file_discovery(registry)
     from aether.offline_workflows import register_offline_workflows
