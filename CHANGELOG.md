@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-18 - resumable read-only plans
+
+- Added `plan_save_readonly`, `plan_run_readonly`, `plan_status_readonly`, `plan_list_readonly` and `plan_forget_readonly`: multi-step plans of SAFE read-only tools with dependencies now checkpoint every settled step in the shared local SQLite store, so a failure or process restart resumes from the last incomplete step without re-executing successful steps.
+- Mutating or confirmation-gated tools, unknown tools, dependency cycles, credential-shaped or oversized arguments are rejected at save; approvals never carry across a restart. Status, lists and runtime events expose step status only, never arguments, outputs or secrets.
+- The task orchestrator now accepts seeded results for previously completed steps. Existing interactive execution is unchanged.
+
 ## 2026-11-18 - dashboard recorded provider summary panel
 
 - The Command Center dashboard (`/dashboard`) gains an AI providers panel with a "Refresh recorded summary" button that calls the authenticated `/api/provider/health` endpoint and renders recorded attempts, success rate, latest retained result and measured average latency per provider. Every value renders through `textContent`, and the panel is labelled recorded-only: no live provider, quota or billing call is made and the latest retained result is not current account health.
