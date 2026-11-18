@@ -147,11 +147,14 @@ class DeepMentor:
             db.execute("INSERT INTO mentor_deep_attempts(session,lesson,correct,answer,reasoning,recorded) VALUES(?,?,?,?,?,?)",
                        (session_id, session[0], int(correct), json.dumps(choices), reasoning.strip(), now.isoformat()))
             db.execute("INSERT INTO mentor_deep_progress VALUES(?,?,?) ON CONFLICT(lesson) DO UPDATE SET streak=excluded.streak,due=excluded.due", (session[0], streak, due.isoformat()))
+        from jarvis.mentor_rubric import evaluate_reasoning
+        rubric_review = evaluate_reasoning(session[0], reasoning)
         return {"lesson_id": session[0], "objective_decisions_correct": correct, "consecutive_objective_passes": streak,
                 "correct_decisions": [i for i, original in enumerate(permutation) if original in row[4]], "reference_reasoning": row[2],
-                "reasoning_automatically_graded": False, "self_review_rubric": ["Cite scenario evidence", "Explain why rejected actions are unsafe", "Name an unknown and the next check", "Distinguish approval, execution and verified outcome"],
+                "reasoning_automatically_graded": False, "rubric_signal_review": rubric_review,
+                "self_review_rubric": ["Cite scenario evidence", "Explain why rejected actions are unsafe", "Name an unknown and the next check", "Distinguish approval, execution and verified outcome"],
                 "next_review_utc": due.isoformat(), "source": TRACKS[track][0],
-                "notice": "Objective practice evidence only. Repeating a known answer is not mastery, certification or interview readiness. No lab was executed."}
+                "notice": "Objective practice evidence plus transparent phrase/rubric signals only. Repeating a known answer is not mastery, certification or interview readiness. No lab was executed."}
 
     def progress(self):
         now = datetime.now(UTC).isoformat()
