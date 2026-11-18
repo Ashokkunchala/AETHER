@@ -103,6 +103,12 @@ def reset_controllers() -> None:
     _laptop = _android = None
 
 
+def _provider_health_summary() -> dict[str, Any]:
+    from jarvis.telemetry import provider_health_summary
+
+    return provider_health_summary()
+
+
 # --------------------------------------------------------------------------
 # JSON schema helpers
 # --------------------------------------------------------------------------
@@ -241,6 +247,13 @@ def build_registry(force: bool = False) -> ToolRegistry:
 
 # ------------------------------------------------------------------- system
 def _register_system(r: ToolRegistry) -> None:
+    r.register(Tool(
+        name="provider_health_summary",
+        description="Summarize bounded recorded AI provider successes, failures and latency samples from local runtime history. No provider, network, quota or billing call; no prompts or credentials returned.",
+        parameters=_obj({}),
+        handler=_provider_health_summary,
+        risk=Risk.SAFE, category="system",
+    ))
     r.register(Tool(
         name="system_status",
         description="Snapshot of this laptop: OS, CPU %, RAM %, battery %, free disk.",
