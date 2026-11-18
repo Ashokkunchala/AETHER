@@ -335,6 +335,21 @@ dialect, resolve template interpolation/aliases/frameworks, read files, contact
 a network, write progress or grade correctness/security/mastery. Findings may be
 false positives and unreported risks remain; a zero finding count is not a pass.
 
+## Literal TypeScript teaching review
+
+`mentor_review_typescript(code)` reviews one supplied redacted TypeScript
+snippet for five literal patterns: explicit `any`, one-line suppression
+comments, postfix non-null assertions, `as unknown as` double assertions and
+runtime `enum` declarations. It returns fixed teaching explanations with
+line/UTF-8-column locations and TypeScript handbook source links while omitting
+source text and values. Credential-shaped input is rejected for redaction.
+
+This reviewer does not execute or type-check the snippet, invoke a compiler,
+parse every TypeScript dialect, resolve aliases/control flow/decorators, read
+files, contact a network, write progress or grade correctness/security/mastery.
+Findings may be false positives and unreported risks remain; a zero finding
+count is not a pass.
+
 ## Operating modes in the shared brain and web chat
 
 The requested ten modes are available: Personal, Friend, Mentor, DevOps,
