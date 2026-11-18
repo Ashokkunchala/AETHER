@@ -47,11 +47,14 @@ class ToolTaskOrchestrator:
         confirm: ConfirmHandler = None,
         auto_approve: bool = False,
         on_event: TaskEvent | None = None,
+        seeded_results: dict[str, ToolResult] | None = None,
     ) -> dict[str, ToolResult]:
         plan = list(tasks)
         self._validate(plan)
-        results: dict[str, ToolResult] = {}
-        pending = {task.task_id: task for task in plan}
+        results: dict[str, ToolResult] = dict(seeded_results or {})
+        if any(task_id not in {task.task_id for task in plan} for task_id in results):
+            raise ValueError("Seeded results must reference plan tasks")
+        pending = {task.task_id: task for task in plan if task.task_id not in results}
 
         while pending:
             ready = [
