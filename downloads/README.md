@@ -1,7 +1,7 @@
 # AETHER direct setup files
 
-Built from source commit `02ee1e4e070aacce6eaf7812489d0e767179ed7a`.
-Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44234484132
+Built from source commit `0f578cbfd2a87ad14decd2aecfb18e678368f899`.
+Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44238309401
 
 - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
 - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
@@ -27,5 +27,7 @@ Includes a separately reviewed dedicated remote-read HTTPS source option and off
 This batch adds reviewed local document/folder opening through exact approved handlers. Fresh owner review is required, network/linked/protected paths and executable-like targets stay refused, and no default association, upload or extra arguments are used. See [reviewed path opening](../docs/REVIEWED-PATH-OPEN.md).
 
 This batch adds deterministic mentor free-text rubric signals for reviewed reasoning submissions. They report concept, evidence, uncertainty and unsafe-endorsement signals only; they do not claim semantic grading, mastery, certification, code execution or lab evidence. See [mentor rubric signals](../docs/MENTOR-RUBRIC-SIGNALS.md).
+
+This batch also adds fresh-approved one-shot deep-mentor review reminders in the existing local backend reminder store. They are not sent notifications, calendar events, recurrence, automatic practice or mastery evidence; existing notification workers need the same backend plus their separate token/TLS/permission setup. See [review prompts](../docs/MENTOR-REVIEW-PROMPTS.md).
 
 Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
