@@ -427,3 +427,27 @@ unapproved roots are refused. Legacy default-handler `open_path` remains closed.
 This is not content-safety verification, application sandboxing, URL opening,
 general typing or remote device control. Tests use fake bytes and mocked process
 launch; real Windows application/UI/filesystem acceptance remains unverified.
+
+## Live cloud setup path follow-up
+
+[Owner-run live setup](LIVE-CLOUD-SETUP.md) adds an interactive
+`aether setup-live-cloud` wizard that validates one exact EC2 start/stop or
+Kubernetes Deployment scale scope through the existing typed designer and writes
+a local owner-only opt-in (fresh connection generation plus the single
+allowlisted scope digest) with the reviewed plan. The wizard performs no
+provider access, approval, enablement or execution; the disabled runtime's TTY
+prepare/review/execute flow with fresh typed approval still gates every write,
+and GitHub dispatch remains disabled by design. Owner AWS/kubectl identity,
+cost budgets and real-target acceptance remain unverified.
+
+
+## Signed-in browsing and reviewed form fill follow-up
+
+[Signed-in browsing](SIGNED-IN-BROWSING.md) adds an opt-in local browser
+profile the owner signs into themselves (`aether browser-login`), signed-in
+page reads under the existing enable/host/fresh-approval gates, and a reviewed
+form fill that types exact approved values into rechecked safe text fields and
+never submits or clicks. Password, hidden, file, card, code and token fields
+are refused by selector and again by live attributes. Signed-in content stays
+local and is not model-bound without separate approval. Real site/session
+acceptance remains unverified.

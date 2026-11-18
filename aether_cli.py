@@ -680,6 +680,59 @@ def gmail_signout_command():
 
     console.print(gmail_sign_out()["message"])
 
+
+@app.command("setup-live-cloud")
+def setup_live_cloud_command():
+    """One-time local opt-in for ONE exact real EC2 start/stop or Kubernetes scale target.
+
+    Writes only a local file; every live action still needs your typed approval on
+    this terminal within 120 seconds, and your own AWS profile or kubeconfig.
+    """
+    from aether.devops.live_setup import setup_live_cloud
+
+    if not sys.stdin.isatty():
+        err_console.print("[red]Run this on your own interactive terminal.[/red]")
+        raise typer.Exit(code=1)
+    try:
+        result = setup_live_cloud(
+            lambda prompt: typer.prompt(prompt, default="", show_default=False),
+            lambda prompt: typer.confirm(prompt, default=False),
+        )
+    except ValueError as exc:
+        err_console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(code=1) from exc
+    if not result["completed"]:
+        console.print(f"[yellow]Not written:[/yellow] {result['reason']}")
+        raise typer.Exit(code=1)
+    console.print(f"[green]Local opt-in written.[/green] Scope digest: {result['digest']}")
+    for step in result["steps"]:
+        console.print(step)
+
+
+@app.command("browser-login")
+def browser_login_command(url: str):
+    """Sign in YOURSELF in a visible browser window so approved signed-in page reads can use the local profile.
+
+    Requires AETHER_BROWSER_ENABLED=1 and AETHER_BROWSER_HOSTS (exact allowlist).
+    AETHER never reads, stores or types your credentials.
+    """
+    from aether.profile_browser import profile_login, profile_login_preview
+
+    if not sys.stdin.isatty():
+        err_console.print("[red]Run this on your own interactive terminal.[/red]")
+        raise typer.Exit(code=1)
+    try:
+        preview = profile_login_preview(url)
+    except ValueError as exc:
+        err_console.print(f"[red]{exc}[/red]")
+        err_console.print("Set AETHER_BROWSER_ENABLED=1 and AETHER_BROWSER_HOSTS=host1,host2 first (see docs/SIGNED-IN-BROWSING.md).")
+        raise typer.Exit(code=1) from exc
+    console.print(preview["notice"])
+    if typer.prompt("Type I SIGN IN MYSELF to open the window", default="", show_default=False) != "I SIGN IN MYSELF":
+        raise typer.Exit(code=1)
+    result = asyncio.run(profile_login(url))
+    console.print(f"[green]{result['notice']}[/green]")
+
 # ---------------------------------------------------------------------------
 # laptop group
 # ---------------------------------------------------------------------------
