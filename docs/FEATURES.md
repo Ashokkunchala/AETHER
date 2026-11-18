@@ -75,6 +75,13 @@ redacted text, without execution, file/network access or progress writes. It is
 not a parser, correctness/security/mastery pass or complete JavaScript/TypeScript
 review. See [JavaScript review scope and evidence](MENTOR-JAVASCRIPT-REVIEW.md).
 
+### Bounded TypeScript mentor snippet review
+
+`mentor_review_typescript` provides five literal teaching checks on supplied
+redacted text, without execution, type checking, file/network access or progress
+writes. It is not a parser, compiler, correctness/security/mastery pass or
+complete TypeScript/JavaScript review. See [TypeScript review scope and evidence](MENTOR-TYPESCRIPT-REVIEW.md).
+
 ### Trusted-project local Python wheel build
 
 `build_python_wheel` adds a fixed fresh-reviewed no-isolation wheel-build command
