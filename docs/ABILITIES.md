@@ -321,6 +321,20 @@ contact a URL, write progress, approve execution or sandbox later effects.
 Findings may be false positives and unreported risks remain; a zero finding
 count is not a pass, correctness grade or mastery evidence.
 
+## Literal JavaScript teaching review
+
+`mentor_review_javascript(code)` reviews one supplied redacted JavaScript
+snippet for five literal markers outside comments and quoted/template strings:
+`eval`, the `Function` constructor, `innerHTML` assignment, `document.write` and
+string timer callbacks. It returns fixed teaching explanations with
+line/UTF-8-column locations and MDN source links while omitting source text and
+values. Credential-shaped input is rejected for redaction.
+
+This reviewer does not execute the snippet, parse every JavaScript/TypeScript
+dialect, resolve template interpolation/aliases/frameworks, read files, contact
+a network, write progress or grade correctness/security/mastery. Findings may be
+false positives and unreported risks remain; a zero finding count is not a pass.
+
 ## Operating modes in the shared brain and web chat
 
 The requested ten modes are available: Personal, Friend, Mentor, DevOps,
