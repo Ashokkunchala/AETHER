@@ -68,6 +68,13 @@ redacted text, without execution, imports, file access or progress writes. It is
 not a correctness/security/mastery pass and does not resolve aliases/data flow.
 See [Python review scope and evidence](MENTOR-PYTHON-REVIEW.md).
 
+### Bounded JavaScript mentor snippet review
+
+`mentor_review_javascript` provides five literal teaching checks on supplied
+redacted text, without execution, file/network access or progress writes. It is
+not a parser, correctness/security/mastery pass or complete JavaScript/TypeScript
+review. See [JavaScript review scope and evidence](MENTOR-JAVASCRIPT-REVIEW.md).
+
 ### Trusted-project local Python wheel build
 
 `build_python_wheel` adds a fixed fresh-reviewed no-isolation wheel-build command
