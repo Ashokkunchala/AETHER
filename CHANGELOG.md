@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-18 - reviewed mentor review prompts
+
+- Added `mentor_deep_schedule_review_prompt`, a fresh-approved local write that creates one exact non-recurring deep-lesson reminder in the existing initialized backend reminder store. It deduplicates identical requests, reports current progress context without rewriting it and does not create a calendar event or send a notification.
+- Added focused tests for exact lesson/timestamp validation, existing-store/schema checks, deduplication, concurrent identical requests, registry confirmation and emergency-stop behavior.
+- This narrows the proactive-learning gap to reviewed one-shot reminders; automatic proactive delivery, terminal practice, notification-delivery proof and mastery grading remain separate.
+
 ## 2026-11-18 - mentor free-text rubric signals
 
 - Added deterministic deep-mentor free-text signal review: expected concept phrase/synonym coverage, possible unnegated unsafe-choice endorsement and evidence/unknown/authority-boundary signals.
