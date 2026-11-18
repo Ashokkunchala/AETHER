@@ -272,10 +272,22 @@ Every starter lesson, quiz and interview topic now carries a checked technical
 reference link. Interview prompts go beyond the multiple-choice checkpoints
 by asking for reasoning, tradeoffs, verification and safe operational boundaries.
 There is one scenario per domain. This is practice, not a hiring assessment or
-certification exam. Free-text answers are not automatically graded: the tool
+certification exam. Free-text answers are not semantically graded: the tool
 returns reference concepts for honest discussion rather than inventing a score.
 Answers stay in the local mentor database; do not include credentials. No answer
 text or practice command is executed. No recording or microphone capture is added.
+
+## Bounded free-text rubric signals
+
+`mentor_evaluate_reasoning(lesson_id, reasoning)` reviews one exact deep-mentor
+lesson explanation for deterministic concept phrase/synonym coverage, possible
+unnegated unsafe-choice endorsement and evidence/unknown/authority-boundary
+signals. `mentor_deep_submit` returns the same signal review with its objective
+decision feedback. The standalone signal tool does not store the answer, omits
+the supplied wording and refuses secret-shaped text. Coverage can miss a strong
+answer or reward a poor one; it is a transparent review aid, not semantic
+correctness, mastery, certification, interview readiness, code execution or lab
+evidence.
 
 ## Operating modes in the shared brain and web chat
 
