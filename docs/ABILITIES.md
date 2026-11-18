@@ -374,7 +374,9 @@ arguments, raw errors, credentials and account identifiers remain excluded.
 The summary does not call Gemini, OpenRouter, Groq, a quota service or a
 billing API. It does not change routing or configuration, report remaining
 quota, prove account health or predict future availability. Older events can
-be omitted by the bounded store. See
+be omitted by the bounded store. The Command Center dashboard renders the
+same recorded-only summary behind a "Refresh recorded summary" button in its
+AI providers panel and discards stale responses after a token change. See
 [PROVIDER-HEALTH.md](PROVIDER-HEALTH.md).
 
 ## Operating modes in the shared brain and web chat
