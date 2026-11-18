@@ -88,11 +88,12 @@ A bounded [rubric-signal reviewer](MENTOR-RUBRIC-SIGNALS.md) now checks deep-men
 
 A bounded offline [Python snippet teaching reviewer](MENTOR-PYTHON-REVIEW.md) now
 checks five explicit AST patterns with source links and location-only findings.
-It never imports/runs code or writes progress. Separate literal [shell command](MENTOR-SHELL-REVIEW.md)
-and [JavaScript snippet](MENTOR-JAVASCRIPT-REVIEW.md) reviewers flag five
-teaching patterns each without executing or resolving the supplied text.
-Aliases/control flow and general correctness/security/mastery are not evaluated;
-this does not close the advanced mentor/evaluation gap above.
+It never imports/runs code or writes progress. Separate literal [shell command](MENTOR-SHELL-REVIEW.md),
+[JavaScript snippet](MENTOR-JAVASCRIPT-REVIEW.md) and [TypeScript snippet](MENTOR-TYPESCRIPT-REVIEW.md)
+reviewers flag five teaching patterns each without executing, type checking or
+resolving the supplied text. Aliases/control flow and general
+correctness/security/mastery are not evaluated; this does not close the advanced
+mentor/evaluation gap above.
 
 ## 4. DevOps and SRE
 
