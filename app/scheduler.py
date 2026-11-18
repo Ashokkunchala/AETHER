@@ -33,8 +33,10 @@ class ScheduleRunner:
         self._loop_task: asyncio.Task | None = None
         self._active: dict[int, asyncio.Task] = {}
         from jarvis.proactive import ProactiveRunner
+        from jarvis.triggers import TriggerRunner
 
         self.proactive = ProactiveRunner()
+        self.triggers = TriggerRunner(registry_factory=self.registry_factory)
 
     async def start(self) -> None:
         if self._loop_task is not None:
@@ -99,6 +101,7 @@ class ScheduleRunner:
             await self.run_due_once()
             try:
                 await asyncio.to_thread(self.proactive.tick)
+                await self.triggers.tick()
                 from app.integrations import dispatch_due_reminders
                 await asyncio.to_thread(dispatch_due_reminders)
             except Exception:
