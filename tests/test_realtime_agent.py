@@ -227,8 +227,8 @@ async def test_wake_stream_tool_sleep_cycle(patched):
 
     result = await agent._on_tool_call(FakeCall("open_app", {"name": "chrome"}))
     assert result["success"] is False
-    assert "approved-app" in result["error"]
-    assert machine.calls == []  # legacy voice launch fails closed; scoped desktop launch required
+    assert "aether setup-apps" in result["error"]
+    assert machine.calls == []  # only the exact approved-app allowlist may launch; none approved here
     assert any(kind == "tool" for kind, _ in events)
 
     # 5. Idle timeout returns AETHER to sleep and clears playback.
@@ -267,7 +267,7 @@ async def test_tool_failure_is_reported_to_model(patched):
     await agent.initialize()
     result = await agent._on_tool_call(FakeCall("open_app", {"name": "chrome"}))
     assert result["success"] is False
-    assert "approved-app" in result["error"]
+    assert "aether setup-apps" in result["error"]
     await agent.stop()
 
 
@@ -300,3 +300,8 @@ async def test_call_mode_starts_awake_and_never_sleeps(patched):
         await task
     assert agent.audio.input_stopped
     assert agent.call_mode is False
+
+
+@pytest.fixture(autouse=True)
+def _no_approved_apps(tmp_path, monkeypatch):
+    monkeypatch.setenv("AETHER_APPROVED_APPS_FILE", str(tmp_path / "none.json"))
