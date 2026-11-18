@@ -220,7 +220,18 @@ threshold crossings: at most the 50 most recent CPU/RAM/disk crossings with
 timestamps, rendered markup-safe, persistent across reloads and clearable in
 one click. It is recorded only while the dashboard is open and is not a
 system or audit log; the backend proactive inbox above remains the
-restart-persistent store. Optional network
+restart-persistent store.
+
+## Event-triggered read-only plans
+
+`trigger_configure`, `trigger_rules` and `trigger_delete` manage opt-in rules
+that run a saved read-only plan when a new local runtime event matches a
+category (plus optional exact action/tool filters). Rules are disabled by
+default, checked roughly once a minute while the backend runs, cooldown
+bounded (300-86400 seconds, default one hour) and capped at 20. Matching is
+at-most-once per event and never retroactive for a fresh rule. Only saved
+read-only plans can be referenced; mutating or confirmation-gated actions
+stay interactive. See [EVENT-TRIGGERS.md](EVENT-TRIGGERS.md). Optional network
 download/upload thresholds (KB/s, 0 disables) feed the same history using
 aggregate counter rates.
 
