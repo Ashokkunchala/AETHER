@@ -4,6 +4,8 @@ import socket
 
 import pytest
 
+pytest.importorskip('playwright.async_api')
+
 from aether.profile_browser import (
     _field_kind,
     _validate_fields,
