@@ -567,3 +567,29 @@ while building this capability.
 Provider formats checked:
 - https://github.com/pypa/pip-audit
 - https://raw.githubusercontent.com/pypa/pip-audit/main/pip_audit/_format/json.py
+
+
+## Reviewed document and folder opening
+
+`plan_reviewed_open(handler_id, path)` reads an owner-managed local handler
+configuration and reviews one exact selected file or folder under its approved
+roots. It returns the handler mapping, target kind and a current SHA-256 file
+content digest or bounded immediate-folder-listing fingerprint without opening
+anything. `open_reviewed_path(...)` then requires fresh registry confirmation
+and revalidates the local handler configuration, separately approved handler
+executable bytes and exact target digest immediately before starting that
+handler with one local path argument.
+
+There are no default handlers, roots or extensions. The workflow refuses
+network-style paths, symlink/reparse paths, protected locations, unapproved
+roots, unapproved extensions and known executable/script/web/macro formats. It
+never uses a shell, URI, shortcut, default association, elevation, upload or
+extra arguments. Files are capped at 512MiB and folder listings at 1000 immediate
+entries; changes during review invalidate the request.
+
+A digest proves identity at recheck time only. It is not malware/content safety,
+macro safety, publisher verification, UI readiness or a sandbox around the
+handler application. The application may read the target and have its own side
+effects. Legacy `open_path` remains closed; URL opening, general typing and
+remote device control remain separate work. Development tests used disposable
+fixtures and mocked process launch, not a real owner application or device.
