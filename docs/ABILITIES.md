@@ -350,6 +350,19 @@ files, contact a network, write progress or grade correctness/security/mastery.
 Findings may be false positives and unreported risks remain; a zero finding
 count is not a pass.
 
+## Literal HTML teaching review
+
+`mentor_review_html(markup)` reviews one supplied redacted HTML snippet for
+five literal markers: script tags, inline event handlers, `javascript:` URLs,
+iframes and forms. It returns fixed teaching explanations with
+line/UTF-8-column locations and MDN source links while omitting markup text and
+attribute values. Credential-shaped input is rejected for redaction.
+
+This reviewer does not render, validate or sanitize the markup, open a browser,
+resolve malformed markup/frameworks/generated DOM changes, read files, contact a
+network, write progress or grade correctness/security/mastery. Findings may be
+false positives and unreported risks remain; a zero finding count is not a pass.
+
 ## Operating modes in the shared brain and web chat
 
 The requested ten modes are available: Personal, Friend, Mentor, DevOps,
