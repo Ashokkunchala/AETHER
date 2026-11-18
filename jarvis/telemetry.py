@@ -134,6 +134,7 @@ def provider_health_summary() -> dict[str, Any]:
             "latest_event_at": None,
         })
         row["events"] += 1
+        row["latest_result"] = "unknown"
         if event.get("success") is True:
             row["successes"] += 1
             row["latest_result"] = "success"
