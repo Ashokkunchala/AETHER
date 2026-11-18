@@ -38,7 +38,7 @@ from app.personality import SYSTEM_INSTRUCTIONS, language_instruction, mode_inst
 from app.scheduler import ScheduleRunner
 from app.schemas import ChatRequest, ChatResponse
 from app.services.gemini_service import gemini_service
-from jarvis.telemetry import runtime_events
+from jarvis.telemetry import provider_health_summary, runtime_events
 
 # Structured logging
 logging.basicConfig(
@@ -165,6 +165,13 @@ def read_runtime_events(request: Request, after_id: int = 0, limit: int = 50,
                         _=Depends(require_api_token)) -> dict:
     """Return bounded persisted task/provider summaries without prompts or arguments."""
     return runtime_events(after_id=after_id, limit=limit)
+
+
+@app.get("/api/provider/health")
+@limiter.limit("60/minute")
+def read_provider_health(request: Request, _=Depends(require_api_token)) -> dict:
+    """Return measured local provider outcome summaries without contacting providers."""
+    return provider_health_summary()
 
 
 @app.get("/api/performance")
