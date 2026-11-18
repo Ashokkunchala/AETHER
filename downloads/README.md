@@ -1,7 +1,7 @@
 # AETHER direct setup files
 
-Built from source commit `1e65f5c7502577aba3d07ba807e5e507c8fef4ef`.
-Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44244254208
+Built from source commit `65e65ac3ef3819a93ef2be82bb929ed613431a6e`.
+Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44246474380
 
 - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
 - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
@@ -33,5 +33,7 @@ This batch also adds fresh-approved one-shot deep-mentor review reminders in the
 This batch adds literal shell teaching review for one redacted command. It reports only five fixed patterns outside single quotes, with no execution, URL contact, path/variable resolution, approval, sandboxing, or security/correctness/mastery claim: [shell review](../docs/MENTOR-SHELL-REVIEW.md).
 
 This batch adds literal JavaScript teaching review for one redacted snippet. It reports only five fixed markers outside comments and quoted/template strings, with no execution, fixes, progress writes, or security/correctness/mastery claim: [JavaScript review](../docs/MENTOR-JAVASCRIPT-REVIEW.md).
+
+This batch adds literal TypeScript teaching review for one redacted snippet. It reports only five fixed patterns, with no compiler/type-checking, execution, fixes, progress writes, or security/correctness/mastery claim: [TypeScript review](../docs/MENTOR-TYPESCRIPT-REVIEW.md).
 
 Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
