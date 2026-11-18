@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-18 - measured provider health summaries
+
+- Added an authenticated `/api/provider/health` endpoint and SAFE `provider_health_summary` tool that aggregate the existing bounded runtime-event history by provider: recorded attempts, explicit success/failure counts and rate, measured latency samples, models seen and latest retained result.
+- Both FastAPI app variants expose the same summary. It preserves the existing allow-listed event schema and returns no prompts, tool arguments, raw errors, credentials, quota or billing data.
+- Added focused SQLite, registry and API authentication tests. No provider, network, quota or billing API is contacted to produce the summary; the latest retained result is not account health or future availability.
+
 ## 2026-11-18 - literal HTML teaching review
 
 - Added `mentor_review_html`, a no-effect mentor tool that checks one redacted HTML snippet for five literal teaching markers: script tags, inline event handlers, `javascript:` URLs, iframes and forms. It rejects credential-shaped input and returns location-only findings without markup text or attribute values.
