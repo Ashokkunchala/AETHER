@@ -649,6 +649,7 @@ def _register_input(r: ToolRegistry) -> None:
 # ------------------------------------------------------------------- files
 def _register_files(r: ToolRegistry) -> None:
     from jarvis.control import files as file_control
+    from jarvis.control.reviewed_open import preview_reviewed_open
 
     r.register(Tool(
         name="list_directory",
@@ -734,8 +735,38 @@ def _register_files(r: ToolRegistry) -> None:
         risk=Risk.LOW, category="files",
     ))
     r.register(Tool(
+        name="plan_reviewed_open",
+        description="Read local reviewed-open configuration and hash one explicitly selected file, or fingerprint one selected folder listing, returning the exact values required for a later fresh-approved open. No launch, write, upload or default association.",
+        parameters={"type": "object", "properties": {
+            "handler_id": _str("Exact lower-case reviewed-open handler ID from the owner-managed local configuration."),
+            "path": _str("Exact canonical absolute local file/folder path inside that handler's approved roots.")},
+            "required": ["handler_id", "path"], "additionalProperties": False},
+        handler=lambda handler_id, path: get_laptop().plan_reviewed_open(handler_id, path),
+        risk=Risk.SAFE, category="files",
+    ))
+    r.register(Tool(
+        name="open_reviewed_path",
+        description="After fresh confirmation, start one exact approved handler executable with one reviewed local file/folder path as its only argument. Revalidates owner config, approved app bytes and target digest immediately before launch; no shell/default association/URI/elevation.",
+        parameters={"type": "object", "properties": {
+            "handler_id": _str("Exact reviewed-open handler ID."),
+            "path": _str("Exact canonical absolute local path."),
+            "expected_kind": _str("Exact reviewed target kind.", ["file", "folder"]),
+            "expected_digest": _str("Exact lower-case digest returned by plan_reviewed_open for the current file bytes or folder listing."),
+            "expected_handler_app": _str("Exact approved-app ID configured for this handler."),
+            "expected_handler_executable": _str("Exact canonical absolute approved handler .exe path."),
+            "expected_handler_sha256": _str("Exact lower-case SHA256 of the approved handler executable.")},
+            "required": ["handler_id", "path", "expected_kind", "expected_digest", "expected_handler_app", "expected_handler_executable", "expected_handler_sha256"],
+            "additionalProperties": False},
+        handler=lambda handler_id, path, expected_kind, expected_digest, expected_handler_app, expected_handler_executable, expected_handler_sha256: get_laptop().open_reviewed_path(
+            handler_id, path, expected_kind, expected_digest, expected_handler_app, expected_handler_executable, expected_handler_sha256
+        ),
+        confirmation_preview=preview_reviewed_open,
+        risk=Risk.MEDIUM, category="files", requires_confirmation=True,
+        never_auto_approve=True, allow_always=False, allow_auto_approve=False,
+    ))
+    r.register(Tool(
         name="open_path",
-        description="Legacy default-handler launch is disabled. It could launch executables/scripts outside the exact approved-app policy. Use data preview/read or a separately reviewed exact execution workflow; no path is opened.",
+        description="Legacy default-handler launch is disabled. It could launch executables/scripts outside the exact approved-app policy. Use data preview/read or the separately reviewed exact document/folder handler workflow; no path is opened.",
         parameters=_obj({"path": _str("Legacy path parameter; this route always refuses launch.")}, ["path"]),
         handler=lambda path: get_laptop().open_path(path),
         confirmation_preview=lambda **args: {"success": False, "error": "Default-handler path opening is disabled; no launch or approval prompt. Use scoped data preview/read or a separately reviewed exact execution workflow."},
@@ -905,8 +936,8 @@ def _register_shell(r: ToolRegistry) -> None:
 # ------------------------------------------------------------------- devops
 def _register_devops(r: ToolRegistry) -> None:
     """AWS / DevOps tools. Reviews are offline; AWS calls use the user's own CLI profile."""
-    from jarvis.devops import awscli, review, runbooks
     from jarvis.control.dns_lookup import register_dns_lookup
+    from jarvis.devops import awscli, review, runbooks
     register_dns_lookup(r)
 
     from jarvis.devops.python_wheel import register_python_wheel
