@@ -189,3 +189,85 @@ def test_main_dashboard_ignores_stale_provider_summary_after_token_change():
             await browser.close()
 
     asyncio.run(run())
+
+
+def _routes_for_dashboard(html, provider_auth=None):
+    async def route(route):
+        from urllib.parse import urlsplit
+        path = urlsplit(route.request.url).path
+        if path == '/dashboard':
+            await route.fulfill(status=200, content_type='text/html', body=html)
+        elif path == '/api/performance':
+            await route.fulfill(status=200, content_type='application/json', body=json.dumps(_performance_payload()))
+        elif path == '/api/runtime/events':
+            await route.fulfill(status=200, content_type='application/json', body=json.dumps({'events': [], 'oldest_id': 0, 'latest_id': 0}))
+        elif path == '/api/provider/health':
+            await route.fulfill(status=200, content_type='application/json', body=json.dumps({'providers': [], 'storage': 'sqlite', 'measured_only': True, 'quota_reported': False}))
+        else:
+            await route.abort()
+    return route
+
+
+def test_main_dashboard_alert_history_records_persists_and_clears(tmp_path):
+    html = (ROOT / 'app/static/dashboard.html').read_text()
+
+    async def run():
+        async with async_playwright() as pw:
+            browser = await pw.chromium.launch(headless=True)
+            context = await browser.new_context(viewport={'width': 1280, 'height': 900})
+            page = await context.new_page()
+            await page.route('**/*', _routes_for_dashboard(html))
+            await page.goto('http://aether.test/dashboard')
+            await page.fill('#token', 'test-token')
+            await page.click('#connectBtn')
+            await page.wait_for_function('document.getElementById("state").textContent.includes("LIVE")')
+            assert 'No threshold crossings recorded' in await page.locator('#alertHistory').inner_text()
+            await page.check('#warningsEnabled')
+            await page.wait_for_timeout(2300)
+            assert 'No threshold crossings recorded' in await page.locator('#alertHistory').inner_text()
+            await page.eval_on_selector('#cpuThreshold', 'el=>{el.value="1";el.dispatchEvent(new Event("change"))}')
+            await page.wait_for_function('document.getElementById("alertHistory").textContent.includes("CPU usage crossed")', timeout=15000)
+            text = await page.locator('#alertHistory').inner_text()
+            assert 'CPU usage crossed 1%' in text
+
+            # A reload keeps the recorded history in this browser.
+            await page.reload()
+            await page.wait_for_function('document.getElementById("alertHistory") && document.getElementById("alertHistory").textContent.includes("CPU usage crossed")')
+
+            # Clearing removes only the local record.
+            await page.click('#clearAlertHistory')
+            assert 'No threshold crossings recorded' in await page.locator('#alertHistory').inner_text()
+            assert await page.evaluate('localStorage.getItem("jarvisAlertHistory")') is None
+            await context.close()
+            await browser.close()
+
+    asyncio.run(run())
+
+
+def test_main_dashboard_alert_history_is_bounded_and_survives_corrupt_storage():
+    html = (ROOT / 'app/static/dashboard.html').read_text()
+
+    async def run():
+        async with async_playwright() as pw:
+            browser = await pw.chromium.launch(headless=True)
+            context = await browser.new_context()
+            await context.add_init_script(
+                'localStorage.setItem("jarvisAlertHistory", JSON.stringify('
+                'Array.from({length: 60}, (_, i) => ({message: "CPU usage crossed " + i + "% <img src=x onerror=alert(1)>", time: "t" + i}))))'
+            )
+            page = await context.new_page()
+            await page.route('**/*', _routes_for_dashboard(html))
+            await page.goto('http://aether.test/dashboard')
+            await page.wait_for_function('document.getElementById("alertHistory") && document.getElementById("alertHistory").children.length === 50')
+            rendered = await page.locator('#alertHistory').inner_html()
+            assert '&lt;img' in rendered
+            assert '<img src=x' not in rendered
+
+            # Corrupt storage falls back to the empty state without a script error.
+            await page.evaluate('localStorage.setItem("jarvisAlertHistory", "not json {")')
+            await page.click('#clearAlertHistory')
+            assert 'No threshold crossings recorded' in await page.locator('#alertHistory').inner_text()
+            await context.close()
+            await browser.close()
+
+    asyncio.run(run())
