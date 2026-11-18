@@ -153,9 +153,11 @@ selected topics without deleting other sessions.
 Data stays in `~/.jarvis/mentor.db` (override with `JARVIS_MENTOR_DB`). No lab
 commands are executed, no calendar event is created, and no notification is
 sent. These are starter checkpoints, not complete courses, coding evaluation,
-certification preparation or evidence of mastery. Advanced lessons, coding
-sandboxes and proactive learning reminders remain to build. Mock-interview
-practice has since been added as described below.
+certification preparation or evidence of mastery. Advanced lessons and coding
+sandboxes remain to build. One-shot reviewed deep-lesson reminder rows have
+since been added as described below; broader automatic proactive learning
+delivery still remains separate work. Mock-interview practice has also been
+added as described below.
 
 ## Offline cloud evidence reviews
 
@@ -288,6 +290,22 @@ the supplied wording and refuses secret-shaped text. Coverage can miss a strong
 answer or reward a poor one; it is a transparent review aid, not semantic
 correctness, mastery, certification, interview readiness, code execution or lab
 evidence.
+
+## Reviewed one-shot mentor reminders
+
+`mentor_deep_schedule_review_prompt(lesson_id, due_at)` places one reviewed
+non-recurring reminder row for one exact deep lesson and future timestamp in
+the existing initialized backend reminder store. The tool returns its reminder
+ID and the current deep-progress next-review value without rewriting progress.
+Identical requests deduplicate, including concurrent submissions. The registry
+requires fresh confirmation; auto/always approval is refused and the emergency
+stop applies.
+
+This is not automatic proactive learning, a sent notification, calendar event,
+email or exact delivery guarantee. Existing notification workers need the same
+reachable backend plus their separate token/TLS/permission setup. It does not
+mark review complete, change mastery evidence, create recurrence, execute a lab
+or schedule follow-up prompts.
 
 ## Operating modes in the shared brain and web chat
 
