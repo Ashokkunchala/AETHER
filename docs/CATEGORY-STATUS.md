@@ -58,8 +58,10 @@ Sources: `app/personality.py`, `app/live_voice.py`, `app/static/live_voice.js`,
 The [four-capability follow-up](FOUR-CAPABILITIES.md) adds twelve deeper open-book
 scenario lessons across four three-stage tracks, randomized multi-decision checks,
 prerequisite progression, persisted weak areas/explanations and spaced-review
-suggestions. Objective decision feedback is implemented, not free-text mastery
-grading, an advanced curriculum for all subjects or live coding/cloud labs.
+suggestions. Objective decision feedback is implemented, plus deterministic
+free-text concept/risk/boundary phrase signals for review. This is not semantic
+free-text mastery grading, an advanced curriculum for all subjects or live
+coding/cloud labs.
 
 
 Twelve starter domains have introductory material, objective checkpoints,
@@ -76,6 +78,8 @@ also need their own scoped execution/notification integration.
 Sources: `jarvis/mentor.py`, `mentor_projects.py`, `mentor_terraform.py`,
 `mentor_activity.py`; [mentor activity](MENTOR-ACTIVITY.md),
 [Terraform mentor](MENTOR-TERRAFORM.md), [blueprint](ABILITIES.md).
+
+A bounded [rubric-signal reviewer](MENTOR-RUBRIC-SIGNALS.md) now checks deep-mentor free-text explanations for deterministic concept/risk/boundary signals without storing standalone answers. It is not semantic grading or mastery evidence.
 
 A bounded offline [Python snippet teaching reviewer](MENTOR-PYTHON-REVIEW.md) now
 checks five explicit AST patterns with source links and location-only findings.
@@ -348,8 +352,12 @@ the existing deeper engine to36 lessons across12 tracks. New tracks cover React
 state/effects, TypeScript, CI/CD security, Terraform locking, Linux service
 readiness, traces, AI tool/content safety and credential lifecycle. Existing
 prerequisites, randomized objective checks, persisted weak areas, explanation
-self-review and spaced-review suggestions remain. This is not full advanced
-curriculum coverage, code execution/evaluation, certification or mastery grading.
+self-review and spaced-review suggestions remain. A new deterministic
+`mentor_evaluate_reasoning` signal review reports expected concept coverage,
+possible unsafe-choice endorsement and evidence/unknown/authority boundary
+signals without storing the answer. This is not full advanced curriculum
+coverage, code execution/evaluation, semantic grading, certification or
+mastery assessment.
 
 
 ## Resumable offline evidence workflows
