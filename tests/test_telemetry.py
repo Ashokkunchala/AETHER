@@ -84,3 +84,33 @@ def test_provider_health_summary_with_no_provider_events_is_explicitly_empty():
     assert summary["providers"] == []
     assert summary["provider_count"] == 0
     assert "No provider" in summary["notice"]
+
+
+def test_provider_latest_event_without_result_does_not_inherit_success():
+    record_runtime_event("provider", provider="gemini", success=True, elapsed=0.5)
+    record_runtime_event("provider", provider="gemini", action="partial")
+
+    row = provider_health_summary()["providers"][0]
+    assert row["latest_result"] == "unknown"
+    assert row["successes"] == 1
+    assert row["failures"] == 0
+    assert row["events"] == 2
+    assert row["success_rate"] == 1.0
+    assert row["latency_seconds"]["samples"] == 1
+
+
+def test_provider_sample_is_bounded_and_tool_events_do_not_imply_health():
+    record_runtime_event("provider", provider="gemini", success=True)
+    for _ in range(100):
+        record_runtime_event("tool", tool="system_status", success=True)
+    assert provider_health_summary()["providers"] == []
+
+
+def test_provider_summary_handles_events_without_results_or_latency():
+    record_runtime_event("provider", provider="groq", action="started")
+    row = provider_health_summary()["providers"][0]
+    assert row["latest_result"] == "unknown"
+    assert row["success_rate"] is None
+    assert row["latency_seconds"] == {
+        "samples": 0, "average": None, "minimum": None, "maximum": None,
+    }
