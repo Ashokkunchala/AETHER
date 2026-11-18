@@ -24,6 +24,17 @@ DENIED = frozenset({'run_command', 'shell', 'shell_run', 'start_process', 'proce
 CRITICAL_NAMES = frozenset({'delete_file', 'android_delete_file', 'android_send_sms', 'android_share_text', 'android_call'})
 DENIED_CATEGORIES = frozenset({'input', 'android_input', 'apps', 'android_apps'})
 
+# Reviewed-open uses exact identity/digest arguments in addition to its restricted
+# local target and handler paths.  All other file tools still need every argument
+# covered by an explicit path restriction in hardened mode.
+_EXACT_FILE_TOOL_ARGS = {
+    'plan_reviewed_open': {'handler_id'},
+    'open_reviewed_path': {
+        'handler_id', 'expected_kind', 'expected_digest', 'expected_handler_app',
+        'expected_handler_sha256',
+    },
+}
+
 
 @dataclass(frozen=True)
 class AccessDecision:
@@ -79,7 +90,10 @@ def check_policy(tool, args) -> AccessDecision | None:
         if any(p.is_symlink() for p in [lexical, *lexical.parents]):
             raise ValueError('Symbolic links are not allowed in restricted file arguments.')
     # File handlers without exact argument coverage stay disabled in this mode.
-    if tool.category in ('files', 'filesystem', 'file') and (not paths or set(args) - set(paths)):
+    exact_identity_args = _EXACT_FILE_TOOL_ARGS.get(tool.name, set())
+    if tool.category in ('files', 'filesystem', 'file') and (not paths or set(args) - set(paths) - exact_identity_args):
         raise ValueError('File tool lacks complete exact-path argument coverage.')
+    if tool.name in _EXACT_FILE_TOOL_ARGS and set(paths) - set(args):
+        raise ValueError('Reviewed-open policy omits a required exact path argument.')
     import hashlib
     return AccessDecision(confirm, hashlib.sha256(raw).hexdigest())
