@@ -72,14 +72,17 @@ a GitHub repository. Objective choice grading is not a coding sandbox, a verifie
 code review, adaptive advanced curriculum, certification preparation for every
 exam, or evidence of mastery. Full beginner-to-advanced coverage of every named
 language/cloud/tool and secure live coding/command evaluation remain substantive
-implementation work. Automatic terminal practice and proactive learning delivery
-also need their own scoped execution/notification integration.
+implementation work. A narrow reviewed one-shot deep-lesson reminder can now be
+placed in the existing local backend reminder store, but automatic terminal
+practice and broader proactive learning delivery still need their own scoped
+execution/notification integration.
 
 Sources: `jarvis/mentor.py`, `mentor_projects.py`, `mentor_terraform.py`,
 `mentor_activity.py`; [mentor activity](MENTOR-ACTIVITY.md),
-[Terraform mentor](MENTOR-TERRAFORM.md), [blueprint](ABILITIES.md).
+[Terraform mentor](MENTOR-TERRAFORM.md),
+[review prompts](MENTOR-REVIEW-PROMPTS.md), [blueprint](ABILITIES.md).
 
-A bounded [rubric-signal reviewer](MENTOR-RUBRIC-SIGNALS.md) now checks deep-mentor free-text explanations for deterministic concept/risk/boundary signals without storing standalone answers. It is not semantic grading or mastery evidence.
+A bounded [rubric-signal reviewer](MENTOR-RUBRIC-SIGNALS.md) now checks deep-mentor free-text explanations for deterministic concept/risk/boundary signals without storing standalone answers. It is not semantic grading or mastery evidence. A separate fresh-approved [review prompt](MENTOR-REVIEW-PROMPTS.md) creates one local reminder row for one exact lesson/time, without notification-delivery proof or recurrence.
 
 A bounded offline [Python snippet teaching reviewer](MENTOR-PYTHON-REVIEW.md) now
 checks five explicit AST patterns with source links and location-only findings.
