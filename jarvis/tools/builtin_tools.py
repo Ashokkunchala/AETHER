@@ -191,6 +191,8 @@ def build_registry(force: bool = False) -> ToolRegistry:
     register_javascript_review(registry)
     from jarvis.mentor_typescript_review import register_typescript_review
     register_typescript_review(registry)
+    from jarvis.mentor_html_review import register_html_review
+    register_html_review(registry)
     from jarvis.mentor_shell_review import register_shell_review
     register_shell_review(registry)
     from jarvis.mentor_rubric import register_rubric_tools
