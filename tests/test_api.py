@@ -337,3 +337,19 @@ def test_chat_history_reaches_openai_provider_with_assistant_role(monkeypatch):
     roles = [m["role"] for m in captured["messages"]]
     assert "model" not in roles
     assert "assistant" in roles
+
+
+def test_provider_health_endpoint_requires_auth_and_reports_recorded_summary(monkeypatch, tmp_path):
+    from jarvis.telemetry import record_runtime_event
+
+    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "provider-health.sqlite3"))
+    record_runtime_event("provider", provider="gemini", model="model-a", success=True, elapsed=0.25)
+    with TestClient(app) as client:
+        assert client.get("/api/provider/health").status_code == 401
+        response = client.get("/api/provider/health", headers=AUTH)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["providers"][0]["provider"] == "gemini"
+    assert body["providers"][0]["latency_seconds"]["average"] == 0.25
+    assert body["quota_reported"] is False
