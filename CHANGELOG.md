@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-18 - mentor free-text rubric signals
+
+- Added deterministic deep-mentor free-text signal review: expected concept phrase/synonym coverage, possible unnegated unsafe-choice endorsement and evidence/unknown/authority-boundary signals.
+- `mentor_deep_submit` now returns the transparent signal review with objective decision feedback; the new safe `mentor_evaluate_reasoning` tool can review one redacted answer without storing it. Secret-shaped text is refused and the supplied wording is omitted from results.
+- Added 17 focused tests. This is not semantic correctness, mastery, certification, code execution or lab evidence.
+
 ## 2026-11-18 - reviewed local document and folder opening
 
 - Added owner-configured reviewed document/folder opening: a safe planning step returns exact target kind and current content/listing digest, and a fresh-approved action revalidates the exact approved handler executable and target before launching it with one local path argument. No default association, shell, URI, shortcut, elevation or upload is used.
