@@ -2,15 +2,15 @@ name: Tests
 
 on:
   push:
-    branches: [main, "improve/**", "feature/**", "chore/**", "jarvis-cinematic-local-voice"]
+    branches: [main, "improve/**", "feature/**", "chore/**", "aether-cinematic-local-voice"]
   pull_request:
-    branches: [main, "jarvis-cinematic-local-voice"]
+    branches: [main, "aether-cinematic-local-voice"]
 
 permissions:
   contents: read
 
 concurrency:
-  group: jarvis-${{ github.workflow }}-${{ github.ref }}
+  group: aether-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -48,7 +48,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Compile every Python file
-        run: python -m compileall -q app jarvis windows_agent tests scripts jarvis_cli.py jarvis_daemon.py run_enhanced.py
+        run: python -m compileall -q app aether windows_agent tests scripts aether_cli.py aether_daemon.py run_enhanced.py
       - name: Lint for syntax errors and undefined names
         run: |
           python -m pip install "ruff>=0.6,<1.0"
@@ -68,7 +68,7 @@ jobs:
         shell: pwsh
         run: |
           $files = @(
-            "INSTALL-JARVIS.ps1",
+            "INSTALL-AETHER.ps1",
             "scripts/setup-windows.ps1",
             "scripts/setup-and-validate.ps1",
             "scripts/setup-android.ps1",
@@ -79,11 +79,11 @@ jobs:
             "scripts/verify-mobile-common.ps1",
             "scripts/build-installer-exe.ps1",
             "scripts/install-aether-reviewed.ps1",
-            "scripts/uninstall-jarvis.ps1",
+            "scripts/uninstall-aether.ps1",
             "scripts/start-windows.ps1",
-            "scripts/start-jarvis-session.ps1",
-            "scripts/start-jarvis-terminal.ps1",
-            "scripts/install-jarvis-startup.ps1",
+            "scripts/start-aether-session.ps1",
+            "scripts/start-aether-terminal.ps1",
+            "scripts/install-aether-startup.ps1",
             "scripts/install-aether-notifications.ps1"
           )
           foreach ($file in $files) {
@@ -114,7 +114,7 @@ jobs:
         run: |
           .\.venv\Scripts\python.exe -m pip install -e ".[windows]"
           if ($LASTEXITCODE -ne 0) { throw "Editable package installation failed." }
-          .\.venv\Scripts\python.exe -c "import app, jarvis, windows_agent; print('Editable package imports passed')"
+          .\.venv\Scripts\python.exe -c "import app, aether, windows_agent; print('Editable package imports passed')"
           if ($LASTEXITCODE -ne 0) { throw "Editable package import test failed." }
 
       - name: Verify mobile helpers and secret-safe output
@@ -165,7 +165,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Build the local container image
-        run: docker build --tag jarvis-personal-ai:ci .
+        run: docker build --tag aether:ci .
 
 
   browser-dashboard-check:
@@ -209,7 +209,7 @@ jobs:
       - name: Upload debug APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jarvis-android-debug-apk
+          name: aether-android-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
