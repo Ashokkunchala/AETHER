@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-18 - literal HTML teaching review
+
+- Added `mentor_review_html`, a no-effect mentor tool that checks one redacted HTML snippet for five literal teaching markers: script tags, inline event handlers, `javascript:` URLs, iframes and forms. It rejects credential-shaped input and returns location-only findings without markup text or attribute values.
+- Added focused tests for exact/uncovered patterns, input limits, secret-shaped rejection, no file side effects, ordering, UTF-8 columns, truncation, independent results and preservation of existing mentor tools/progress.
+- This does not render, validate or sanitize markup, open a browser, resolve malformed markup/frameworks or claim security, correctness or mastery.
+
 ## 2026-11-18 - literal TypeScript teaching review
 
 - Added `mentor_review_typescript`, a no-effect mentor tool that checks one redacted TypeScript snippet for five literal teaching patterns: explicit `any`, one-line suppression comments, postfix non-null assertions, `as unknown as` double assertions and runtime `enum` declarations. It rejects credential-shaped input and returns location-only findings without source text.
