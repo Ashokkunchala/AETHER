@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-18 - dashboard network rate warnings
+
+- The Command Center dashboard warnings panel gains optional network thresholds: "Net down KB/s" and "Net up KB/s" inputs (0 disables each check) alert once per crossing on aggregate download/upload rates computed from device counters while the page polls. Crossings join the same browser-local recorded alert history, thresholds persist with the other warning settings, and steady high rates do not re-alert.
+- Rates remain aggregate send/receive estimates from the local performance API; no per-app or interface breakdown, and monitoring still happens only while the dashboard is open. A real-Chromium test covers the crossing, one-alert-per-crossing behavior, reload persistence and disabled-upload silence.
+
 ## 2026-11-18 - dashboard recorded alert history
 
 - The Command Center dashboard resource-warnings panel now records opt-in threshold crossings in a browser-local history: the 50 most recent crossings render under "Recorded alert history" with timestamps, survive page reloads and can be cleared with one click. Everything renders through `textContent`, corrupt stored data falls back to the empty state, and the record is labelled browser-local - not a system or audit log.
