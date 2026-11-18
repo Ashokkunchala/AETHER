@@ -29,14 +29,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: aether-windows-setup
-          run-id: 44230552500
+          run-id: 44234484132
           github-token: ${{ github.token }}
           path: staging/windows
       - name: Download exact successful Android artifact
         uses: actions/download-artifact@v4
         with:
           name: jarvis-android-debug-apk
-          run-id: 44230552500
+          run-id: 44234484132
           github-token: ${{ github.token }}
           path: staging/android
       - name: Verify exact bytes and prepare only the requested direct downloads
@@ -47,17 +47,17 @@ jobs:
           import shutil
           import urllib.request
           import json
-          source = 'e56382825f82c79f916d63fb83e9ee3771ef71c5'
-          url = 'https://api.github.com/repos/Ashokkunchala/AETHER/actions/runs/44230552500'
+          source = '02ee1e4e070aacce6eaf7812489d0e767179ed7a'
+          url = 'https://api.github.com/repos/Ashokkunchala/AETHER/actions/runs/44234484132'
           with urllib.request.urlopen(url) as response:
               run = json.load(response)
           assert run['head_sha'] == source and run['status'] == 'completed' and run['conclusion'] == 'success'
           root = pathlib.Path('downloads')
           root.mkdir(exist_ok=True)
           expected = [
-              ('staging/windows/AETHER-Setup.exe', 'AETHER-Setup.exe', 28160, '532c8aef0abfce59de9b1f931af03b9d5ecb65c9ea7257938ccc4e838a702a1a'),
-              ('staging/android/app-debug.apk', 'AETHER-Android.apk', 100267246, '8dc2e135fc4a1093d53943dd0003e11d215f8fb613bf598d6debf8a6ee513e65'),
-              ('staging/windows/install-aether-reviewed.ps1', 'install-aether-reviewed.ps1', 4004, 'b3a1e06fea76755274cc3938571c2f95b1f59e32bda7e4fa6e976b5dd679b84f'),
+              ('staging/windows/AETHER-Setup.exe', 'AETHER-Setup.exe', 28160, '88e94b43681990624a7327b59f68afeadabdc0a6594ec8d28b1748bcde59c647'),
+              ('staging/android/app-debug.apk', 'AETHER-Android.apk', 100267246, 'b68acbd1b5a2e8a0ae79ba9ae035309baa22143e6c1e60ca692e5a3ef823701a'),
+              ('staging/windows/install-aether-reviewed.ps1', 'install-aether-reviewed.ps1', 4004, 'c8d1dd55fdf05213cc06263a268dfeee944f331c5625f3a3a64e98e550df829f'),
           ]
           checks = []
           for original, name, size, digest in expected:
@@ -74,8 +74,8 @@ jobs:
           (root / 'SOURCE-COMMIT.txt').write_text(source + '\n')
           (root / 'README.md').write_text('''# AETHER direct setup files
 
-          Built from source commit `e56382825f82c79f916d63fb83e9ee3771ef71c5`.
-          Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44230552500
+          Built from source commit `02ee1e4e070aacce6eaf7812489d0e767179ed7a`.
+          Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44234484132
 
           - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
           - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
@@ -99,6 +99,8 @@ jobs:
           Includes a separately reviewed dedicated remote-read HTTPS source option and offline TLS/target validation. No network deployment or phone trust/acceptance: [HTTPS guide](../docs/REMOTE-READ-HTTPS.md).
 
           This batch adds reviewed local document/folder opening through exact approved handlers. Fresh owner review is required, network/linked/protected paths and executable-like targets stay refused, and no default association, upload or extra arguments are used. See [reviewed path opening](../docs/REVIEWED-PATH-OPEN.md).
+
+          This batch adds deterministic mentor free-text rubric signals for reviewed reasoning submissions. They report concept, evidence, uncertainty and unsafe-endorsement signals only; they do not claim semantic grading, mastery, certification, code execution or lab evidence. See [mentor rubric signals](../docs/MENTOR-RUBRIC-SIGNALS.md).
 
           Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
           ''')
