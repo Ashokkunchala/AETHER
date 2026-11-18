@@ -363,6 +363,20 @@ resolve malformed markup/frameworks/generated DOM changes, read files, contact a
 network, write progress or grade correctness/security/mastery. Findings may be
 false positives and unreported risks remain; a zero finding count is not a pass.
 
+## Measured provider health summary
+
+`provider_health_summary()` and the authenticated `/api/provider/health`
+endpoint aggregate the bounded local runtime-event history by provider. They
+report recorded attempts, explicit success/failure counts and rate, measured
+latency samples, models seen and the latest retained result. Prompts, tool
+arguments, raw errors, credentials and account identifiers remain excluded.
+
+The summary does not call Gemini, OpenRouter, Groq, a quota service or a
+billing API. It does not change routing or configuration, report remaining
+quota, prove account health or predict future availability. Older events can
+be omitted by the bounded store. See
+[PROVIDER-HEALTH.md](PROVIDER-HEALTH.md).
+
 ## Operating modes in the shared brain and web chat
 
 The requested ten modes are available: Personal, Friend, Mentor, DevOps,
