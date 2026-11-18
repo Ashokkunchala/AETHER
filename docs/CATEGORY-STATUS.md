@@ -451,3 +451,25 @@ never submits or clicks. Password, hidden, file, card, code and token fields
 are refused by selector and again by live attributes. Signed-in content stays
 local and is not model-bound without separate approval. Real site/session
 acceptance remains unverified.
+
+
+## Gemini cloud image description follow-up
+
+[Optional Gemini cloud description](ANDROID-GEMINI-CLOUD-VISION.md) lets the
+owner send ONE reviewed, downsized photo to Google Gemini under their own API
+key for a richer description, with a fresh per-photo confirmation, the key
+sent only to Google's API, optional encrypted on-device key storage, and the
+result labelled unverified. The bundled on-device path still uploads nothing.
+JVM tests cover request building, parsing, bounds and error mapping with fake
+data; no real API key, upload or device was used, and real-device acceptance
+remains unverified.
+
+## Foreground "Hey Aether" wake phrase follow-up
+
+[Foreground wake phrase](ANDROID-WAKE-PHRASE.md) adds an owner-enabled,
+foreground-only on-device listener for "Hey Aether" that merely opens the
+normal voice capture (transcript still reviewed before sending) and stops on
+background, after a wake, or when toggled off. No audio is recorded or
+uploaded by the feature. JVM tests cover the phrase matcher with lookalike
+rejection; no microphone or device was used while developing, and real-device
+recognition remains unverified.
