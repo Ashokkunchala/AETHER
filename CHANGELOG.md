@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-18 - reviewed local document and folder opening
+
+- Added owner-configured reviewed document/folder opening: a safe planning step returns exact target kind and current content/listing digest, and a fresh-approved action revalidates the exact approved handler executable and target before launching it with one local path argument. No default association, shell, URI, shortcut, elevation or upload is used.
+- Hardened policy support now covers the new tools' exact non-path identity/digest arguments while still requiring explicit roots for the target and handler executable paths.
+- Added 25 focused tests using disposable files, fake executable bytes and mocked process launch. Real Windows application/UI/filesystem acceptance remains unverified.
+
 ## 2026-11-17 - reviewed local workflow expansion
 
 - Added separate dedicated remote-read HTTPS source option and offline certificate/target validation; only loopback TLS fixtures tested, no network deployment/device acceptance.
