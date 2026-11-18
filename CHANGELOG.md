@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-18 - event-triggered read-only plans
+
+- Added `trigger_configure`, `trigger_rules` and `trigger_delete`: opt-in rules that watch the bounded local runtime-event history and run a saved read-only plan when a new event matches the category (plus optional exact action/tool filters). Rules are created disabled, checked roughly once a minute by the existing backend scheduler, and bounded to 20 rules with per-rule cooldowns of 300-86400 seconds.
+- Matching is at-most-once (the event cursor advances before a plan runs), old history never retroactively fires a fresh rule, and each firing is recorded as a `trigger_fire` event whose success reflects plan completion. Only saved read-only plans can be referenced, so triggers can never start mutating or confirmation-gated work.
+
 ## 2026-11-18 - dashboard network rate warnings
 
 - The Command Center dashboard warnings panel gains optional network thresholds: "Net down KB/s" and "Net up KB/s" inputs (0 disables each check) alert once per crossing on aggregate download/upload rates computed from device counters while the page polls. Crossings join the same browser-local recorded alert history, thresholds persist with the other warning settings, and steady high rates do not re-alert.
