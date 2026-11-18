@@ -29,14 +29,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: aether-windows-setup
-          run-id: 44246474380
+          run-id: 44247921512
           github-token: ${{ github.token }}
           path: staging/windows
       - name: Download exact successful Android artifact
         uses: actions/download-artifact@v4
         with:
           name: jarvis-android-debug-apk
-          run-id: 44246474380
+          run-id: 44247921512
           github-token: ${{ github.token }}
           path: staging/android
       - name: Verify exact bytes and prepare only the requested direct downloads
@@ -47,8 +47,8 @@ jobs:
           import shutil
           import urllib.request
           import json
-          source = '65e65ac3ef3819a93ef2be82bb929ed613431a6e'
-          url = 'https://api.github.com/repos/Ashokkunchala/AETHER/actions/runs/44246474380'
+          source = '30ee3f5e1599d3632a23a832fe1308a0c8a483c6'
+          url = 'https://api.github.com/repos/Ashokkunchala/AETHER/actions/runs/44247921512'
           request = urllib.request.Request(url, headers={
               'Accept': 'application/vnd.github+json',
               'Authorization': 'Bearer ${{ github.token }}',
@@ -60,9 +60,9 @@ jobs:
           root = pathlib.Path('downloads')
           root.mkdir(exist_ok=True)
           expected = [
-              ('staging/windows/AETHER-Setup.exe', 'AETHER-Setup.exe', 28160, '423c95a68a9b396a1d82610e880ed04d40d13f331ff6f3a6d9b604588747e189'),
-              ('staging/android/app-debug.apk', 'AETHER-Android.apk', 100267246, '4a281c3c79cf350eaeaa4a448bf7fe645c5047a012b0e24413e5f978609f0a7e'),
-              ('staging/windows/install-aether-reviewed.ps1', 'install-aether-reviewed.ps1', 4004, '3588bc24eb08fc5ffc3fef76ac8569655339df04a7d12d79ac3d8ff6b7f57600'),
+              ('staging/windows/AETHER-Setup.exe', 'AETHER-Setup.exe', 28160, '07e5309f540177b4964c72d8f1202f013051ff202842700c926c97efa5d05673'),
+              ('staging/android/app-debug.apk', 'AETHER-Android.apk', 100267246, 'bbd336760a770793a20928d35ac1fa65dcd3744dfc7b2b9a555be7fadf240ab1'),
+              ('staging/windows/install-aether-reviewed.ps1', 'install-aether-reviewed.ps1', 4004, '7c731485c4813d7b5f960f96337473686ec19134efbdeb492486189d1faf1d60'),
           ]
           checks = []
           for original, name, size, digest in expected:
@@ -79,8 +79,8 @@ jobs:
           (root / 'SOURCE-COMMIT.txt').write_text(source + '\n')
           (root / 'README.md').write_text('''# AETHER direct setup files
 
-          Built from source commit `65e65ac3ef3819a93ef2be82bb929ed613431a6e`.
-          Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44246474380
+          Built from source commit `30ee3f5e1599d3632a23a832fe1308a0c8a483c6`.
+          Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44247921512
 
           - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
           - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
@@ -114,6 +114,8 @@ jobs:
           This batch adds literal JavaScript teaching review for one redacted snippet. It reports only five fixed markers outside comments and quoted/template strings, with no execution, fixes, progress writes, or security/correctness/mastery claim: [JavaScript review](../docs/MENTOR-JAVASCRIPT-REVIEW.md).
 
           This batch adds literal TypeScript teaching review for one redacted snippet. It reports only five fixed patterns, with no compiler/type-checking, execution, fixes, progress writes, or security/correctness/mastery claim: [TypeScript review](../docs/MENTOR-TYPESCRIPT-REVIEW.md).
+
+          This batch adds literal HTML teaching review for one redacted snippet. It reports only five fixed tags/attribute patterns, with no rendering, validation, sanitization, execution, fixes, progress writes, or security/correctness/mastery claim: [HTML review](../docs/MENTOR-HTML-REVIEW.md).
 
           Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
           ''')
