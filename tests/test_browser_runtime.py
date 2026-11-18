@@ -271,3 +271,59 @@ def test_main_dashboard_alert_history_is_bounded_and_survives_corrupt_storage():
             await browser.close()
 
     asyncio.run(run())
+
+
+def test_main_dashboard_network_threshold_crossing_records_one_alert():
+    html = (ROOT / 'app/static/dashboard.html').read_text()
+    state = {'with_network': False, 'served': 0}
+
+    async def run():
+        async with async_playwright() as pw:
+            browser = await pw.chromium.launch(headless=True)
+            context = await browser.new_context(viewport={'width': 1280, 'height': 900})
+            page = await context.new_page()
+
+            async def route(route):
+                from urllib.parse import urlsplit
+                path = urlsplit(route.request.url).path
+                if path == '/dashboard':
+                    await route.fulfill(status=200, content_type='text/html', body=html)
+                elif path == '/api/performance':
+                    payload = _performance_payload()
+                    if state['with_network']:
+                        state['served'] += 1
+                        payload['network_bytes_sent'] = state['served'] * 204800
+                        payload['network_bytes_recv'] = state['served'] * 409600
+                    await route.fulfill(status=200, content_type='application/json', body=json.dumps(payload))
+                elif path == '/api/runtime/events':
+                    await route.fulfill(status=200, content_type='application/json', body=json.dumps({'events': [], 'oldest_id': 0, 'latest_id': 0}))
+                elif path == '/api/provider/health':
+                    await route.fulfill(status=200, content_type='application/json', body=json.dumps({'providers': [], 'storage': 'sqlite', 'measured_only': True, 'quota_reported': False}))
+                else:
+                    await route.abort()
+
+            await page.route('**/*', route)
+            await page.goto('http://aether.test/dashboard')
+            await page.fill('#token', 'test-token')
+            await page.click('#connectBtn')
+            await page.wait_for_function('document.getElementById("state").textContent.includes("LIVE")')
+            await page.check('#warningsEnabled')
+            await page.eval_on_selector('#netDownThreshold', 'el=>{el.value="100";el.dispatchEvent(new Event("change"))}')
+            state['with_network'] = True
+            await page.wait_for_function('document.getElementById("alertHistory").textContent.includes("Net download rate crossed 100 KB/s")', timeout=20000)
+            text = await page.locator('#alertHistory').inner_text()
+            assert text.count('Net download rate crossed') == 1
+            assert 'Net upload rate crossed' not in text
+
+            # A steady high rate does not re-alert, and reload keeps the record.
+            await page.wait_for_timeout(4500)
+            text = await page.locator('#alertHistory').inner_text()
+            assert text.count('Net download rate crossed') == 1
+            await page.reload()
+            await page.wait_for_function('document.getElementById("alertHistory") && document.getElementById("alertHistory").textContent.includes("Net download rate crossed")')
+            saved = await page.evaluate('localStorage.getItem("jarvisThresholdWarnings")')
+            assert '"netDown":100' in saved
+            await context.close()
+            await browser.close()
+
+    asyncio.run(run())
