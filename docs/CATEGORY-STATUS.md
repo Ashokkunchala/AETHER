@@ -80,13 +80,16 @@ execution/notification integration.
 Sources: `jarvis/mentor.py`, `mentor_projects.py`, `mentor_terraform.py`,
 `mentor_activity.py`; [mentor activity](MENTOR-ACTIVITY.md),
 [Terraform mentor](MENTOR-TERRAFORM.md),
-[review prompts](MENTOR-REVIEW-PROMPTS.md), [blueprint](ABILITIES.md).
+[review prompts](MENTOR-REVIEW-PROMPTS.md),
+[shell review](MENTOR-SHELL-REVIEW.md), [blueprint](ABILITIES.md).
 
 A bounded [rubric-signal reviewer](MENTOR-RUBRIC-SIGNALS.md) now checks deep-mentor free-text explanations for deterministic concept/risk/boundary signals without storing standalone answers. It is not semantic grading or mastery evidence. A separate fresh-approved [review prompt](MENTOR-REVIEW-PROMPTS.md) creates one local reminder row for one exact lesson/time, without notification-delivery proof or recurrence.
 
 A bounded offline [Python snippet teaching reviewer](MENTOR-PYTHON-REVIEW.md) now
 checks five explicit AST patterns with source links and location-only findings.
-It never imports/runs code or writes progress. Aliases/control flow and general
+It never imports/runs code or writes progress. A separate literal [shell command
+reviewer](MENTOR-SHELL-REVIEW.md) flags five teaching patterns without executing
+or resolving the command. Aliases/control flow and general
 correctness/security/mastery are not evaluated; this does not close the advanced
 mentor/evaluation gap above.
 
