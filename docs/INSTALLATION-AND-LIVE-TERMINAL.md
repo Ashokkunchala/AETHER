@@ -1,15 +1,17 @@
 # Windows Installation and Live Terminal Guide
 
-This guide is for the `improve/security-quality-gates` branch. It covers setup, the realtime terminal, and the optional one-shot microphone input. Do not paste API keys or tokens into chat, issues, screenshots, or Git.
+This guide is for AETHER on the `aether-cinematic-local-voice` branch. It covers setup, the realtime terminal, and the optional one-shot microphone input. Do not paste API keys or tokens into chat, issues, screenshots, or Git.
 
 ## 1. Update the local checkout
 
 Open PowerShell in your existing repository folder:
 
 ```powershell
-cd "$env:USERPROFILE\Desktop\Jarvis-Personal-AI"
-git switch improve/security-quality-gates
-git pull origin improve/security-quality-gates
+# Open your existing checkout folder first. Keep its current folder name.
+# For example, if cloned with the new repository name:
+cd "$env:USERPROFILE\Desktop\AETHER"
+git switch aether-cinematic-local-voice
+git pull origin aether-cinematic-local-voice
 ```
 
 If Git reports local changes or a merge conflict, stop and resolve those changes before proceeding. Do not run `git reset --hard`.
@@ -18,8 +20,8 @@ For a new checkout:
 
 ```powershell
 cd "$env:USERPROFILE\Desktop"
-git clone --branch improve/security-quality-gates https://github.com/Ashokkunchala/Jarvis-Personal-AI.git
-cd Jarvis-Personal-AI
+git clone --branch aether-cinematic-local-voice https://github.com/Ashokkunchala/AETHER.git
+cd AETHER
 ```
 
 ## 2. Check Python and create the virtual environment
@@ -55,7 +57,7 @@ This installs the project in editable mode and its Windows extras, including its
 .\.venv\Scripts\python.exe -m pip install "SpeechRecognition[audio]"
 ```
 
-If installation reports a TOML parsing error, first confirm that `git pull origin improve/security-quality-gates` succeeded and that `pyproject.toml` does not contain a literal `\n` inside a dependency line. Then retry the installation command. Do not manually paste escaped newline characters into TOML.
+If installation reports a TOML parsing error, first confirm that `git pull origin aether-cinematic-local-voice` succeeded and that `pyproject.toml` does not contain a literal `\n` inside a dependency line. Then retry the installation command. Do not manually paste escaped newline characters into TOML.
 
 ## 4. Configure an AI provider key
 
@@ -66,33 +68,83 @@ if (-not (Test-Path .env)) { Copy-Item .env.example .env }
 notepad .env
 ```
 
-Set at least one provider key: `GEMINI_API_KEY` from https://aistudio.google.com/, `OPENROUTER_API_KEY` from https://openrouter.ai/keys, or `GROQ_API_KEY` from https://console.groq.com/keys. Optionally set `JARVIS_AI_PROVIDER` to `gemini`, `openrouter`, `groq` or `auto` (default) to control the failover order. Keep real credentials in the local `.env` only; do not commit the file. Any single configured key is enough for the direct terminal assistant.
+Set at least one provider key: `GEMINI_API_KEY` from https://aistudio.google.com/, `OPENROUTER_API_KEY` from https://openrouter.ai/keys, or `GROQ_API_KEY` from https://console.groq.com/keys. Optionally set `AETHER_AI_PROVIDER` to `gemini`, `openrouter`, `groq` or `auto` (default) to control the failover order. Keep real credentials in the local `.env` only; do not commit the file. Any single configured key is enough for the direct terminal assistant.
 
-## 5. Launch the realtime terminal
+## 5. Launch the floating robot and chat
 
 ```powershell
-.\.venv\Scripts\python.exe jarvis_cli.py tui
+# Floating robot (the default command) with laptop CPU/RAM/battery/disk gauges.
+# No API key or network is used unless you press v to start a voice call.
+.\.venv\Scripts\python.exe aether_cli.py
+
+# Live voice call: speak immediately, no "Hey AETHER" wake word.
+.\.venv\Scripts\python.exe aether_cli.py call
+
+# Streaming chat in the current pane.
+.\.venv\Scripts\python.exe aether_cli.py ask "What is my battery status?"
 ```
 
-The terminal streams model text as it arrives, displays tool calls and their outcomes, and refreshes system telemetry. Try a read-only request first, such as “Check my laptop battery and system status.” Tool actions that require confirmation should still ask before running.
+The robot hovers, blinks and flickers its thruster in place and draws a cached
+laptop gauge (`psutil` is used when available). Keys: `q` or `Esc` quit,
+`space` pause, `v` start/end a live voice call, `a` toggle ASCII art, `+`/`-`
+change speed, `h` hide the hints. `aether tui` is kept as an alias for
+`aether robot`. On a terminal that cannot render box-drawing glyphs the ASCII
+art is chosen automatically; pass `--ascii` to force it, `--no-color` for plain
+output, `--no-laptop` to hide the gauge, `--call` to dial immediately, or
+`--frames N --dump` to render a finite number of frames (useful for screenshots
+and pipes).
+
+### Start the robot automatically at sign-in (optional)
+
+```powershell
+# Robot only; the microphone stays closed until you press v.
+.\scripts\install-aether-startup.ps1
+
+# Start with a live call immediately (the microphone opens at sign-in).
+.\scripts\install-aether-startup.ps1 -Call
+
+# Remove the shortcut.
+.\scripts\install-aether-startup.ps1 -Remove
+```
+
+The script writes `AETHER.lnk` to your per-user Startup folder
+(`%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup`) and launches
+`scripts\start-aether-terminal.ps1` in the repo. It does not need the backend or
+a browser. Use `-NoLaptop` to start without the gauge.
+
+`aether ask` streams model text as it arrives, displays tool calls and their
+outcomes, and asks before running risky tools. Try a read-only request first,
+such as "Check my laptop battery and system status."
 
 Other useful commands:
 
 ```powershell
-.\.venv\Scripts\python.exe jarvis_cli.py ask "What is my battery status?"
-.\.venv\Scripts\python.exe jarvis_cli.py laptop status
-.\.venv\Scripts\python.exe jarvis_cli.py tools
+.\.venv\Scripts\python.exe aether_cli.py ask "What is my battery status?"
+.\.venv\Scripts\python.exe aether_cli.py laptop status
+.\.venv\Scripts\python.exe aether_cli.py tools
 ```
 
-## 6. Use terminal microphone input
+## 6. Voice and microphone input
 
-In the TUI, click **MIC** to capture one utterance. Speak after the listening message; the transcript is then submitted to the normal Gemini tool-calling loop. Click MIC again for another utterance.
+The floating robot animation does not touch the microphone. Press `v` inside the
+robot (or run `aether call`) to open a live Gemini call in a background thread:
+it starts awake, so you can speak immediately without the wake word. Run
+`aether start` if you prefer the local `Hey AETHER` wake word, or use the Live
+Voice controls in the browser UI. The local neural wake detector retains its
+built-in pre-trained model and original trigger; the browser phrase is Hey Aether. Renaming the app
+does not train a new neural wake model.
 
-- Allow microphone access in Windows Settings → Privacy & security → Microphone.
+- Allow microphone access in Windows Settings -> Privacy & security -> Microphone.
 - Use a working default recording device in Windows Sound settings.
-- This is push-to-capture, one utterance at a time. It is **not** an always-on microphone or a “Hey JARVIS” wake-word listener.
-- The current transcription adapter uses Google Speech Recognition and sends the captured speech audio to that service for transcription. Do not use it for sensitive conversations if that data flow is unsuitable.
-- If the optional audio backend fails to install or cannot open the microphone, inspect the full error and your Python architecture/version before trying a compatible PyAudio wheel. Do not install random binaries from untrusted websites.
+- The browser Live Voice session is explicit: it starts when you press the
+  button and stops when you press Stop. It is not a hidden always-on recorder.
+- Terminal microphone capture uses the sounddevice-based voice stack and
+  Gemini Live; the wake-word path also requires openwakeword and webrtcvad.
+  Audio is sent to the configured Gemini service during a live session.
+- Install or repair the stack with
+  `.\\.venv\\Scripts\\python.exe -m pip install -r requirements-voice.txt`.
+  Check Windows microphone privacy permissions and the selected input device.
+  The current voice stack does not require a separately downloaded PyAudio wheel.
 
 ## 7. Run checks
 
@@ -114,16 +166,29 @@ Automated tests do not prove the microphone works on your specific laptop. Verif
 
 The direct terminal can execute laptop actions through its tool registry. Keep confirmation prompts enabled for risky actions; do not pre-approve tools you do not trust. The local web backend should remain bound to localhost and must not be exposed to the public internet without a security review.
 
-## Cinematic terminal (`jarvis tui`)
+## Floating robot (`aether` or `aether robot`)
 
-Run `jarvis tui` in an interactive terminal (a truecolor terminal looks best).
-Keys: Enter send, F1 help, F2 focus input, F3 show/hide side panels, F4 stop the
-current turn, Ctrl+L clear, Ctrl+Q quit. Risky tools still open an approval
-dialog (y approve, n or Esc reject); rejecting is the default outcome.
+Run `aether` with no arguments (or `aether robot`) in any terminal; a truecolour
+terminal looks best. `aether tui` is an alias.
 
-- Panels show real state only. Values that are not measured appear as dashes,
-  and the AWS DevOps panel only reports which CLIs are on PATH. It does not read
-  credentials or call AWS.
-- Small terminals (under 110 columns or 32 rows) hide side panels and the core.
-- `NO_COLOR`, `TERM=dumb` or `JARVIS_TUI_SIMPLE=1` turns off the animation.
-- Not an interactive terminal: use `jarvis ask` instead.
+- Keys: `q`/`Esc` quit, `space` pause, `v` start/end a live voice call, `a`
+  toggle ASCII art, `+`/`-` change speed, `h` toggle the hints.
+- It shows a live clock, an `ONLINE`/`PAUSED`/`CALL` status and a cached
+  CPU/RAM/battery/free-disk gauge. The gauge needs `psutil`; hide it with
+  `--no-laptop` or if the package is missing.
+- `v` dials a Gemini Live call in a background thread (`aether/terminal/voice.py`
+  + `AETHERAgent(call_mode=True)`). It needs `GEMINI_API_KEY` and the realtime
+  audio stack (`sounddevice`, `webrtcvad`, `openwakeword`, `numpy`, `scipy`,
+  `google-genai`). When they are missing the robot shows `VOICE ERR` with the
+  reason and the fix command, and does not open the microphone. Install the
+  stack with `.\.venv\Scripts\python.exe -m pip install -r requirements-voice.txt`
+  (`INSTALL-AETHER.ps1` runs this automatically for installed copies).
+- `aether call` runs the same call without the robot; `aether start` keeps the
+  local wake-word flow. All three share the same microphone, barge-in, tools and
+  spoken replies.
+- `AETHER_ROBOT_ASCII=1`, `AETHER_ROBOT_NO_COLOR=1` or `NO_COLOR` control the
+  rendering. `--frames N --dump` renders frames without redrawing (for logs,
+  screenshots or pipes).
+- The animation and gauge never call a model or the network. A call is only
+  opened when you press `v` or pass `--call`, and the audio packages are
+  imported only at that point.

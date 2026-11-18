@@ -1,0 +1,31 @@
+{
+  "title": "Fictional supplied evidence review, no live account",
+  "steps": [
+    {
+      "operation": "terraform_plan",
+      "inputs": {
+        "document": {
+          "format_version": "1.2",
+          "resource_changes": [
+            {"address": "example_resource.fictional", "change": {"actions": ["update"]}}
+          ]
+        }
+      }
+    },
+    {
+      "operation": "security_groups",
+      "inputs": {
+        "document": {
+          "SecurityGroups": [
+            {
+              "GroupId": "FICTIONAL-NOT-AN-AWS-ID",
+              "IpPermissions": [
+                {"IpProtocol": "tcp", "FromPort": 22, "ToPort": 22, "IpRanges": [{"CidrIp": "0.0.0.0/0"}], "Ipv6Ranges": []}
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

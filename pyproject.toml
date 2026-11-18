@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "jarvis-personal-ai"
+name = "aether"
 version = "0.4.0"
 description = "Enhanced Gemini-powered personal assistant"
 readme = "README.md"
@@ -20,13 +20,12 @@ dependencies = [
     "itsdangerous>=2.2,<3.0",
     "cryptography>=50.0,<51.0",
     "python-dateutil>=2.9,<3.0",
+    "tzdata>=2024.1",
     "structlog>=24.4,<25.0",
     "prometheus-client>=0.21,<1.0",
     "httpx>=0.27,<1.0",
     "rich>=13.8,<14.0",
     "typer>=0.12,<1.0",
-    # Realtime terminal UI
-    "textual>=1.0,<9.0",
     # Laptop control (Windows)
     "psutil>=5.9,<8.0",
     "mss>=9.0,<11.0",
@@ -34,72 +33,75 @@ dependencies = [
     "pillow>=13.0,<14.0",
     "pyautogui>=0.9.54,<1.0",
     "keyboard>=0.13.5,<1.0",
-    "SpeechRecognition[audio]>=3.10,<4.0",
+    "SpeechRecognition>=3.10,<4.0",
+    "sqlalchemy>=2.0,<3.0",
+    "pypdf>=5.0,<7.0",
+    "python-docx>=1.1,<2.0",
 ]
 
-[tool.setuptools]
-# Flat-layout repo (app/, jarvis/, windows_agent/ + non-package dirs): discovery must be explicit,
-# otherwise setuptools aborts with "Multiple top-level packages discovered in a flat-layout".
-py-modules = ["jarvis_cli", "jarvis_daemon", "run_enhanced"]
-zip-safe = false
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["app*", "jarvis*", "windows_agent*"]
-exclude = ["tests*", "scripts*", "docs*", "data*", "android*", "alembic*", "windows_agent.__pycache__*"]
-# PEP 420 namespace dirs (jarvis/config, jarvis/core/agent, ...) ship without __init__.py.
-namespaces = true
-
-[tool.setuptools.package-data]
-app = ["static/*", "static/**/*"]
+[project.scripts]
+aether = "aether_cli:app"
 
 [project.optional-dependencies]
+browser = ["playwright>=1.48,<2"]
+security = ["keyring>=25,<26", "pip-audit>=2.7,<3"]
+typed-live = ["boto3>=1.35,<2.0", "kubernetes>=31,<36"]
 windows = [
     "pywin32>=306",
     "pycaw>=20240210",
     "comtypes>=1.2",
     "pygetwindow>=0.0.9",
+    "winotify>=1.1.0",
 ]
 dev = [
     "pytest>=9.0.3,<10.0",
     "httpx>=0.27,<1.0",
     "ruff>=0.6,<1.0",
     "mypy>=1.11,<2.0",
+    "types-python-dateutil>=2.9,<3.0",
     "pytest-cov>=5.0",
     "pytest-asyncio>=1.3,<2.0",
+    "build>=1.2,<2.0",
 ]
 
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-# extend-exclude (not exclude) so Ruff's default exclusions are kept.
-# .tmp-pytest-recurrence/ and data/pytest-tmp/ hold orphaned pytest temp files
-# with a deny-all ACL: walking them emits "Access is denied (os error 5)".
-extend-exclude = [
-    ".tmp-pytest-recurrence",
-    ".pytest-tmp",
-    "data",
-    "dist",
-    "build",
-    "*.egg-info",
-]
+extend-exclude = [".tmp-pytest-recurrence", ".pytest-tmp", "data", "dist", "build", "*.egg-info"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
 ignore = ["E501"]
 
 [tool.mypy]
-# 3.12 is the lowest target mypy can parse numpy 2.x stubs with (they use PEP 695
-# `type` statements). The runtime floor stays 3.11 (requires-python); syntax
-# compatibility with 3.11 is still enforced by CI's compileall on Python 3.11.
-python_version = "3.12"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
 ignore_missing_imports = true
 
+# numpy 2.5+ stubs use PEP 695 ``type`` statements (Python 3.12+ syntax) while
+# this project type-checks against its Python 3.11 floor. Treat numpy as
+# untyped so mypy checks project code instead of failing inside site-packages.
+[[tool.mypy.overrides]]
+module = ["numpy", "numpy.*"]
+follow_imports = "skip"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 asyncio_mode = "auto"
-addopts = "-v --cov=app --cov-report=term-missing"
+addopts = "-v --cov=app --cov-report=term-missing --basetemp=.pytest-tmp"
+
+[tool.setuptools]
+py-modules = ["aether_cli", "aether_daemon", "run_enhanced"]
+zip-safe = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*", "aether*", "windows_agent*"]
+exclude = ["tests*", "scripts*", "docs*", "data*", "android*", "alembic*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+app = ["static/*", "static/**/*"]

@@ -6,13 +6,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from jarvis.core.brain import JarvisBrain
+from aether.core.brain import AETHERBrain
 
 logging.basicConfig(level=logging.WARNING)
 
 
 async def main() -> None:
-    brain = JarvisBrain()
+    brain = AETHERBrain()
     started = time.time()
 
     async def confirm(tool, args):

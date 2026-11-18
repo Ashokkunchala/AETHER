@@ -13,13 +13,13 @@ $health = Invoke-RestMethod -Uri "$base/health" -Method Get -TimeoutSec 5
 if ($health.status -ne "ok") { throw "Health check did not return status=ok." }
 Write-Host "Health check passed."
 
-$token = Read-DotEnvValue "JARVIS_API_TOKEN"
+$token = Read-DotEnvValue "AETHER_API_TOKEN"
 $headers = @{}
 if ($token -and $token.Length -ge 32 -and -not $token.StartsWith("replace_")) {
     $headers["Authorization"] = "Bearer $token"
 }
 Write-Host "Sending one short Gemini request. Provider usage/quota may apply..."
-$body = @{ message = "Reply with exactly: JARVIS_SMOKE_TEST_OK"; language = "en"; history = @() } | ConvertTo-Json -Depth 5
+$body = @{ message = "Reply with exactly: AETHER_SMOKE_TEST_OK"; language = "en"; history = @() } | ConvertTo-Json -Depth 5
 try {
     $reply = Invoke-RestMethod -Uri "$base/api/chat" -Method Post -ContentType "application/json" -Headers $headers -Body $body -TimeoutSec 45
 } catch {

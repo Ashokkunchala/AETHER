@@ -26,10 +26,10 @@ for _name in ("sounddevice", "webrtcvad"):
 
 np = pytest.importorskip("numpy")
 
-from jarvis.config.settings import config  # noqa: E402
-from jarvis.core.agent import jarvis_agent as agent_mod  # noqa: E402
-from jarvis.core.agent.jarvis_agent import AWAKE, SLEEPING, JarvisAgent  # noqa: E402
-from jarvis.core.agent.voice_tools import TOOL_DECLARATIONS  # noqa: E402
+from aether.config.settings import config  # noqa: E402
+from aether.core.agent import aether_agent as agent_mod  # noqa: E402
+from aether.core.agent.aether_agent import AWAKE, SLEEPING, AETHERAgent  # noqa: E402
+from aether.core.agent.voice_tools import TOOL_DECLARATIONS  # noqa: E402
 
 
 class FakeAudio:
@@ -187,7 +187,7 @@ async def _settle(rounds: int = 5):
 async def test_wake_stream_tool_sleep_cycle(patched):
     machine = FakeMachine()
     events: list[tuple[str, dict]] = []
-    agent = JarvisAgent(machine=machine, on_event=lambda kind, payload: events.append((kind, payload)))
+    agent = AETHERAgent(machine=machine, on_event=lambda kind, payload: events.append((kind, payload)))
 
     await agent.initialize()
     assert agent.live_client is not None and agent.live_client.connected
@@ -226,11 +226,12 @@ async def test_wake_stream_tool_sleep_cycle(patched):
     assert agent.audio.enqueued, "model audio must reach the speaker queue"
 
     result = await agent._on_tool_call(FakeCall("open_app", {"name": "chrome"}))
-    assert result["success"] is True
-    assert machine.calls == [("open_app", {"name": "chrome"})]
+    assert result["success"] is False
+    assert "approved-app" in result["error"]
+    assert machine.calls == []  # legacy voice launch fails closed; scoped desktop launch required
     assert any(kind == "tool" for kind, _ in events)
 
-    # 5. Idle timeout returns JARVIS to sleep and clears playback.
+    # 5. Idle timeout returns AETHER to sleep and clears playback.
     agent.audio._pending = False
     agent._last_activity = time.monotonic() - (config.awake_timeout_seconds + 1)
     await agent._check_idle()
@@ -244,7 +245,7 @@ async def test_wake_stream_tool_sleep_cycle(patched):
 
 async def test_interrupt_clears_playback(patched):
     machine = FakeMachine()
-    agent = JarvisAgent(machine=machine)
+    agent = AETHERAgent(machine=machine)
     await agent.initialize()
     agent._loop = asyncio.get_running_loop()
     agent.is_listening = True
@@ -262,16 +263,40 @@ async def test_tool_failure_is_reported_to_model(patched):
         def open_app(self, name):
             raise RuntimeError("boom")
 
-    agent = JarvisAgent(machine=ExplodingMachine())
+    agent = AETHERAgent(machine=ExplodingMachine())
     await agent.initialize()
     result = await agent._on_tool_call(FakeCall("open_app", {"name": "chrome"}))
     assert result["success"] is False
-    assert "boom" in result["error"]
+    assert "approved-app" in result["error"]
     await agent.stop()
 
 
 def test_tool_declarations_match_handlers():
-    from jarvis.core.agent.voice_tools import _HANDLERS
+    from aether.core.agent.voice_tools import _HANDLERS
 
     names = {tool["name"] for tool in TOOL_DECLARATIONS}
     assert names == set(_HANDLERS)
+
+
+async def test_call_mode_starts_awake_and_never_sleeps(patched):
+    agent = AETHERAgent(machine=FakeMachine())
+    await agent.initialize()
+
+    task = asyncio.create_task(agent.start(call_mode=True))
+    await _settle()
+    assert agent.call_mode is True
+    assert agent.state == AWAKE
+    assert agent.audio.input_started
+    assert agent.audio.chimes == 1  # the go-ahead chime, no wake word needed
+
+    # An idle call must stay connected even past the normal timeout.
+    agent.audio._pending = False
+    agent._last_activity = time.monotonic() - (config.awake_timeout_seconds + 1)
+    await agent._check_idle()
+    assert agent.state == AWAKE
+
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    assert agent.audio.input_stopped
+    assert agent.call_mode is False

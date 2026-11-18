@@ -1,10 +1,10 @@
-# JARVIS Codex Implementation Brief
+# AETHER Codex Implementation Brief
 
 > Source of truth for the target vision and execution rules. This is a roadmap and engineering contract, not a claim that every listed capability already exists.
 
 ## Repository rules
 
-- Repository: https://github.com/Ashokkunchala/Jarvis-Personal-AI
+- Repository: https://github.com/Ashokkunchala/AETHER
 - Work only on `improve/security-quality-gates`.
 - Never modify or merge into `main`.
 - Inspect the working tree, current branch, recent commits, CI, architecture, and existing feature matrix before changing code.
@@ -16,11 +16,11 @@
 
 ## Product vision
 
-Build one secure, cost-conscious, voice-first JARVIS assistant for Windows and Android. It should understand, plan, remember user-approved context, perform authorized work, verify outcomes, and visualize actual activity in a holographic command center.
+Build one secure, cost-conscious, voice-first AETHER assistant for Windows and Android. It should understand, plan, remember user-approved context, perform authorized work, verify outcomes, and visualize actual activity in a holographic command center.
 
 ## Required UI
 
-Use the supplied holographic JARVIS references as the primary design: dark navy/black, neon cyan and turquoise accents, central reactor with layered HUD rings, compact system status, live intelligence feed, voice controls, agent cards, tool execution timeline, performance charts, memory and provider panels, and touch-friendly mobile layout.
+Use the supplied holographic AETHER references as the primary design: dark navy/black, neon cyan and turquoise accents, central reactor with layered HUD rings, compact system status, live intelligence feed, voice controls, agent cards, tool execution timeline, performance charts, memory and provider panels, and touch-friendly mobile layout.
 
 Visualizations must reflect actual events:
 - Voice: mic state, measured audio level, speech and playback state.
@@ -45,7 +45,7 @@ Never use random or fabricated metrics, pretend-connected providers, fake agent 
 
 ### Voice
 6. Explicit microphone enable/disable, speech-to-text, text-to-speech, interruption and follow-up conversation.
-7. Optional “Hey JARVIS” wake word, with explicit consent, visible listening state and immediate mute/stop.
+7. Optional “Hey AETHER” wake word, with explicit consent, visible listening state and immediate mute/stop.
 8. Prefer local wake-word detection where practical; disclose all external audio processing.
 9. Do not promise global or background listening where OS/browser restrictions prevent it.
 10. Android microphone and foreground-service behavior must comply with platform policies.
@@ -105,11 +105,11 @@ Never use random or fabricated metrics, pretend-connected providers, fake agent 
 ### Media and conversation
 52. Find and play a requested song/video through a user-selected or authorized service, using visible controls and the service's own playback. Report when playback is blocked by login, subscription, region or autoplay settings.
 53. Support original singing, humming or generated music when the configured model/service supports it; do not reproduce non-user-provided copyrighted song lyrics or imitate a living artist's voice. For existing songs, open/play through a legitimate service rather than copying protected audio.
-54. Hold natural conversations, brainstorm ideas, compare options, offer constructive opinions and reflect on user-shared experiences. Clearly distinguish personal-assistant reasoning from actual lived experience or verified facts; JARVIS must not invent real personal memories or experiences.
+54. Hold natural conversations, brainstorm ideas, compare options, offer constructive opinions and reflect on user-shared experiences. Clearly distinguish personal-assistant reasoning from actual lived experience or verified facts; AETHER must not invent real personal memories or experiences.
 55. Learn preferences only through transparent, user-controlled memory: explain what may be saved, allow review/edit/export/delete, and never covertly collect sensitive information.
 
 ### Self-development and debugging
-56. Diagnose JARVIS and user-approved projects by inspecting logs, reproducing errors, identifying likely causes, writing fixes and adding regression tests.
+56. Diagnose AETHER and user-approved projects by inspecting logs, reproducing errors, identifying likely causes, writing fixes and adding regression tests.
 57. For code changes, show a plan and diff, run relevant tests, summarize results, and work on a non-production branch. Ask before pushing changes, merging, releasing, deploying or modifying production systems.
 58. Self-improvement means measured evaluation, proposing changes, testing in isolation and asking for approval—not uncontrolled self-modification, disabling safeguards, or silently changing permissions.
 59. Offer proactive ideas and improvement opportunities grounded in observed evidence; label hypotheses, estimated savings and uncertain recommendations clearly.
@@ -157,4 +157,4 @@ Maintain `docs/FEATURES.md` with one of: `Implemented`, `Partially Implemented`,
 
 Deliver working code, updated documentation, installation and recovery instructions, tests, and a prioritized list of remaining gaps. Never stop at a proposal when code changes are requested. If an integration or credential is unavailable, implement safe independent work and record the blocker without faking success.
 
-**Final objective:** a reliable personal JARVIS that can listen, understand, remember, plan, act within permissions, verify its work, and show the truth about its state across Windows and Android.
+**Final objective:** a reliable personal AETHER that can listen, understand, remember, plan, act within permissions, verify its work, and show the truth about its state across Windows and Android.

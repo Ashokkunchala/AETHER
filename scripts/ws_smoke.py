@@ -9,8 +9,8 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 os.environ.setdefault("SECRET_KEY", "x" * 40)
-os.environ.setdefault("JARVIS_API_TOKEN", "ws-test-token-at-least-32-characters-long")
-TOKEN = os.environ["JARVIS_API_TOKEN"]
+os.environ.setdefault("AETHER_API_TOKEN", "ws-test-token-at-least-32-characters-long")
+TOKEN = os.environ["AETHER_API_TOKEN"]
 
 from fastapi.testclient import TestClient  # noqa: E402
 

@@ -6,16 +6,16 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # AI providers (Gemini for text + live voice; OpenRouter/Groq for text)
-    gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.5-flash"
-    gemini_model_fallback: str = "gemini-1.5-flash"
+    gemini_api_key: str = Field(default="", repr=False)
+    gemini_model: str = "gemini-3.5-flash"
+    gemini_model_fallback: str = "gemini-3.1-flash-lite,gemini-3.6-flash,gemini-3.7-flash"
     gemini_live_model: str = "gemini-3.8-live"
     gemini_live_voice: str = "Charon"
-    openrouter_api_key: str = ""
+    openrouter_api_key: str = Field(default="", repr=False)
     openrouter_model: str = "openai/gpt-4o-mini"
-    groq_api_key: str = ""
+    groq_api_key: str = Field(default="", repr=False)
     groq_model: str = "llama-3.3-70b-versatile"
-    jarvis_ai_provider: str = "auto"
+    aether_ai_provider: str = "auto"
 
     # Server
     host: str = "127.0.0.1"
@@ -26,13 +26,25 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:8000,http://127.0.0.1:8000"
 
     # Security
-    jarvis_api_token: str = ""
-    secret_key: str = ""
+    aether_api_token: str = Field(default="", repr=False)
+    secret_key: str = Field(default="", repr=False)
     token_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24 * 30  # 30 days
 
     # Database
-    jarvis_db_path: str = "data/jarvis.sqlite3"
+    aether_db_path: str = "data/aether.sqlite3"
+
+    # AETHER external integrations (credentials are server-side only)
+    google_oauth_client_id: str = ""
+    google_oauth_client_secret: str = Field(default="", repr=False)
+    google_oauth_redirect_uri: str = "http://127.0.0.1:8000/api/integrations/google/callback"
+    whatsapp_access_token: str = Field(default="", repr=False)
+    whatsapp_phone_number_id: str = ""
+    document_allowed_roots: str = ""  # semicolon-separated absolute paths; no implicit home-folder scan
+
+    # Optional GitHub workflow-failure reports. Empty configuration disables route.
+    github_alert_webhook_secret: str = Field(default="", repr=False)
+    github_alert_repositories: str = ""  # exact numeric_id=owner/repo pairs separated by semicolons
 
     # Rate limiting
     rate_limit_enabled: bool = True
@@ -51,17 +63,24 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
+        hide_input_in_errors=True,
     )
 
     @property
     def allowed_origins(self) -> list[str]:
         return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
-    @field_validator('jarvis_api_token')
+    @field_validator('gemini_api_key', 'openrouter_api_key', 'groq_api_key', 'aether_api_token', 'secret_key', 'google_oauth_client_secret', 'whatsapp_access_token', 'github_alert_webhook_secret', mode='before')
+    @classmethod
+    def native_credentials(cls, value, info):
+        from aether.secret_store import secret
+        return secret(info.field_name.upper(), value)
+
+    @field_validator('aether_api_token')
     @classmethod
     def validate_token(cls, v):
         if v and len(v) < 32 and not v.startswith("replace_"):
-            raise ValueError("jarvis_api_token must be at least 32 characters")
+            raise ValueError("aether_api_token must be at least 32 characters")
         return v
 
     @field_validator('secret_key')

@@ -17,7 +17,7 @@ def test_provider_order_prefers_configured_choice_and_keeps_fallbacks():
         gemini_api_key="gemini-test-key",
         openrouter_api_key="openrouter-test-key",
         groq_api_key="groq-test-key",
-        jarvis_ai_provider="groq",
+        aether_ai_provider="groq",
     )
     assert configured_provider_order(settings) == ["groq", "gemini", "openrouter"]
 
@@ -27,7 +27,7 @@ def test_provider_order_ignores_placeholder_keys():
         gemini_api_key="replace_me",
         openrouter_api_key="replace_me",
         groq_api_key="groq-test-key",
-        jarvis_ai_provider="auto",
+        aether_ai_provider="auto",
     )
     assert configured_provider_order(settings) == ["groq"]
 
@@ -90,7 +90,7 @@ def test_complete_chat_falls_back_to_openrouter_when_gemini_fails(monkeypatch):
     settings = Settings(
         gemini_api_key="gemini-test-key",
         openrouter_api_key="openrouter-test-key",
-        jarvis_ai_provider="gemini",
+        aether_ai_provider="gemini",
     )
 
     class BrokenGemini:
@@ -160,7 +160,7 @@ def test_stream_chat_falls_back_before_emitting_text(monkeypatch):
     settings = Settings(
         gemini_api_key="gemini-test-key",
         groq_api_key="groq-test-key",
-        jarvis_ai_provider="gemini",
+        aether_ai_provider="gemini",
     )
 
     class BrokenGemini:

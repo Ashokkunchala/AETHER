@@ -7,8 +7,8 @@ import json
 
 import pytest
 
-from jarvis.devops import awscli, review, runbooks
-from jarvis.tools.builtin_tools import build_registry, reset_controllers
+from aether.devops import awscli, review, runbooks
+from aether.tools.builtin_tools import build_registry, reset_controllers
 
 
 def _rules(result):

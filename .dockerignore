@@ -1,37 +1,31 @@
-# VCS / virtualenvs / caches — never belong in the image
-.git
-.github
-.venv
-venv
+# Secrets and local runtime data
 .env
 .env.*
 !.env.example
+data/
+logs/
 
-__pycache__
-**/__pycache__
+# Version control and local environments
+.git/
+.github/
+.venv/
+venv/
+node_modules/
+__pycache__/
+**/__pycache__/
 *.py[cod]
-*$py.class
-.pytest_cache
-.mypy_cache
-.ruff_cache
-.pytest-tmp
-.tmp-pytest-recurrence
-.coverage
-.coverage.*
-htmlcov
 
-# Build artifacts
-build
-dist
-*.egg-info
-
-# Runtime data (mounted by docker-compose as a volume instead)
-data
-
-# Not needed inside the API image
-docs
-android
-tests
-scripts
-*.md
-!README.md
+# Tests, docs and generated artifacts
+tests/
+docs/
+android/
+.pytest_cache/
+.pytest-tmp/
+.tmp-pytest-recurrence/
+.mypy_cache/
+.ruff_cache/
+.coverage*
+htmlcov/
+build/
+dist/
+*.egg-info/

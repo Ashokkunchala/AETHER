@@ -1,0 +1,90 @@
+# Floating robot on Windows
+
+AETHER detects when your terminal cannot draw its Unicode box art and falls
+back to plain ASCII automatically, so the default Windows console works out of
+the box - no tofu squares.
+
+## Start
+
+`aether` with no arguments launches the floating robot (the default command):
+
+```powershell
+.\.venv\Scripts\python.exe aether_cli.py
+```
+
+`aether robot` is the explicit form and `aether tui` remains an alias. Both
+`robot` and `tui` accept `--call` and `--no-laptop`; `robot` also accepts
+`--frames`, `--fps`, `--ascii`, `--unicode`, `--no-color` and `--dump`.
+
+To open the robot automatically when you sign in:
+
+```powershell
+.\scripts\install-aether-startup.ps1          # robot only; microphone closed
+.\scripts\install-aether-startup.ps1 -Call    # dial a call at sign-in
+.\scripts\install-aether-startup.ps1 -Remove  # uninstall
+```
+
+The shortcut is `AETHER.lnk` in your per-user Startup folder and runs
+`scripts\start-aether-terminal.ps1`; no backend or browser is started.
+
+## Keys
+
+| Key | Action |
+| --- | --- |
+| `q`, `Esc`, `Ctrl+C` | quit |
+| `space` | pause / resume the float |
+| `v` | start / end a live voice call |
+| `a` | toggle ASCII art |
+| `h` | toggle the footer hints |
+| `+` / `-` (or `=` / `_`) | faster / slower |
+
+## Laptop gauge
+
+The robot draws a cached CPU / RAM / battery / free-disk line using `psutil`.
+Hide it with `--no-laptop`; if `psutil` is not installed the line is simply
+omitted. Gauges refresh at most every two seconds and never block a frame.
+
+## Voice call
+
+Press `v` in the robot, or run:
+
+```powershell
+.\.venv\Scripts\python.exe aether_cli.py call
+```
+
+This is a normal two-way Gemini Live call: speak immediately, no "Hey AETHER"
+wake word, barge-in and laptop tools work the same as `aether start`. The call
+runs in a background thread so the robot keeps animating, and the speech line
+shows `You:` / `AETHER:` transcripts.
+
+It needs `GEMINI_API_KEY` and the realtime audio stack
+(`sounddevice`, `webrtcvad`, `openwakeword`, `numpy`, `scipy`,
+`google-genai`). If a key or package is missing the robot shows `VOICE ERR`
+with the reason (including the exact fix command) and does not open the
+microphone. Install the stack with:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-voice.txt
+```
+
+`INSTALL-AETHER.ps1` installs this file automatically for installed copies.
+The animation and gauge themselves are local-only and never call a model or
+the network.
+
+## Rendering
+
+For the full box art (rounded borders) use
+[Windows Terminal](https://aka.ms/terminal) with a
+[Nerd Font](https://www.nerdfonts.com/) such as CaskaydiaCove NF, selected in
+Settings -> Profiles -> Appearance -> Font. AETHER detects the UTF-8 code
+page and switches to Unicode automatically.
+
+- `--ascii` / `--unicode` force a rendering mode (`AETHER_ROBOT_ASCII=1`
+  also forces ASCII).
+- `--no-color`, `AETHER_ROBOT_NO_COLOR=1` or `NO_COLOR` disable colour.
+- `--frames N --dump` prints frames without redrawing, for logs and
+  screenshots.
+
+The display name is AETHER. Compatibility commands, `AETHER.lnk`, environment
+variables and the local legacy neural wake trigger remain unchanged. The browser
+wake phrase is Hey Aether; `aether call` needs no wake phrase.

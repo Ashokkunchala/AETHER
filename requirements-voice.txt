@@ -1,0 +1,18 @@
+# Realtime voice stack for `aether start`, `aether call` and the floating
+# robot's `v` call key (checked by aether/terminal/voice.py before the
+# microphone opens; also reported by `aether doctor` as voice-packages).
+#
+#   .venv\Scripts\python.exe -m pip install -r requirements-voice.txt
+#
+# Kept separate from requirements.txt on purpose: CI/test jobs are audio-free
+# (no microphone, no wake-word models), while this file targets the Windows
+# desktop where every package below ships as a prebuilt wheel. The Windows
+# installer (INSTALL-AETHER.ps1) installs it right after requirements-dev.txt.
+sounddevice>=0.4.7,<1.0         # microphone I/O; wheels bundle PortAudio on Windows
+numpy>=1.26,<3.0                # audio buffers (usually already present)
+scipy>=1.13,<2.0                # signal processing for the realtime loop
+webrtcvad-wheels>=2.0.10,<3.0   # provides the `webrtcvad` module; the upstream
+                                # `webrtcvad` package is sdist-only and would
+                                # need MSVC to compile on Windows
+openwakeword>=0.6.0,<0.8        # local wake word for `aether start` (models
+                                # ship with the package / on first use)

@@ -8,14 +8,16 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from collections.abc import Iterable, Iterator, Sequence
 from typing import Any
 
 import httpx
 
 from app.config import Settings
+from aether.telemetry import record_runtime_event
 
-logger = logging.getLogger("jarvis.providers")
+logger = logging.getLogger("aether.providers")
 
 PROVIDERS = ("gemini", "openrouter", "groq")
 
@@ -38,7 +40,7 @@ def configured_provider_order(settings: Settings) -> list[str]:
     for name, (_, key_field, _) in _PROVIDER_DETAILS.items():
         if _is_configured_key(getattr(settings, key_field, "")):
             available.append(name)
-    preferred = settings.jarvis_ai_provider.strip().lower()
+    preferred = settings.aether_ai_provider.strip().lower()
     if preferred in PROVIDERS and preferred in available:
         return [preferred] + [name for name in available if name != preferred]
     return available
@@ -120,6 +122,7 @@ def complete_chat(
     contents = openai_to_gemini_contents(messages)
     failures: list[str] = []
     for provider in provider_order:
+        started = time.perf_counter()
         try:
             if provider == "gemini":
                 if gemini_client is None:
@@ -137,8 +140,14 @@ def complete_chat(
                 raise RuntimeError("The AI returned an empty response")
             if provider != provider_order[0]:
                 logger.warning("AI provider fallback succeeded: %s", provider)
+            record_runtime_event("provider", provider=provider, model=model,
+                                 elapsed=time.perf_counter() - started, success=True)
             return f"{provider}/{model}", reply
         except Exception as error:
+            record_runtime_event("provider", provider=provider,
+                                 model=provider_model(settings, provider),
+                                 elapsed=time.perf_counter() - started, success=False,
+                                 error_type=type(error).__name__)
             logger.warning(
                 "AI provider %s failed; trying next configured provider: %s",
                 provider,
@@ -170,6 +179,7 @@ def stream_chat(
     system_instruction = _system_of(messages)
     contents = openai_to_gemini_contents(messages)
     for provider in provider_order:
+        started = time.perf_counter()
         emitted = False
         model = ""
         stream = None
@@ -193,9 +203,15 @@ def stream_chat(
                 for delta in openai_compatible_stream(settings, provider, messages, temperature):
                     emitted = True
                     yield {"text": delta}
+            record_runtime_event("provider", provider=provider, model=model,
+                                 elapsed=time.perf_counter() - started, success=True)
             yield {"done": True, "model": f"{provider}/{model}"}
             return
-        except Exception:
+        except Exception as error:
+            record_runtime_event("provider", provider=provider,
+                                 model=model or provider_model(settings, provider),
+                                 elapsed=time.perf_counter() - started, success=False,
+                                 error_type=type(error).__name__)
             logger.exception("AI streaming provider %s failed", provider)
             if emitted:
                 yield {"error": "The AI stream failed after output began; retry the request."}
@@ -223,8 +239,8 @@ def _headers(settings: Settings, provider: str) -> dict[str, str]:
     endpoint, key_field, _ = _PROVIDER_DETAILS[provider]
     headers = {"Authorization": "Bearer " + getattr(settings, key_field), "Content-Type": "application/json"}
     if provider == "openrouter":
-        headers["HTTP-Referer"] = "https://github.com/Ashokkunchala/Jarvis-Personal-AI"
-        headers["X-Title"] = "JARVIS Personal AI"
+        headers["HTTP-Referer"] = "https://github.com/Ashokkunchala/AETHER"
+        headers["X-Title"] = "AETHER Personal AI"
     return headers
 
 

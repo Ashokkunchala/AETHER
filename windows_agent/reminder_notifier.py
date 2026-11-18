@@ -1,17 +1,17 @@
-"""Opt-in Windows toast worker for reminders stored by the local JARVIS backend."""
+"""Opt-in Windows toast worker for reminders stored by the local AETHER backend."""
 import json
 import os
 import tempfile
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from urllib.error import URLError
 from urllib.request import Request, urlopen
 
-API_BASE = os.getenv("JARVIS_API_BASE", "http://127.0.0.1:8000").rstrip("/")
-TOKEN = os.getenv("JARVIS_API_TOKEN", "")
-POLL_SECONDS = max(15, int(os.getenv("JARVIS_REMINDER_POLL_SECONDS", "30")))
-STATE_PATH = Path(os.getenv("JARVIS_REMINDER_STATE_PATH", "data/reminder-notifier-state.json"))
+API_BASE = os.getenv("AETHER_API_BASE", "http://127.0.0.1:8000").rstrip("/")
+TOKEN = os.getenv("AETHER_API_TOKEN", "")
+POLL_SECONDS = max(15, int(os.getenv("AETHER_REMINDER_POLL_SECONDS", "30")))
+STATE_PATH = Path(os.getenv("AETHER_REMINDER_STATE_PATH", "data/reminder-notifier-state.json"))
 MAX_RETRY_SECONDS = 15 * 60
 
 
@@ -24,7 +24,7 @@ def fetch_due():
 def show_toast(title: str, message: str):
     # Imported lazily so non-Windows CI can import/test this module.
     from winotify import Notification
-    Notification(app_id="JARVIS Personal AI", title=title, msg=message[:240]).show()
+    Notification(app_id="AETHER Personal AI", title=title, msg=message[:240]).show()
 
 
 def _load_state(path: Path = STATE_PATH) -> dict:
@@ -66,21 +66,21 @@ def process_due(items: list[dict], state: dict, notify=show_toast, now: float | 
             continue
         attempts = int(previous.get("attempts", 0)) + 1
         try:
-            notify("JARVIS reminder", item["title"])
+            notify("AETHER reminder", item["title"])
         except Exception as exc:
             delay = min(30 * (2 ** (attempts - 1)), MAX_RETRY_SECONDS)
             message = str(exc).replace("\r", " ").replace("\n", " ")[:300]
             reminders[reminder_id] = {
                 "status": "retrying", "attempts": attempts,
                 "last_error": message, "next_retry_at": now + delay,
-                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
             }
             statuses.append(f"Reminder #{reminder_id}: delivery failed (attempt {attempts}); retrying in {delay}s: {message}")
         else:
             reminders[reminder_id] = {
                 "status": "delivered", "attempts": attempts, "last_error": "",
-                "delivered_at": datetime.now(timezone.utc).isoformat(),
-                "updated_at": datetime.now(timezone.utc).isoformat(),
+                "delivered_at": datetime.now(UTC).isoformat(),
+                "updated_at": datetime.now(UTC).isoformat(),
             }
             statuses.append(f"Reminder #{reminder_id}: toast delivered (attempt {attempts}).")
     return statuses
@@ -88,9 +88,9 @@ def process_due(items: list[dict], state: dict, notify=show_toast, now: float | 
 
 def run():
     if len(TOKEN) < 32:
-        raise SystemExit("Set JARVIS_API_TOKEN to the same random token configured in the local backend.")
+        raise SystemExit("Set AETHER_API_TOKEN to the same random token configured in the local backend.")
     state = _load_state()
-    print(f"JARVIS reminder notifier polling {API_BASE}; Ctrl+C stops it.")
+    print(f"AETHER reminder notifier polling {API_BASE}; Ctrl+C stops it.")
     print(f"Delivery state is saved in {STATE_PATH.resolve()}")
     while True:
         try:

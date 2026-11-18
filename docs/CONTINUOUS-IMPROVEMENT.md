@@ -1,10 +1,10 @@
 # Continuous Improvement
 
-JARVIS should improve through a controlled engineering loop, not by silently rewriting production code.
+AETHER should improve through a controlled engineering loop, not by silently rewriting production code.
 
 ## Feedback loop
 1. The user explicitly reports a problem or approves a suggested improvement.
-2. JARVIS turns the feedback into a specific issue with acceptance criteria.
+2. AETHER turns the feedback into a specific issue with acceptance criteria.
 3. Code changes happen in a separate development branch.
 4. Unit tests, integration tests, security checks, and cost checks run.
 5. The user reviews the diff and approves sensitive or behavior-changing updates.
