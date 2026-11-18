@@ -66,7 +66,9 @@ scripts, bypassing exact-app launch. The registry marks it HIGH/fresh-only and i
 preview refuses before asking for an unusable approval. This is an intentional
 compatibility change: no document/folder/default-association launch is claimed.
 Data list/search/read/preview and reviewed document creation remain unchanged.
-A safe document-handler workflow needs its own resolved handler/arguments/content
-review; a familiar extension or default association is not approved-app authority.
+A separate [reviewed document/folder opening workflow](REVIEWED-PATH-OPEN.md)
+now resolves an exact owner-configured approved handler, fixed single path
+argument and current target digest under fresh confirmation. It still does not
+restore default associations, shortcuts, URLs, scripts or arbitrary file launch.
 Generic fresh-approved shell remains separate, not an automatic fallback or
-permission to bypass this policy. No real OS action was executed for the fix.
+permission to bypass this policy. No real OS action was executed for either path.
