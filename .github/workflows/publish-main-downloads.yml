@@ -1,0 +1,47 @@
+name: Publish downloads from main build
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/publish-main-downloads.yml]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    if: github.repository == 'Ashokkunchala/AETHER'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          name: aether-windows-setup
+          run-id: 44293636279
+          github-token: ${{ github.token }}
+          path: staging/windows
+      - uses: actions/download-artifact@v4
+        with:
+          name: aether-android-debug-apk
+          run-id: 44293636279
+          github-token: ${{ github.token }}
+          path: staging/android
+      - name: Verify and publish
+        run: |
+          set -euo pipefail
+          SRC=286224d7bf3b432acecf1a13603d7636ba98ceb3
+          test "$(cat staging/windows/SOURCE-COMMIT.txt | tr -d '[:space:]')" = "$SRC"
+          grep -q "$SRC" staging/windows/install-aether-reviewed.ps1
+          ! grep -q __AETHER_BUILD_COMMIT__ staging/windows/install-aether-reviewed.ps1
+          cp staging/windows/AETHER-Setup.exe downloads/AETHER-Setup.exe
+          cp staging/android/app-debug.apk downloads/AETHER-Android.apk
+          cp staging/windows/install-aether-reviewed.ps1 downloads/install-aether-reviewed.ps1
+          (cd downloads && sha256sum AETHER-Setup.exe AETHER-Android.apk install-aether-reviewed.ps1 > SHA256SUMS.txt)
+          echo "$SRC" > downloads/SOURCE-COMMIT.txt
+          OLD=df95312d2b20614ade50fc226af35b57908fca7c
+          sed -i "s/$OLD/$SRC/g; s#actions/runs/44289124471#actions/runs/44293636279#g" downloads/README.md
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add downloads
+          git commit -m "Refresh downloads from verified main build $SRC"
+          git push origin HEAD:refs/heads/main
