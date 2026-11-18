@@ -110,6 +110,39 @@ def _provider_health_summary() -> dict[str, Any]:
 
 
 # --------------------------------------------------------------------------
+# Resumable read-only plans
+# --------------------------------------------------------------------------
+def _plan_save_readonly(plan_id: str, tasks: list[dict[str, Any]]) -> dict[str, Any]:
+    from jarvis.tools.plan_resume import save_plan
+
+    return save_plan(plan_id, tasks, build_registry())
+
+
+async def _plan_run_readonly(plan_id: str) -> dict[str, Any]:
+    from jarvis.tools.plan_resume import run_plan
+
+    return await run_plan(plan_id, build_registry())
+
+
+def _plan_status_readonly(plan_id: str) -> dict[str, Any]:
+    from jarvis.tools.plan_resume import plan_status
+
+    return plan_status(plan_id)
+
+
+def _plan_list_readonly() -> dict[str, Any]:
+    from jarvis.tools.plan_resume import list_plans
+
+    return list_plans()
+
+
+def _plan_forget_readonly(plan_id: str) -> dict[str, Any]:
+    from jarvis.tools.plan_resume import forget_plan
+
+    return forget_plan(plan_id)
+
+
+# --------------------------------------------------------------------------
 # JSON schema helpers
 # --------------------------------------------------------------------------
 def _obj(properties: dict[str, Any], required: list[str] | None = None) -> dict[str, Any]:
@@ -247,6 +280,56 @@ def build_registry(force: bool = False) -> ToolRegistry:
 
 # ------------------------------------------------------------------- system
 def _register_system(r: ToolRegistry) -> None:
+    r.register(Tool(
+        name="plan_save_readonly",
+        description="Validate and save a resumable multi-step plan of SAFE read-only tools with dependencies. Steps checkpoint locally so a later run resumes after failure or restart. Mutating or confirmation-gated tools, credential-shaped or oversized arguments and unknown tools are rejected. Arguments are stored locally but never returned by status or events.",
+        parameters=_obj({
+            "plan_id": _str("1-64 characters: letters, digits, '-' or '_', starting alphanumeric."),
+            "tasks": {"type": "array", "items": {
+        "type": "object",
+        "properties": {
+            "task_id": _str("Unique non-empty id for this step within the plan."),
+            "tool": _str("SAFE read-only registered tool name; mutating or confirmation tools are rejected."),
+            "args": {"type": "object", "description": "Small non-secret JSON arguments for the tool, at most 4096 UTF-8 bytes."},
+            "depends_on": {"type": "array", "items": {"type": "string"}, "description": "Ids of steps that must succeed first."},
+            "timeout_seconds": _num("Per-attempt timeout between 0.1 and 300 seconds (default 30)."),
+            "retries": _int("Up to 2 transient retries for this read-only step.", 0, 2),
+        },
+        "required": ["task_id", "tool"],
+        "additionalProperties": False,
+    }, "description": "Ordered steps; execution follows dependencies, not list order."},
+        }, ["plan_id", "tasks"]),
+        handler=_plan_save_readonly,
+        risk=Risk.SAFE, category="system",
+    ))
+    r.register(Tool(
+        name="plan_run_readonly",
+        description="Run or resume a saved read-only plan. Steps already checkpointed as successful are never re-executed; failed or pending steps run in dependency order. Returns per-step status only, never arguments or outputs.",
+        parameters=_obj({"plan_id": _str("Saved plan id.")}, ["plan_id"]),
+        handler=_plan_run_readonly,
+        risk=Risk.SAFE, category="system",
+    ))
+    r.register(Tool(
+        name="plan_status_readonly",
+        description="Show per-step status of one saved read-only plan without arguments, outputs or secrets.",
+        parameters=_obj({"plan_id": _str("Saved plan id.")}, ["plan_id"]),
+        handler=_plan_status_readonly,
+        risk=Risk.SAFE, category="system",
+    ))
+    r.register(Tool(
+        name="plan_list_readonly",
+        description="List saved resumable read-only plans with per-status step counts. No arguments or outputs are returned.",
+        parameters=_obj({}),
+        handler=_plan_list_readonly,
+        risk=Risk.SAFE, category="system",
+    ))
+    r.register(Tool(
+        name="plan_forget_readonly",
+        description="Remove one saved read-only plan and its local checkpoints. Running tools and other plans are not affected.",
+        parameters=_obj({"plan_id": _str("Saved plan id.")}, ["plan_id"]),
+        handler=_plan_forget_readonly,
+        risk=Risk.SAFE, category="system",
+    ))
     r.register(Tool(
         name="provider_health_summary",
         description="Summarize bounded recorded AI provider successes, failures and latency samples from local runtime history. No provider, network, quota or billing call; no prompts or credentials returned.",
