@@ -637,6 +637,49 @@ async def start_realtime(call_mode: bool = False):
     console.print("\n[red]AETHER shut down[/red]")
 
 
+
+# ---------------------------------------------------------------------------
+# owner-approved desktop abilities (apps, read-only Gmail)
+# ---------------------------------------------------------------------------
+@app.command("setup-apps")
+def setup_apps_command():
+    """One-time: approve the installed apps (Chrome, Edge, VS Code, Notepad...) AETHER may open."""
+    from aether.desktop_abilities import setup_apps
+
+    def ask(app_id: str, info: dict) -> bool:
+        console.print(f"[cyan]{app_id}[/cyan] -> {info['executable']}")
+        return typer.confirm(f"Allow AETHER to open {app_id}?", default=False)
+
+    result = setup_apps(ask)
+    console.print(f"Found: {', '.join(result['found']) or 'nothing'}")
+    console.print(f"Approved now: {', '.join(result['approved']) or 'nothing'}  ({result['file']})")
+    if result["approved"]:
+        console.print("Voice 'open <app>' now works for the approved apps. Re-run this after an app updates.")
+    else:
+        console.print("Nothing approved, so voice cannot open apps yet. Re-run when ready.")
+
+
+@app.command("gmail-signin")
+def gmail_signin_command():
+    """Sign in to Google in your own browser so AETHER can read email (read-only)."""
+    from aether.desktop_abilities import gmail_sign_in
+
+    console.print("A browser tab will open. Sign in and allow read-only Gmail access.")
+    result = gmail_sign_in()
+    if result.get("success"):
+        console.print(f"[green]{result['message']}[/green]")
+    else:
+        err_console.print(f"[red]{result.get('error')}[/red]")
+        raise typer.Exit(code=1)
+
+
+@app.command("gmail-signout")
+def gmail_signout_command():
+    """Remove the local Gmail token."""
+    from aether.desktop_abilities import gmail_sign_out
+
+    console.print(gmail_sign_out()["message"])
+
 # ---------------------------------------------------------------------------
 # laptop group
 # ---------------------------------------------------------------------------
