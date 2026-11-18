@@ -45,7 +45,7 @@ from app.personal_data import router as personal_data_router
 from app.personality import SYSTEM_INSTRUCTIONS, language_instruction, mode_instruction
 from app.scheduler import ScheduleRunner
 from app.schemas import ChatRequest, ChatResponse
-from jarvis.telemetry import runtime_events
+from jarvis.telemetry import provider_health_summary, runtime_events
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("jarvis")
@@ -260,6 +260,12 @@ def performance(_=Depends(require_device_token)) -> dict:
 def read_runtime_events(after_id: int = 0, limit: int = 50, _=Depends(require_device_token)) -> dict:
     """Return bounded persisted task/provider summaries without prompts or tool arguments."""
     return runtime_events(after_id=after_id, limit=limit)
+
+
+@app.get("/api/provider/health")
+def read_provider_health(_=Depends(require_device_token)) -> dict:
+    """Return measured local provider outcome summaries without contacting providers."""
+    return provider_health_summary()
 
 
 @app.post("/api/coach/workout")
