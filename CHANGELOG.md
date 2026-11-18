@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-18 - literal TypeScript teaching review
+
+- Added `mentor_review_typescript`, a no-effect mentor tool that checks one redacted TypeScript snippet for five literal teaching patterns: explicit `any`, one-line suppression comments, postfix non-null assertions, `as unknown as` double assertions and runtime `enum` declarations. It rejects credential-shaped input and returns location-only findings without source text.
+- Added focused tests for exact/uncovered patterns, comments and quoted strings, input limits, secret-shaped rejection, no file side effects, ordering, UTF-8 columns, truncation, independent results and preservation of existing mentor tools/progress.
+- This does not execute or type-check code, invoke a compiler, parse every TypeScript dialect, resolve aliases/control flow or claim security, correctness or mastery.
+
 ## 2026-11-18 - literal JavaScript teaching review
 
 - Added `mentor_review_javascript`, a no-effect mentor tool that checks one redacted JavaScript snippet for five literal teaching markers: `eval`, the `Function` constructor, `innerHTML` assignment, `document.write`/`writeln` and string timer callbacks. It rejects credential-shaped input and returns location-only findings without source text.
