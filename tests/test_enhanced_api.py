@@ -48,6 +48,9 @@ def test_enhanced_app_serves_dashboard_and_static_voice_assets():
         voice_script = client.get("/static/live_voice.js")
     assert dashboard.status_code == 200
     assert 'id="runtimeFeed"' in dashboard.text
+    assert 'id="refreshProviderHealth"' in dashboard.text
+    assert 'RECORDED ONLY' in dashboard.text
+    assert 'Latest retained result is not current account health' in dashboard.text
     assert life_manager.status_code == 200
     assert "AETHER · Personal Life Manager" in life_manager.text
     assert voice_script.status_code == 200
