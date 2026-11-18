@@ -1,7 +1,7 @@
 name: Apply batch 2 patch
 on:
   push:
-    branches: [chore/apply-b2]
+    branches: [Ashokkunchala-patch-1]
 permissions:
   contents: write
 jobs:
