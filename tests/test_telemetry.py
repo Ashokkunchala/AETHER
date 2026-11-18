@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from jarvis.telemetry import record_runtime_event, runtime_events
+from jarvis.telemetry import provider_health_summary, record_runtime_event, runtime_events
 
 
 @pytest.fixture(autouse=True)
@@ -55,3 +55,32 @@ def test_runtime_event_reader_clamps_limits_and_retention():
 
 def test_unknown_runtime_event_categories_are_ignored():
     assert record_runtime_event("prompt", text="do not store") == 0
+
+
+def test_provider_health_summary_aggregates_only_recorded_events():
+    record_runtime_event("tool", tool="system_status", success=True, elapsed=9.0)
+    record_runtime_event("provider", provider="gemini", model="model-a", success=True, elapsed=0.125)
+    record_runtime_event("provider", provider="gemini", model="model-b", success=False, elapsed=0.875)
+    record_runtime_event("provider", provider="groq", success=True, prompt="private")
+
+    summary = provider_health_summary()
+    providers = {row["provider"]: row for row in summary["providers"]}
+
+    assert summary["provider_count"] == 2
+    assert summary["measured_only"] is True
+    assert summary["quota_reported"] is False
+    assert providers["gemini"]["events"] == 2
+    assert providers["gemini"]["success_rate"] == 0.5
+    assert providers["gemini"]["latest_result"] == "failure"
+    assert providers["gemini"]["models_seen"] == ["model-a", "model-b"]
+    assert providers["gemini"]["latency_seconds"]["average"] == 0.5
+    assert providers["groq"]["latest_result"] == "success"
+    assert "private" not in repr(summary)
+
+
+def test_provider_health_summary_with_no_provider_events_is_explicitly_empty():
+    summary = provider_health_summary()
+
+    assert summary["providers"] == []
+    assert summary["provider_count"] == 0
+    assert "No provider" in summary["notice"]
