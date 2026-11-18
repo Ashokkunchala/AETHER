@@ -2,27 +2,31 @@ name: Tests
 
 on:
   push:
-    branches: [main, "improve/**"]
+    branches: [main, "improve/**", "feature/**", "chore/**", "aether-cinematic-local-voice"]
   pull_request:
-    branches: [main]
+    branches: [main, "aether-cinematic-local-voice"]
 
 permissions:
   contents: read
 
 concurrency:
-  group: jarvis-${{ github.workflow }}-${{ github.ref }}
+  group: aether-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.14"]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: requirements-dev.txt
       - name: Install system audio build dependencies
@@ -44,11 +48,16 @@ jobs:
         with:
           python-version: "3.11"
       - name: Compile every Python file
-        run: python -m compileall -q app jarvis windows_agent tests jarvis_cli.py jarvis_daemon.py run_enhanced.py
+        run: python -m compileall -q app aether windows_agent tests scripts aether_cli.py aether_daemon.py run_enhanced.py
       - name: Lint for syntax errors and undefined names
         run: |
           python -m pip install "ruff>=0.6,<1.0"
           ruff check . --select E9,F63,F7,F82
+
+      - name: Build the installable Python wheel
+        run: |
+          python -m pip install "build>=1.2,<2.0"
+          python -m build --wheel
 
   windows-installer-check:
     runs-on: windows-latest
@@ -59,12 +68,23 @@ jobs:
         shell: pwsh
         run: |
           $files = @(
-            "INSTALL-JARVIS.ps1",
+            "INSTALL-AETHER.ps1",
             "scripts/setup-windows.ps1",
             "scripts/setup-and-validate.ps1",
+            "scripts/setup-android.ps1",
+            "scripts/setup-mobile.ps1",
+            "scripts/start-mobile.ps1",
+            "scripts/mobile-common.ps1",
+            "scripts/https-smoke-test.ps1",
+            "scripts/verify-mobile-common.ps1",
+            "scripts/build-installer-exe.ps1",
+            "scripts/install-aether-reviewed.ps1",
+            "scripts/uninstall-aether.ps1",
             "scripts/start-windows.ps1",
-            "scripts/start-jarvis-session.ps1",
-            "scripts/start-jarvis-terminal.ps1"
+            "scripts/start-aether-session.ps1",
+            "scripts/start-aether-terminal.ps1",
+            "scripts/install-aether-startup.ps1",
+            "scripts/install-aether-notifications.ps1"
           )
           foreach ($file in $files) {
             $tokens = $null
@@ -75,6 +95,93 @@ jobs:
               exit 1
             }
           }
+
+      - name: Set up current Python 3.14 for Windows installation validation
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Exercise a clean Windows setup and verify voice imports
+        shell: pwsh
+        run: |
+          .\\scripts\\setup-windows.ps1 -NoApiKeyPrompt -SkipVerify
+          if ($LASTEXITCODE -ne 0) { throw "Windows setup failed with exit code $LASTEXITCODE." }
+          .\\.venv\\Scripts\\python.exe -c "import sounddevice, webrtcvad, openwakeword, scipy; print('Windows voice stack imports passed')"
+          if ($LASTEXITCODE -ne 0) { throw "Windows voice dependency smoke test failed." }
+
+      - name: Validate editable Windows package installation
+        shell: pwsh
+        run: |
+          .\.venv\Scripts\python.exe -m pip install -e ".[windows]"
+          if ($LASTEXITCODE -ne 0) { throw "Editable package installation failed." }
+          .\.venv\Scripts\python.exe -c "import app, aether, windows_agent; print('Editable package imports passed')"
+          if ($LASTEXITCODE -ne 0) { throw "Editable package import test failed." }
+
+      - name: Verify mobile helpers and secret-safe output
+        shell: pwsh
+        run: |
+          .\scripts\verify-mobile-common.ps1
+          if ($LASTEXITCODE -ne 0) { throw "Mobile helper verification failed." }
+          $mobileScripts = Get-Content scripts/setup-mobile.ps1, scripts/start-mobile.ps1 -Raw
+          if ($mobileScripts -match 'Write-Host[^\r\n]*\$token') { throw "A mobile setup script appears to print a token." }
+          $mobileCommon = Get-Content scripts/mobile-common.ps1 -Raw
+          if ($mobileCommon -match 'ServerCertificateValidationCallback') { throw "A process-wide TLS validation callback is forbidden." }
+
+
+      - name: Build reviewed commit-pinned AETHER Windows installer and source bundle
+        shell: pwsh
+        run: |
+          $payload = Get-Content scripts/install-aether-reviewed.ps1 -Raw
+          if ($env:GITHUB_SHA -notmatch '^[0-9a-f]{40}$') { throw "Invalid build commit." }
+          $payload = $payload.Replace('__AETHER_BUILD_COMMIT__', $env:GITHUB_SHA)
+          New-Item -ItemType Directory -Force dist | Out-Null
+          [System.IO.File]::WriteAllText((Join-Path $PWD 'dist/install-aether-reviewed.ps1'), $payload, [System.Text.UTF8Encoding]::new($false))
+          .\scripts\build-installer-exe.ps1 -InstallerPath (Join-Path $PWD 'dist/install-aether-reviewed.ps1') -OutFile (Join-Path $PWD 'dist/AETHER-Setup.exe') -SelfTest
+          if ($LASTEXITCODE -ne 0) { throw "Installer build/self-test failed." }
+          git archive --format=zip --output=dist/AETHER-Source.zip HEAD
+          if ($LASTEXITCODE -ne 0) { throw "Source archive failed." }
+          Copy-Item docs/INSTALLABLE-FILES.md dist/INSTALLABLE-FILES.md
+          $env:GITHUB_SHA | Set-Content dist/SOURCE-COMMIT.txt -Encoding ASCII
+          Get-FileHash dist/AETHER-Setup.exe,dist/AETHER-Source.zip,dist/install-aether-reviewed.ps1 -Algorithm SHA256 | ForEach-Object { $_.Hash.ToLower() + '  ' + (Split-Path $_.Path -Leaf) } | Set-Content dist/SHA256SUMS.txt -Encoding ASCII
+
+      - name: Upload reviewed Windows installer and setup source
+        uses: actions/upload-artifact@v4
+        with:
+          name: aether-windows-setup
+          path: |
+            dist/AETHER-Setup.exe
+            dist/AETHER-Source.zip
+            dist/install-aether-reviewed.ps1
+            dist/INSTALLABLE-FILES.md
+            dist/SOURCE-COMMIT.txt
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14
+
+
+  container-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Build the local container image
+        run: docker build --tag aether:ci .
+
+
+  browser-dashboard-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test-only browser dependencies
+        run: python -m pip install "playwright>=1.48,<2" "pytest>=9,<10" "pytest-cov>=5" "pytest-asyncio>=1.3,<2" "starlette>=0.41,<1"
+      - name: Install isolated test Chromium
+        run: python -m playwright install --with-deps chromium
+      - name: Verify real rendered page and mobile dashboard with offline fixtures
+        run: python -m pytest tests/test_browser_runtime.py tests/test_browser_dashboards.py -q
+
 
   android-build:
     runs-on: ubuntu-latest
@@ -93,15 +200,16 @@ jobs:
           SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -name sdkmanager -type f | head -n 1)"
           yes | "$SDKMANAGER" --licenses >/dev/null || true
           "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-      - name: Build debug APK
-        uses: gradle/gradle-build-action@v3
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
-          arguments: -p android assembleDebug
+      - name: Build debug APK
+        run: gradle -p android testDebugUnitTest assembleDebug
       - name: Upload debug APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: jarvis-android-debug-apk
+          name: aether-android-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
