@@ -21,6 +21,7 @@ from jarvis.control import (
     notify,
     power,
     process,
+    reviewed_open,
     screen,
     shell,
     window,
@@ -191,6 +192,29 @@ class LaptopController:
 
     def open_path(self, path: str) -> dict[str, Any]:
         return files.open_path(path)
+
+    def plan_reviewed_open(self, handler_id: str, path: str) -> dict[str, Any]:
+        return reviewed_open.plan_reviewed_open(handler_id, path)
+
+    def open_reviewed_path(
+        self,
+        handler_id: str,
+        path: str,
+        expected_kind: str,
+        expected_digest: str,
+        expected_handler_app: str,
+        expected_handler_executable: str,
+        expected_handler_sha256: str,
+    ) -> dict[str, Any]:
+        return reviewed_open.open_reviewed_path(
+            handler_id,
+            path,
+            expected_kind,
+            expected_digest,
+            expected_handler_app,
+            expected_handler_executable,
+            expected_handler_sha256,
+        )
 
     def file_info(self, path: str) -> dict[str, Any]:
         return files.file_info(path)
