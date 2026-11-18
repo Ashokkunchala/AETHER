@@ -108,3 +108,66 @@ def runtime_events(after_id: int = 0, limit: int = 50) -> dict[str, Any]:
             oldest_id = _events[0]["id"] if _events else 0
             return {"events": events, "oldest_id": oldest_id, "latest_id": latest_id,
                     "retained": _EVENT_LIMIT, "storage": "volatile"}
+
+
+def provider_health_summary() -> dict[str, Any]:
+    """Summarize bounded recorded provider outcomes without calling a provider.
+
+    The summary is derived only from the low-sensitivity runtime-event store.
+    Quota, remaining budget, account health and future availability are not
+    measured by local request timing.
+    """
+    snapshot = runtime_events(after_id=0, limit=100)
+    grouped: dict[str, dict[str, Any]] = {}
+    for event in snapshot["events"]:
+        if event.get("category") != "provider" or not isinstance(event.get("provider"), str):
+            continue
+        provider = event["provider"]
+        row = grouped.setdefault(provider, {
+            "provider": provider,
+            "events": 0,
+            "successes": 0,
+            "failures": 0,
+            "models_seen": [],
+            "latency_samples": [],
+            "latest_result": "unknown",
+            "latest_event_at": None,
+        })
+        row["events"] += 1
+        if event.get("success") is True:
+            row["successes"] += 1
+            row["latest_result"] = "success"
+        elif event.get("success") is False:
+            row["failures"] += 1
+            row["latest_result"] = "failure"
+        if isinstance(event.get("model"), str) and event["model"] not in row["models_seen"]:
+            row["models_seen"].append(event["model"])
+        if isinstance(event.get("elapsed"), (int, float)):
+            row["latency_samples"].append(float(event["elapsed"]))
+        row["latest_event_at"] = event.get("timestamp")
+
+    providers = []
+    for row in grouped.values():
+        samples = row.pop("latency_samples")
+        attempts = row["successes"] + row["failures"]
+        row["success_rate"] = round(row["successes"] / attempts, 4) if attempts else None
+        row["latency_seconds"] = {
+            "samples": len(samples),
+            "average": round(sum(samples) / len(samples), 3) if samples else None,
+            "minimum": round(min(samples), 3) if samples else None,
+            "maximum": round(max(samples), 3) if samples else None,
+        }
+        row["models_seen"] = row["models_seen"][:10]
+        row["quota_reported"] = False
+        providers.append(row)
+    providers.sort(key=lambda item: item["provider"])
+    return {
+        "providers": providers,
+        "provider_count": len(providers),
+        "storage": snapshot["storage"],
+        "retained_events": snapshot["retained"],
+        "bounded_sample_limit": 100,
+        "measured_only": True,
+        "quota_reported": False,
+        "notice": "Recorded local provider request summaries only. No provider, network, quota or billing API was called; latest_result is the latest retained event, not account health or future availability. The bounded sample can omit older events and does not include prompts, arguments or credentials.",
+    }
