@@ -1,7 +1,7 @@
 # AETHER direct setup files
 
-Built from source commit `0f578cbfd2a87ad14decd2aecfb18e678368f899`.
-Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44238309401
+Built from source commit `4832582631277eaa60a2a643b17a3740da64a732`.
+Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44239925515
 
 - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
 - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
@@ -29,5 +29,7 @@ This batch adds reviewed local document/folder opening through exact approved ha
 This batch adds deterministic mentor free-text rubric signals for reviewed reasoning submissions. They report concept, evidence, uncertainty and unsafe-endorsement signals only; they do not claim semantic grading, mastery, certification, code execution or lab evidence. See [mentor rubric signals](../docs/MENTOR-RUBRIC-SIGNALS.md).
 
 This batch also adds fresh-approved one-shot deep-mentor review reminders in the existing local backend reminder store. They are not sent notifications, calendar events, recurrence, automatic practice or mastery evidence; existing notification workers need the same backend plus their separate token/TLS/permission setup. See [review prompts](../docs/MENTOR-REVIEW-PROMPTS.md).
+
+This batch adds literal shell teaching review for one redacted command. It reports only five fixed patterns outside single quotes, with no execution, URL contact, path/variable resolution, approval, sandboxing, or security/correctness/mastery claim: [shell review](../docs/MENTOR-SHELL-REVIEW.md).
 
 Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
