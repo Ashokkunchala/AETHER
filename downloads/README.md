@@ -1,7 +1,7 @@
 # AETHER direct setup files
 
-Built from source commit `30ee3f5e1599d3632a23a832fe1308a0c8a483c6`.
-Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44247921512
+Built from source commit `49d9543be677ca83a277acf722956040b11c949a`.
+Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44250427031
 
 - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
 - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
@@ -37,5 +37,7 @@ This batch adds literal JavaScript teaching review for one redacted snippet. It 
 This batch adds literal TypeScript teaching review for one redacted snippet. It reports only five fixed patterns, with no compiler/type-checking, execution, fixes, progress writes, or security/correctness/mastery claim: [TypeScript review](../docs/MENTOR-TYPESCRIPT-REVIEW.md).
 
 This batch adds literal HTML teaching review for one redacted snippet. It reports only five fixed tags/attribute patterns, with no rendering, validation, sanitization, execution, fixes, progress writes, or security/correctness/mastery claim: [HTML review](../docs/MENTOR-HTML-REVIEW.md).
+
+This batch adds measured provider health summaries from bounded local runtime events, available through an authenticated endpoint and SAFE tool. No provider, network, quota or billing API is contacted; the summary does not route traffic, estimate cost or prove future availability: [provider health guide](../docs/PROVIDER-HEALTH.md).
 
 Full owner-run guide: [installation downloads](../docs/INSTALLABLE-FILES.md).
