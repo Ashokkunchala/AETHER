@@ -379,6 +379,16 @@ same recorded-only summary behind a "Refresh recorded summary" button in its
 AI providers panel and discards stale responses after a token change. See
 [PROVIDER-HEALTH.md](PROVIDER-HEALTH.md).
 
+## Resumable read-only plans
+
+`plan_save_readonly`, `plan_run_readonly`, `plan_status_readonly`,
+`plan_list_readonly` and `plan_forget_readonly` run multi-step plans of SAFE
+read-only tools with dependencies. Each settled step checkpoints in the local
+SQLite store, so a failure or restart resumes without re-executing successful
+steps. Mutating or confirmation-gated tools cannot be saved; arguments are
+stored locally, rejected when credential-shaped, and never returned by status
+or events. See [RESUMABLE-PLANS.md](RESUMABLE-PLANS.md).
+
 ## Operating modes in the shared brain and web chat
 
 The requested ten modes are available: Personal, Friend, Mentor, DevOps,
