@@ -1,8 +1,8 @@
-# JARVIS for Android
+# AETHER for Android
 
 Native Kotlin + Jetpack Compose app with the cinematic command-centre look: deep
 navy panels, cyan accents and the glowing AI Core orb. It talks to your own
-JARVIS backend over HTTPS on your private network.
+AETHER backend over HTTPS on your private network.
 
 ## What the app does
 
@@ -23,7 +23,7 @@ JARVIS backend over HTTPS on your private network.
 - Quick actions: one-tap prompt chips (system status, story, song, AWS lesson,
   today's reminders) that fill the message box for review before sending.
 - Activity & approvals feed: polls the backend's bounded runtime event feed and
-  shows what JARVIS is doing. Confirmations for sensitive or irreversible
+  shows what AETHER is doing. Confirmations for sensitive or irreversible
   actions stay on your laptop; the phone feed is read-only on purpose.
 - Live Voice: user-started full-duplex Gemini Live audio over the
   authenticated, short-lived-ticket WebSocket bridge, with visible start,
@@ -32,7 +32,7 @@ JARVIS backend over HTTPS on your private network.
   backend; opt-in WorkManager reminder polling with Android notifications
   (best-effort, may be delayed at least 15 minutes; not an alarm service).
 - Explicit memories: save, review and delete only the facts you choose.
-- Phone controls: quick links to Android device, Wi-Fi, Bluetooth and JARVIS
+- Phone controls: quick links to Android device, Wi-Fi, Bluetooth and AETHER
   app-permission settings; supported voice transcripts open the matching system
   screen only after you tap "Run recognized phone command".
 - Language: reply language cycles through adaptive/auto, Indian English and
@@ -106,7 +106,7 @@ Android asks), or install over USB with `adb install app/build/outputs/apk/debug
 
 GitHub Actions also builds the debug APK on every push to this branch (the
 `android-build` job in `.github/workflows/tests.yml`) and uploads it as the
-`jarvis-android-debug-apk` artifact. A CI build proves the code compiles; it
+`aether-android-debug-apk` artifact. A CI build proves the code compiles; it
 does not prove the app runs on your phone or that your backend is reachable.
 
 ## Optional release signing
@@ -126,7 +126,7 @@ keyPassword=your-key-password
 Generate a keystore once with:
 
 ```sh
-keytool -genkey -v -keystore release.keystore -alias jarvis -keyalg RSA -keysize 2048 -validity 10000
+keytool -genkey -v -keystore release.keystore -alias aether -keyalg RSA -keysize 2048 -validity 10000
 ```
 
 Then `gradlew.bat assembleRelease` signs with it. Never commit the keystore,
@@ -143,10 +143,10 @@ and enforces two rules:
    ever sent over TLS; a plain `http://` backend URL is rejected outright.
 2. **User-installed CA certificates are trusted** (in addition to the system
    store) so the laptop backend can use a private self-signed CA. Install only
-   a CA you control (`data/tls/jarvis-ca.crt` → Settings > Security >
+   a CA you control (`data/tls/aether-ca.crt` → Settings > Security >
    Encryption & credentials > Install a certificate > CA certificate). Android
    applies this trust to HTTPS requests made by this app generally, not only
-   to your configured JARVIS host. Remove the user CA when you no longer need
+   to your configured AETHER host. Remove the user CA when you no longer need
    it. This is a documented convenience trade-off; do not use this prototype
    with untrusted networks or arbitrary remote backends.
 
@@ -164,19 +164,19 @@ away from the laptop:
 
 ## Connect your phone safely
 
-1. Start the backend with `jarvis serve` on a machine reachable by the phone
+1. Start the backend with `aether serve` on a machine reachable by the phone
    over a private network or a secured HTTPS host.
 2. The app accepts only an `https://` endpoint. `http://127.0.0.1:8000` on the
    phone points to the phone itself, not your laptop. For plain-HTTP testing on
    a LAN, put a local HTTPS proxy in front of the backend - never send the
    bearer token over plain HTTP.
 3. For a per-device credential, enter a descriptive device name and the
-   backend's master `JARVIS_API_TOKEN` in the pairing section, then tap
+   backend's master `AETHER_API_TOKEN` in the pairing section, then tap
    **Pair device**. The issued per-device token is encrypted with Android
    Keystore. Manual token entry remains available for backends without the
    device-management endpoints.
 4. Tap **Connect securely**, pick a personality mode, then type or speak.
-5. Tap **Speak to JARVIS** for one-utterance speech recognition; the transcript
+5. Tap **Speak to AETHER** for one-utterance speech recognition; the transcript
    is displayed for review before sending. Speech recognition may rely on the
    Android speech service and its availability/network behavior.
 6. Tap **Start Live Voice** for full-duplex audio. Live audio is sent to the
@@ -202,7 +202,7 @@ a laptop command.
   signing is optional via `keystore.properties` (see above); there is no Play
   Store or other distribution pipeline yet.
 - Android 14 restricts starting microphone foreground services from boot;
-  launch JARVIS yourself and tap Speak or Start Live Voice to use the
+  launch AETHER yourself and tap Speak or Start Live Voice to use the
   microphone. There is no always-on listening.
 - Telugu voice quality depends on the system language data installed on the
   phone.

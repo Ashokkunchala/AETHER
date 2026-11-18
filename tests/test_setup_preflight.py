@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from jarvis import setup_preflight as preflight
+from aether import setup_preflight as preflight
 
 
 def test_inventory_no_network_subprocess_sdk_import_or_writes(monkeypatch):
@@ -25,7 +25,7 @@ def test_inventory_no_network_subprocess_sdk_import_or_writes(monkeypatch):
     monkeypatch.setattr(importlib.metadata, 'version', lambda name: 'test-metadata')
     original = builtins.__import__
     def guarded(name, *a, **k):
-        assert not name.startswith(('google', 'playwright', 'keyring', 'sounddevice', 'jarvis.security', 'jarvis.config'))
+        assert not name.startswith(('google', 'playwright', 'keyring', 'sounddevice', 'aether.security', 'aether.config'))
         return original(name, *a, **k)
     monkeypatch.setattr(builtins, '__import__', guarded)
     result = preflight.report()

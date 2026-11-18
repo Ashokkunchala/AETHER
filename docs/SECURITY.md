@@ -6,7 +6,7 @@ adapters and limits. Those optional modes are not enabled by publishing source.
 
 ## Current implementation and limits
 
-- The Gemini chat endpoint and personal-data/coaching/research endpoints require a configured `JARVIS_API_TOKEN` bearer token. Placeholder values are rejected.
+- The Gemini chat endpoint and personal-data/coaching/research endpoints require a configured `AETHER_API_TOKEN` bearer token. Placeholder values are rejected.
 - The Windows helper is a separate localhost-only process with a narrow HTTPS allow-list and explicit confirmation for URL opening.
 - The Android starter encrypts the token using an Android Keystore AES-GCM key and includes an initial HTTPS chat client.
 - The main HTTP `/api/` routes have a configurable, per-process, per-client-IP sliding-window limit (`RATE_LIMIT_DEFAULT`, default `100/minute`; set `RATE_LIMIT_ENABLED=false` to disable). It is a local abuse guard, not a distributed quota or a production control.
@@ -29,8 +29,8 @@ adapters and limits. Those optional modes are not enabled by publishing source.
 
 The current Android network security configuration trusts Android user-installed
 CAs in addition to system CAs so the user can install the laptop's private-LAN
-JARVIS CA. Android applies this trust policy to HTTPS connections made by this
-app, not only to the configured JARVIS host. Install only a CA you control,
+AETHER CA. Android applies this trust policy to HTTPS connections made by this
+app, not only to the configured AETHER host. Install only a CA you control,
 remove it from Android when it is no longer needed, and keep the phone/backend
 on a trusted private network. A future release should replace this convenience
 with a dedicated per-backend certificate pinning or managed trust flow before
@@ -50,7 +50,7 @@ requests.
   the Android debug APK. CI compilation is not a substitute for physical-device
   acceptance testing.
 - Configure GitHub branch protection or a repository ruleset for
-  jarvis-cinematic-local-voice in repository Settings. Require both Python test matrix checks (test (3.11) and test (3.14)),
+  aether-cinematic-local-voice in repository Settings. Require both Python test matrix checks (test (3.11) and test (3.14)),
   static-checks, windows-installer-check, container-build, and android-build
   before merging. The connected GitHub integration cannot change repository
   administration settings, so an owner must enable this in GitHub.

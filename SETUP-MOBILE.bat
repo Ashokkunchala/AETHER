@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 echo ==========================================
-echo   JARVIS Mobile - full setup
+echo   AETHER Mobile - full setup
 echo ==========================================
 echo.
 echo This will:
@@ -35,7 +35,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\setup-mobile.p
 if errorlevel 1 (
     echo.
     echo [FAIL] Mobile setup failed. Review the messages above.
-    echo        Common fixes: run INSTALL_JARVIS.bat first; install JDK 17 and
+    echo        Common fixes: run INSTALL_AETHER.bat first; install JDK 17 and
     echo        the Android SDK (scripts\setup-android.ps1 -SkipBuild checks them).
     pause
     exit /b 1

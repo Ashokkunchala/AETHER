@@ -12,7 +12,7 @@ AUTH = {'Authorization': 'Bearer ' + TOKEN}
 
 @pytest.fixture
 def env(monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN)
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN)
     monkeypatch.setattr(integrations.settings, 'document_allowed_roots', str(tmp_path))
     app = FastAPI()
     app.include_router(personal_documents.router)

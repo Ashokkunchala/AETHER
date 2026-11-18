@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 
 from app.personality import mode_instruction
-from jarvis.personality_modes import MODES, ModeStore, overlay_for
-from jarvis.tools.registry import Risk, Tool, ToolRegistry
+from aether.personality_modes import MODES, ModeStore, overlay_for
+from aether.tools.registry import Risk, Tool, ToolRegistry
 
 REQUIRED = {'personal', 'friend', 'mentor', 'devops', 'developer', 'research', 'system_admin', 'security', 'fitness', 'emergency'}
 
@@ -57,7 +57,7 @@ def test_emergency_mode_makes_no_dispatch_or_tool_access_claim():
 
 
 def test_mode_tool_schema_advertises_every_supported_mode():
-    from jarvis.tools.builtin_tools import build_registry
+    from aether.tools.builtin_tools import build_registry
     registry = build_registry(force=True)
     tool = registry.get('set_personality_mode')
     assert set(tool.parameters['properties']['mode']['enum']) == set(MODES)

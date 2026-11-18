@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify the JARVIS mobile TLS certificate and HTTPS backend.
+"""Verify the AETHER mobile TLS certificate and HTTPS backend.
 
 Modes:
 
@@ -55,7 +55,7 @@ DEFAULT_TIMEOUT_SECONDS = 5.0
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Verify the JARVIS mobile TLS certificate and HTTPS backend.",
+        description="Verify the AETHER mobile TLS certificate and HTTPS backend.",
     )
     parser.add_argument(
         "--mode",

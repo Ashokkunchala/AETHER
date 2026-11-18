@@ -14,7 +14,7 @@ def test_reviewed_installer_pinned_fresh_folder_and_no_automatic_launch():
     assert 'Destination already exists. No overwrite allowed.' in source
     assert '-NoApiKeyPrompt' in source
     assert 'NewGuid()' in source
-    for forbidden in ('Register-ScheduledTask', 'Set-NetFirewall', 'Start-Process', 'start-windows.ps1', 'install-jarvis-startup.ps1', 'git reset', 'git clean', 'Uninstall'):
+    for forbidden in ('Register-ScheduledTask', 'Set-NetFirewall', 'Start-Process', 'start-windows.ps1', 'install-aether-startup.ps1', 'git reset', 'git clean', 'Uninstall'):
         assert forbidden not in source
     assert source.count('Remove-Item') == 1
     assert 'Remove-Item -LiteralPath $tempRoot' in source
@@ -26,7 +26,7 @@ def test_ci_builds_and_uploads_exact_windows_payload_without_running_it():
     assert '-InstallerPath' in workflow and '-SelfTest' in workflow
     assert 'dist/AETHER-Setup.exe' in workflow and 'dist/AETHER-Source.zip' in workflow
     assert 'name: aether-windows-setup' in workflow
-    assert 'name: jarvis-android-debug-apk' in workflow
+    assert 'name: aether-android-debug-apk' in workflow
     assert 'SHA256SUMS.txt' in workflow and 'SOURCE-COMMIT.txt' in workflow
     assert 'retention-days: 14' in workflow
     assert '& .\\dist\\AETHER-Setup.exe' not in workflow

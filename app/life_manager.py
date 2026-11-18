@@ -33,7 +33,7 @@ def _now() -> str:
 
 @contextmanager
 def _db():
-    path = Path(Settings().jarvis_db_path)
+    path = Path(Settings().aether_db_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(path, timeout=10)
     db.row_factory = sqlite3.Row

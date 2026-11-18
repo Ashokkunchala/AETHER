@@ -6,11 +6,11 @@ A multi-provider personal assistant prototype for Indian English and Telugu, sup
 
 ## One-file Windows installer
 
-Download [INSTALL-JARVIS.ps1](INSTALL-JARVIS.ps1) from this branch, open PowerShell in its download folder, and run:
+Download [INSTALL-AETHER.ps1](INSTALL-AETHER.ps1) from this branch, open PowerShell in its download folder, and run:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
-.\INSTALL-JARVIS.ps1
+.\INSTALL-AETHER.ps1
 ```
 
 The installer downloads this branch, installs Python (using winget if needed), installs dependencies, asks for your Gemini key (OpenRouter/Groq are optional), creates local secrets, and registers a Windows sign-in task. After sign-in it starts the local backend, opens the browser UI, and opens the terminal assistant. It does not run as administrator or expose the server beyond localhost.
@@ -21,17 +21,17 @@ Build it once on any Windows 10/11 machine — the build is fully offline and us
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
-.\scripts\build-installer-exe.ps1 -SelfTest     # -> dist\JARVIS-Setup.exe
+.\scripts\build-installer-exe.ps1 -SelfTest     # -> dist\AETHER-Setup.exe
 ```
 
-Then double-click **`dist\JARVIS-Setup.exe`** — it embeds `INSTALL-JARVIS.ps1`, opens one console window, and runs the exact same installer flow described above (Python check/install, dependency install, API-key prompt, sign-in task, `jarvis doctor`, start). The window stays open at the end so you can read the result.
+Then double-click **`dist\AETHER-Setup.exe`** — it embeds `INSTALL-AETHER.ps1`, opens one console window, and runs the exact same installer flow described above (Python check/install, dependency install, API-key prompt, sign-in task, `aether doctor`, start). The window stays open at the end so you can read the result.
 
 - ~62 KB, self-contained: copy it to another Windows machine and double-click — nothing else to ship.
 - The exe installs the branch **published on GitHub**, so push your commits before sharing it.
 - It is unsigned: SmartScreen may show "Windows protected your PC" — click **More info > Run anyway**.
 - Rebuild any time with `.\scripts\build-installer-exe.ps1` (add `-OutFile` to choose the destination, e.g. the Desktop).
 
-In the browser, enter your generated `JARVIS_API_TOKEN` from the installed `.env` file once. If you choose **Remember device token on this browser**, it is stored in browser local storage for convenience; this is less secure than session-only entry. Then click **Start Live Voice** and grant microphone permission. Voice is not silently activated on boot; the explicit start control is intentional.
+In the browser, enter your generated `AETHER_API_TOKEN` from the installed `.env` file once. If you choose **Remember device token on this browser**, it is stored in browser local storage for convenience; this is less secure than session-only entry. Then click **Start Live Voice** and grant microphone permission. Voice is not silently activated on boot; the explicit start control is intentional.
 
 **Android is a separate APK**, not installable by the Windows script. Build it on this machine with `.\scripts\setup-android.ps1` (add `-Install` to push it to a USB-connected phone), or get the debug APK from the successful [Android build artifact](https://github.com/Ashokkunchala/AETHER/actions). Install it on Android and configure your private HTTPS backend. Android 14 restricts starting microphone foreground services from boot, so the phone app cannot safely promise automatic always-listening voice after reboot; launch the app and start voice explicitly.
 
@@ -41,8 +41,8 @@ Double-click entry points in the repository root. Each one sets the process exec
 
 | File | Does | Result |
 | --- | --- | --- |
-| `INSTALL_JARVIS.bat` | **Install + run (Windows)** | Creates `.venv`, installs dependencies, writes `.env` with random secrets, asks for your Gemini key, runs `jarvis doctor`, then offers to start the backend on `http://127.0.0.1:8000`. |
-| `START-JARVIS.bat` | **Run (Windows)** | Starts the local HTTP backend + browser UI (already installed). |
+| `INSTALL_AETHER.bat` | **Install + run (Windows)** | Creates `.venv`, installs dependencies, writes `.env` with random secrets, asks for your Gemini key, runs `aether doctor`, then offers to start the backend on `http://127.0.0.1:8000`. |
+| `START-AETHER.bat` | **Run (Windows)** | Starts the local HTTP backend + browser UI (already installed). |
 | `SETUP-MOBILE.bat` | **Install + run (Windows + Android)** | Installs the Python environment if missing, mints the LAN HTTPS certificate, builds `app-debug.apk` (optionally installs it over USB), opens the firewall port for TCP 8443, prints the phone-side steps without exposing secrets, and starts the HTTPS backend. |
 | `START-MOBILE.bat` | **Run (phone backend)** | Serves `https://<LAN-IP>:8443` for the Android app (already installed). Keep the window open; Ctrl+C stops it. |
 
@@ -50,8 +50,8 @@ Equivalent PowerShell (same behaviour, scriptable):
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
-.\scripts\setup-windows.ps1    # = INSTALL_JARVIS.bat
-.\scripts\start-windows.ps1    # = START-JARVIS.bat
+.\scripts\setup-windows.ps1    # = INSTALL_AETHER.bat
+.\scripts\start-windows.ps1    # = START-AETHER.bat
 .\scripts\setup-mobile.ps1     # = SETUP-MOBILE.bat   (add -Install for USB)
 .\scripts\start-mobile.ps1     # = START-MOBILE.bat
 ```
@@ -62,7 +62,7 @@ Prove the phone-facing stack end to end (boots uvicorn with TLS, verifies the ce
 .\scripts\https-smoke-test.ps1
 ```
 
-The app never sends cleartext: `android/app/src/main/res/xml/network_security_config.xml` disables HTTP and opts in to user-installed CA certificates, so the phone trusts your laptop's self-signed certificate after you install `data\tls\jarvis-ca.crt` once. Full phone setup: [android/README.md](android/README.md).
+The app never sends cleartext: `android/app/src/main/res/xml/network_security_config.xml` disables HTTP and opts in to user-installed CA certificates, so the phone trusts your laptop's self-signed certificate after you install `data\tls\aether-ca.crt` once. Full phone setup: [android/README.md](android/README.md).
 
 ## Optional local Docker deployment
 
@@ -78,7 +78,7 @@ Create and configure the local `.env` first (for example with
 docker compose build
 docker compose up -d
 docker compose ps
-docker compose logs -f jarvis
+docker compose logs -f aether
 docker compose down
 ```
 
@@ -95,7 +95,7 @@ The cinematic terminal command centre is a separate, on-demand interface. It doe
 
 ```powershell
 # Open the command centre in the current terminal
-.\.venv\Scripts\python.exe jarvis_cli.py command-center
+.\.venv\Scripts\python.exe aether_cli.py command-center
 
 # Register the per-user global shortcut (default: Ctrl+Alt+A)
 .\scripts\install-global-hotkey.ps1
@@ -129,29 +129,29 @@ All life-manager and integration API routes require the authenticated device tok
 
 ### Terminal clients
 
-There are two independent terminal chat clients. The default one needs **any one** of `GEMINI_API_KEY`, `OPENROUTER_API_KEY` or `GROQ_API_KEY` — it drives the same local tool-calling brain the browser uses, with no backend process, and automatically falls back through every configured provider (`JARVIS_AI_PROVIDER` controls the order, default `auto`). The floating robot animation itself needs no key. Press `v` in the robot (or run `jarvis call`) to add a live Gemini voice call, which needs `GEMINI_API_KEY`.
+There are two independent terminal chat clients. The default one needs **any one** of `GEMINI_API_KEY`, `OPENROUTER_API_KEY` or `GROQ_API_KEY` — it drives the same local tool-calling brain the browser uses, with no backend process, and automatically falls back through every configured provider (`AETHER_AI_PROVIDER` controls the order, default `auto`). The floating robot animation itself needs no key. Press `v` in the robot (or run `aether call`) to add a live Gemini voice call, which needs `GEMINI_API_KEY`.
 
 ```powershell
 # Floating robot (the default command) with laptop CPU/RAM/battery/disk gauges.
-.\.venv\Scripts\python.exe jarvis_cli.py
+.\.venv\Scripts\python.exe aether_cli.py
 
-# Live voice call: speak immediately, no "Hey JARVIS" wake word.
-.\.venv\Scripts\python.exe jarvis_cli.py call
+# Live voice call: speak immediately, no "Hey AETHER" wake word.
+.\.venv\Scripts\python.exe aether_cli.py call
 
 # One-shot or interactive chat in the current pane (streams as it thinks).
-.\.venv\Scripts\python.exe jarvis_cli.py ask "what's my battery level?"
+.\.venv\Scripts\python.exe aether_cli.py ask "what's my battery level?"
 
 # Direct device control, no model required.
-.\.venv\Scripts\python.exe jarvis_cli.py laptop status
-.\.venv\Scripts\python.exe jarvis_cli.py android devices
+.\.venv\Scripts\python.exe aether_cli.py laptop status
+.\.venv\Scripts\python.exe aether_cli.py android devices
 
 # List the 137 registered tools by category.
-.\.venv\Scripts\python.exe jarvis_cli.py tools
+.\.venv\Scripts\python.exe aether_cli.py tools
 ```
 
-To launch the robot automatically at sign-in, run `.\scripts\install-jarvis-startup.ps1` (add `-Call` to start a live call at sign-in, or `-Remove` to delete the shortcut). The microphone stays closed in the default mode until you press `v`.
+To launch the robot automatically at sign-in, run `.\scripts\install-aether-startup.ps1` (add `-Call` to start a live call at sign-in, or `-Remove` to delete the shortcut). The microphone stays closed in the default mode until you press `v`.
 
-`jarvis_cli.py chat` is the **backend** client: it requires `JARVIS_API_TOKEN` and a running `jarvis_cli.py serve`, and streams from the authenticated HTTP API. Use it when you want the browser's memory/reminder/coaching context in the terminal. Both clients read `JARVIS_API_URL` if set and only send a token to HTTPS endpoints or localhost.
+`aether_cli.py chat` is the **backend** client: it requires `AETHER_API_TOKEN` and a running `aether_cli.py serve`, and streams from the authenticated HTTP API. Use it when you want the browser's memory/reminder/coaching context in the terminal. Both clients read `AETHER_API_URL` if set and only send a token to HTTPS endpoints or localhost.
 
 - [Master Codex implementation brief](docs/CODEX-IMPLEMENTATION-PROMPT.md) — product vision, roadmap, repository rules, testing, and delivery requirements
 - [Windows setup](docs/SETUP-WINDOWS.md)
@@ -170,19 +170,19 @@ To launch the robot automatically at sign-in, run `.\scripts\install-jarvis-star
 
 ## Implemented in code
 
-### Personal-assistant core (`jarvis/`)
+### Personal-assistant core (`aether/`)
 
-- **Local Gemini tool-calling brain** (`jarvis/core/brain.py`): streams replies, dispatches to registered tools, retries with a model fallback chain, and enforces per-tool confirmation. Shared by the CLI chat and the WebSocket endpoint.
-- **Tool registry** (`jarvis/tools/`): 137 typed tools across 20 categories (system, apps, audio, window, power, screen, input, files, process, clipboard, network, shell, notify, and six `android_*` groups) with JSON schemas for Gemini function-calling and schema validation.
-- **Laptop control** (`jarvis/control/`): apps, audio, windows, power, screen capture, input, files, processes, clipboard, network, guarded shell, notifications, hardware info.
-- **Android control over ADB** (`jarvis/android_bridge/`): device state, apps, input, screen, files, SMS/calls/contacts, notifications, settings, location, wireless debugging, plus automatic ADB provisioning (`jarvis android setup`).
-- **Floating robot terminal** (`jarvis/terminal/robot.py`): a small robot that hovers, blinks and flickers its thruster, with a live clock, rotating status line and a cached CPU/RAM/battery/disk gauge. The animation is standard-library only; `psutil` is optional for the gauge. Press `v` to dial a live Gemini voice call through `jarvis/terminal/voice.py` (background thread, no wake word) or run `jarvis call`. The audio stack is imported only when a call starts. (`jarvis` with no arguments launches it; `jarvis tui` remains an alias.)
+- **Local Gemini tool-calling brain** (`aether/core/brain.py`): streams replies, dispatches to registered tools, retries with a model fallback chain, and enforces per-tool confirmation. Shared by the CLI chat and the WebSocket endpoint.
+- **Tool registry** (`aether/tools/`): 137 typed tools across 20 categories (system, apps, audio, window, power, screen, input, files, process, clipboard, network, shell, notify, and six `android_*` groups) with JSON schemas for Gemini function-calling and schema validation.
+- **Laptop control** (`aether/control/`): apps, audio, windows, power, screen capture, input, files, processes, clipboard, network, guarded shell, notifications, hardware info.
+- **Android control over ADB** (`aether/android_bridge/`): device state, apps, input, screen, files, SMS/calls/contacts, notifications, settings, location, wireless debugging, plus automatic ADB provisioning (`aether android setup`).
+- **Floating robot terminal** (`aether/terminal/robot.py`): a small robot that hovers, blinks and flickers its thruster, with a live clock, rotating status line and a cached CPU/RAM/battery/disk gauge. The animation is standard-library only; `psutil` is optional for the gauge. Press `v` to dial a live Gemini voice call through `aether/terminal/voice.py` (background thread, no wake word) or run `aether call`. The audio stack is imported only when a call starts. (`aether` with no arguments launches it; `aether tui` remains an alias.)
 - **Realtime HTTP/WebSocket API** (`app/ws.py`): JSON protocol carrying the same streamed events plus interactive tool confirmation.
 
 ### Backend and clients
 
 - FastAPI chat backend with Gemini, OpenRouter, and Groq text providers; choose a preferred provider or use automatic fallback. Provider keys stay on the server. Real-time audio remains on Gemini Live.
-- Live authenticated terminal chat (`python jarvis_cli.py chat`) against the HTTP backend, plus a streaming local chat (`python jarvis_cli.py ask`) and a floating robot animation (`python jarvis_cli.py robot`). Session context is held in process memory.
+- Live authenticated terminal chat (`python aether_cli.py chat`) against the HTTP backend, plus a streaming local chat (`python aether_cli.py ask`) and a floating robot animation (`python aether_cli.py robot`). Session context is held in process memory.
 - Adaptive personality instructions and English/Telugu response preference.
 - Browser speech input (only when manually activated and supported) and browser text-to-speech.
 - Optional browser-local conversation history and local checklist.
@@ -197,7 +197,7 @@ To launch the robot automatically at sign-in, run `.\scripts\install-jarvis-star
 ## Major gaps
 
 - The Android app can pair a per-device token using the master token, revoke that token after confirmation, send authenticated requests over HTTPS, and encrypt the device token/backend URL/device ID with Android Keystore. Its latest changes still need an Android build and physical-device verification.
-- The Windows companion agent (`windows_agent/`) remains restricted to allow-listed HTTPS URL opening. The Python laptop-control suite (`jarvis/control/`) is broader by design and guards destructive paths, critical processes, and blocked shell patterns.
+- The Windows companion agent (`windows_agent/`) remains restricted to allow-listed HTTPS URL opening. The Python laptop-control suite (`aether/control/`) is broader by design and guards destructive paths, critical processes, and blocked shell patterns.
 - Android control requires a physical device with USB debugging (or wireless debugging); ADB is provisioned on demand, and most actions have only been exercised in degraded "no device connected" mode here.
 - Shell execution is allow/confirm/deny classified, not sandboxed; the model cannot run blocked patterns, but a confirmed command runs with your full user rights.
 - Reminder notification delivery is experimental: Windows uses a local toast worker and Android uses opt-in WorkManager polling with a 15-minute minimum interval. Neither is a guaranteed alarm. Recurrence advances when the user completes an occurrence.
@@ -218,9 +218,9 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 notepad .env
 ```
 
-The setup script verifies Python 3.11+, creates the virtual environment, installs dependencies, generates the local secrets in `.env`, and finishes with a `jarvis doctor` health check.
+The setup script verifies Python 3.11+, creates the virtual environment, installs dependencies, generates the local secrets in `.env`, and finishes with a `aether doctor` health check.
 
-In the local `.env`, set at least one AI provider key (`GEMINI_API_KEY`, `OPENROUTER_API_KEY` or `GROQ_API_KEY` — optionally set `JARVIS_AI_PROVIDER` to `gemini`, `openrouter`, `groq` or `auto` to pick the order) and replace the example `JARVIS_API_TOKEN` with a random secret generated using:
+In the local `.env`, set at least one AI provider key (`GEMINI_API_KEY`, `OPENROUTER_API_KEY` or `GROQ_API_KEY` — optionally set `AETHER_AI_PROVIDER` to `gemini`, `openrouter`, `groq` or `auto` to pick the order) and replace the example `AETHER_API_TOKEN` with a random secret generated using:
 
 ```powershell
 python -c "import secrets; print(secrets.token_urlsafe(48))"
@@ -237,13 +237,13 @@ Open [http://127.0.0.1:8000](http://127.0.0.1:8000). Open the responsive [AETHER
 The local assistant (robot, `ask`, laptop/android control) works without starting the backend — only one provider key (`GEMINI_API_KEY`, `OPENROUTER_API_KEY` or `GROQ_API_KEY`) is required:
 
 ```powershell
-.\.venv\Scripts\python.exe jarvis_cli.py           # floating robot (press v to call)
-.\.venv\Scripts\python.exe jarvis_cli.py call      # live voice call, no wake word
-.\.venv\Scripts\python.exe jarvis_cli.py ask "set volume to 30"
-.\.venv\Scripts\python.exe jarvis_cli.py laptop status
+.\.venv\Scripts\python.exe aether_cli.py           # floating robot (press v to call)
+.\.venv\Scripts\python.exe aether_cli.py call      # live voice call, no wake word
+.\.venv\Scripts\python.exe aether_cli.py ask "set volume to 30"
+.\.venv\Scripts\python.exe aether_cli.py laptop status
 ```
 
-`jarvis_cli.py serve` boots the HTTP + WebSocket backend (`/`, `/ws`, personal-data APIs).
+`aether_cli.py serve` boots the HTTP + WebSocket backend (`/`, `/ws`, personal-data APIs).
 
 Run tests:
 
@@ -275,13 +275,13 @@ See [docs/NEXT-MILESTONES.md](docs/NEXT-MILESTONES.md) for the staged acceptance
 ## Naming and compatibility
 
 The assistant is **AETHER**. The repository is now
-[ashokkunchala/AETHER](https://github.com/Ashokkunchala/AETHER). Internal `jarvis`
+[ashokkunchala/AETHER](https://github.com/Ashokkunchala/AETHER). Internal `aether`
 commands/packages, configuration variable names, stored settings, installer filenames
 and Windows scheduled-task identities remain unchanged so existing installations keep
 working. Product display names are being updated without moving saved data.
 
 The browser wake phrase is **Hey Aether**. The separate local neural wake detector still
-uses the legacy `jarvis` detector selection, with its original spoken trigger
-"hey jarvis". Renaming the assistant does not train a new wake model. Use `jarvis call`
+uses the built-in pre-trained detector, with its original spoken trigger
+(not "Hey AETHER"). Renaming the assistant does not train a new wake model. Use `aether call`
 for immediate voice without a wake word. No custom AETHER neural model is bundled or
 claimed. See [companion styles and memory/voice boundaries](docs/COMPANION-STYLE.md).

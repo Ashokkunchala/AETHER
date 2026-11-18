@@ -10,16 +10,16 @@ The Android app can optionally poll `/api/reminders/due` using WorkManager. Enab
 
 ## Windows
 
-The optional Windows worker polls `/api/reminders/due` and displays a Windows toast notification using `winotify`. It runs only while its terminal/process is running. The worker saves delivery attempts in `data/reminder-notifier-state.json` by default, so restarting it does not normally repeat a successfully delivered toast. If a toast call fails, it retries with exponential backoff (30 seconds up to 15 minutes). Delivery and retry messages are printed in the worker terminal. The state file is local and can be moved with `JARVIS_REMINDER_STATE_PATH`.
+The optional Windows worker polls `/api/reminders/due` and displays a Windows toast notification using `winotify`. It runs only while its terminal/process is running. The worker saves delivery attempts in `data/reminder-notifier-state.json` by default, so restarting it does not normally repeat a successfully delivered toast. If a toast call fails, it retries with exponential backoff (30 seconds up to 15 minutes). Delivery and retry messages are printed in the worker terminal. The state file is local and can be moved with `AETHER_REMINDER_STATE_PATH`.
 
 ## Setup
 
-1. Start the local backend with `HOST=127.0.0.1` and set a random `JARVIS_API_TOKEN` (32+ characters) in `.env`.
+1. Start the local backend with `HOST=127.0.0.1` and set a random `AETHER_API_TOKEN` (32+ characters) in `.env`.
 2. In a second PowerShell terminal, activate the project's virtual environment and set the same token for the worker:
    ```powershell
    .\.venv\Scripts\Activate.ps1
    python -m pip install -r requirements-windows-agent.txt
-   $env:JARVIS_API_TOKEN = "paste-the-same-local-token-here"
+   $env:AETHER_API_TOKEN = "paste-the-same-local-token-here"
    python -m windows_agent.reminder_notifier
    ```
 3. Keep the worker running. Allow notifications for Windows/Python if prompted. Watch its terminal for delivered, retrying, or backend connection status messages.

@@ -13,9 +13,9 @@ pytestmark = pytest.mark.usefixtures("manual_scheduler")
 
 
 def setup_client(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "aether.sqlite3"))
-    monkeypatch.setattr(integrations.settings, "jarvis_db_path", str(tmp_path / "aether.sqlite3"))
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "aether.sqlite3"))
+    monkeypatch.setattr(integrations.settings, "aether_db_path", str(tmp_path / "aether.sqlite3"))
     monkeypatch.setattr(integrations.settings, "secret_key", "test-secret-key-that-is-at-least-32-characters")
     monkeypatch.setattr(integrations.settings, "google_oauth_client_id", "")
     monkeypatch.setattr(integrations.settings, "google_oauth_client_secret", "")

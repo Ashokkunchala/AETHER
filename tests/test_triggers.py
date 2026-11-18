@@ -5,15 +5,15 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from jarvis.tools.plan_resume import plan_status, save_plan
-from jarvis.tools.registry import Risk, Tool, ToolRegistry
-from jarvis.triggers import TriggerRunner, TriggerStore, _utcnow
+from aether.tools.plan_resume import plan_status, save_plan
+from aether.tools.registry import Risk, Tool, ToolRegistry
+from aether.triggers import TriggerRunner, TriggerStore, _utcnow
 
 
 @pytest.fixture(autouse=True)
 def isolated_stores(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "runtime.sqlite3"))
-    monkeypatch.setenv("JARVIS_TRIGGERS_DB", str(tmp_path / "triggers.db"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "runtime.sqlite3"))
+    monkeypatch.setenv("AETHER_TRIGGERS_DB", str(tmp_path / "triggers.db"))
 
 
 def _registry(calls=None):
@@ -36,7 +36,7 @@ def _runner(registry, clock, now_fn):
 
 
 def _event(category, **fields):
-    from jarvis.telemetry import record_runtime_event
+    from aether.telemetry import record_runtime_event
     return record_runtime_event(category, **fields)
 
 
@@ -101,7 +101,7 @@ def test_matching_event_runs_plan_once_and_records_trigger():
     asyncio.run(runner.tick())
     assert calls == ["probe"]
 
-    from jarvis.telemetry import runtime_events
+    from aether.telemetry import runtime_events
     fired = [e for e in runtime_events(limit=50)["events"]
              if e.get("task_id") == "trigger-r1" and e.get("action") == "trigger_fire"]
     assert fired and fired[-1]["success"] is True
@@ -178,7 +178,7 @@ def test_failing_plan_records_failure_and_does_not_retry_same_events():
     asyncio.run(runner.tick())
     # The failure events the run emitted never re-trigger the rule.
     assert len(calls) == 1
-    from jarvis.telemetry import runtime_events
+    from aether.telemetry import runtime_events
     fired = [e for e in runtime_events(limit=50)["events"]
              if e.get("task_id") == "trigger-r1" and e.get("action") == "trigger_fire"]
     assert fired and fired[-1]["success"] is False

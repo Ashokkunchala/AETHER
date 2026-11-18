@@ -41,7 +41,7 @@ Complete/edit/delete a created prompt using the existing backend reminder contro
 
 ## Local data controls
 
-The journal defaults to `~/.jarvis/wellness.db`; `AETHER_WELLNESS_DB` can select its local database. New files use owner-only POSIX mode, while Windows uses inherited user-folder permissions that need device review. This is not encryption, a sandbox or a guarantee against another process running as the same user. Meal/food notes, dates and habit/sleep patterns can be private. No AETHER provider upload, wearable read, tracking pixel or external media request is added by this module. Existing backup tools might include files you explicitly select.
+The journal defaults to `~/.aether/wellness.db`; `AETHER_WELLNESS_DB` can select its local database. New files use owner-only POSIX mode, while Windows uses inherited user-folder permissions that need device review. This is not encryption, a sandbox or a guarantee against another process running as the same user. Meal/food notes, dates and habit/sleep patterns can be private. No AETHER provider upload, wearable read, tracking pixel or external media request is added by this module. Existing backup tools might include files you explicitly select.
 
 `wellness_erase_day` requires the exact phrase `ERASE WELLNESS DAY YYYY-MM-DD` and the existing high-risk confirmation boundary. It deletes that date's new journal activity/sleep/plan rows only. It does not erase backups, securely wipe SQLite pages, alter older habit/workout stores or cancel backend reminders. Stop blocks local writes and scheduled-prompt creation through the registry. Read-only reports remain available for review.
 

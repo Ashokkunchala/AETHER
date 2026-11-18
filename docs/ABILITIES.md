@@ -1,7 +1,7 @@
 # AETHER Abilities Blueprint
 
 Source: the shared planning conversation (2026-11-13) where the full ability
-set for Jarvis-Personal-AI was defined. AETHER is one unified intelligence with
+set for AETHER was defined. AETHER is one unified intelligence with
 four identities - Personal Assistant, Friend, Mentor, and DevOps Professional -
 across the Windows laptop and the Android phone.
 
@@ -124,7 +124,7 @@ Laptop control, Mobile control, Automation, Memory, Security, Settings.
 - Deployment: hybrid - local agents + cloud AI
 - Autonomy: automatic safe tasks; approval for sensitive actions
 - Voice: Indian English + Telugu
-- Scope: complete AETHER platform on branch `jarvis-cinematic-local-voice`
+- Scope: complete AETHER platform on branch `aether-cinematic-local-voice`
 - Milestones: P0 stabilise -> P1 security/approval -> P2 orchestrator ->
   P3 personal + friend -> P4 mentor -> P5 DevOps agent ->
   P6 Windows + Android integration -> P7 hybrid hardening
@@ -150,7 +150,7 @@ survives restart, tracks the latest checkpoint result and attempt count,
 and lists weak areas and overdue unpassed sessions. Replanning updates the
 selected topics without deleting other sessions.
 
-Data stays in `~/.jarvis/mentor.db` (override with `JARVIS_MENTOR_DB`). No lab
+Data stays in `~/.aether/mentor.db` (override with `AETHER_MENTOR_DB`). No lab
 commands are executed, no calendar event is created, and no notification is
 sent. These are starter checkpoints, not complete courses, coding evaluation,
 certification preparation or evidence of mastery. Advanced lessons and coding
@@ -205,7 +205,7 @@ and `proactive_acknowledge(alert_id)` marks an alert reviewed. Events appear
 on threshold crossings and recovery, not on every poll. Two percentage points
 of hysteresis reduce boundary noise. State persists across backend restarts;
 history keeps the newest 500 events, with the newest 100 shown per read.
-Set `JARVIS_PROACTIVE_DB` to override `~/.jarvis/proactive.db`.
+Set `AETHER_PROACTIVE_DB` to override `~/.aether/proactive.db`.
 
 The existing backend scheduler now also checks saved daily briefing jobs
 roughly once a minute. This closes the gap between saving a briefing schedule
@@ -236,10 +236,10 @@ download/upload thresholds (KB/s, 0 disables) feed the same history using
 aggregate counter rates.
 
 These checks do not send desktop notifications, phone pushes, messages or
-email; the inbox must be reviewed through Jarvis. They do not stop processes,
+email; the inbox must be reviewed through AETHER. They do not stop processes,
 clean disks, change system settings, or continue when the backend is stopped.
 Briefing catch-up follows each saved job's existing policy. Terminal-only
-sessions still need the backend or the manual `jarvis briefing run-due` command.
+sessions still need the backend or the manual `aether briefing run-due` command.
 
 ## Task correction, priority and postponement
 

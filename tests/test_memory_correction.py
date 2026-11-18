@@ -5,14 +5,14 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from app.personal_data import MemoryCreate, _connect, create_memory
-from jarvis.memory.controls import correct_memory, review_memory_duplicates, search_memories
-from jarvis.tools.builtin_tools import build_registry
+from aether.memory.controls import correct_memory, review_memory_duplicates, search_memories
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.fixture(autouse=True)
 def isolated(monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'memory.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'memory.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     with _connect():
         pass
 
@@ -101,7 +101,7 @@ def test_review_is_bounded_and_flags_partial_results():
 
 
 def test_new_tools_respect_existing_emergency_stop():
-    from jarvis.security import SecurityStore
+    from aether.security import SecurityStore
     row = create_memory(MemoryCreate(text='old'))
     registry = build_registry(force=True)
     SecurityStore().set_stop(True)

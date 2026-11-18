@@ -2,16 +2,16 @@ from __future__ import annotations
 
 import pytest
 
-from jarvis.telemetry import provider_health_summary, record_runtime_event, runtime_events
+from aether.telemetry import provider_health_summary, record_runtime_event, runtime_events
 
 
 @pytest.fixture(autouse=True)
 def isolated_runtime_history(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "runtime.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "runtime.sqlite3"))
 
 
 def test_history_survives_loss_of_process_buffer(monkeypatch, tmp_path):
-    from jarvis import telemetry
+    from aether import telemetry
 
     event_id = record_runtime_event("task", action="task_end", success=True)
     telemetry._events.clear()

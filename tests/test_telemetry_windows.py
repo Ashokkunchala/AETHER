@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from jarvis.devops.telemetry_windows import compare_telemetry_windows
+from aether.devops.telemetry_windows import compare_telemetry_windows
 
 
 def metric(**kw):
@@ -87,9 +87,9 @@ def test_no_write_or_execute(tmp_path,monkeypatch):
 
 
 def test_safe_registry_after_stop(tmp_path,monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     registry=build_registry(force=True);SecurityStore().set_stop(True)
     result=asyncio.run(registry.execute('compare_telemetry_windows',{'schema_version':'aether.telemetry-windows.v1','metric_windows':[metric()],'trace_windows':[trace()],'as_of':'2020-02-01T00:00:00Z'}))
     assert result.ok and not result.data['monitor_started']

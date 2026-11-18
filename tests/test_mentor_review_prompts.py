@@ -4,15 +4,15 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from jarvis.mentor import MentorStore
-from jarvis.mentor_deep import DeepMentor
+from aether.mentor import MentorStore
+from aether.mentor_deep import DeepMentor
 
 
 @pytest.fixture
 def stores(tmp_path, monkeypatch):
-    monkeypatch.setenv("JARVIS_MENTOR_DB", str(tmp_path / "mentor.db"))
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "backend.db"))
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "security.db"))
+    monkeypatch.setenv("AETHER_MENTOR_DB", str(tmp_path / "mentor.db"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "backend.db"))
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "security.db"))
     from app.personal_data import _connect
     with _connect():
         pass
@@ -81,15 +81,15 @@ def test_due_time_requires_exact_bounded_future_offset(stores, due_at):
 
 def test_missing_backend_store_is_not_initialized(stores, tmp_path, monkeypatch):
     path = tmp_path / "missing-backend.db"
-    monkeypatch.setenv("JARVIS_DB_PATH", str(path))
+    monkeypatch.setenv("AETHER_DB_PATH", str(path))
     with pytest.raises(ValueError):
         stores.schedule_review_prompt("python-1", future())
     assert not path.exists()
 
 
 def test_registry_requires_fresh_confirmation_and_stop(stores):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
     registry = build_registry(force=True)
     assert len(registry.names("mentor")) == 26
     async def run():

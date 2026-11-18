@@ -24,9 +24,9 @@ app.add_middleware(
 
 
 def authorize(authorization: str | None = Header(default=None)):
-    expected = os.getenv("JARVIS_AGENT_TOKEN", "")
+    expected = os.getenv("AETHER_AGENT_TOKEN", "")
     if len(expected) < 32:
-        raise HTTPException(status_code=503, detail="Configure JARVIS_AGENT_TOKEN (32+ characters).")
+        raise HTTPException(status_code=503, detail="Configure AETHER_AGENT_TOKEN (32+ characters).")
     supplied = authorization.removeprefix("Bearer ").strip() if authorization else ""
     if not hmac.compare_digest(supplied, expected):
         raise HTTPException(status_code=401, detail="Missing or invalid agent token.")
@@ -43,7 +43,7 @@ class ApprovedOpenUrlRequest(OpenUrlRequest):
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "agent": "jarvis-windows"}
+    return {"status": "ok", "agent": "aether-windows"}
 
 
 @app.get("/v1/status")

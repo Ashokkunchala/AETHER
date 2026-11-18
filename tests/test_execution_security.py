@@ -6,8 +6,8 @@ from unittest.mock import patch
 
 import pytest
 
-from jarvis.security import SecurityStore
-from jarvis.tools.registry import Risk, ToolRegistry
+from aether.security import SecurityStore
+from aether.tools.registry import Risk, ToolRegistry
 
 
 @pytest.fixture
@@ -27,10 +27,10 @@ def test_one_time_scope_and_task_binding(store):
 
 
 def test_expiry_after_approval(store):
-    with patch('jarvis.security.time.time', return_value=1000):
+    with patch('aether.security.time.time', return_value=1000):
         key = store.request('apply', {}, 'task', ttl=1)
         store.decide(key, True)
-    with patch('jarvis.security.time.time', return_value=1002), pytest.raises(ValueError):
+    with patch('aether.security.time.time', return_value=1002), pytest.raises(ValueError):
         store.consume(key, 'apply', {}, 'task')
 
 

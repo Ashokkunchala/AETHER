@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from jarvis.devops.postmortem import draft_postmortem
+from aether.devops.postmortem import draft_postmortem
 
 
 def test_supplied_cause_not_verification_and_draft_carries_notice():
@@ -52,9 +52,9 @@ def test_no_files_or_execution(tmp_path,monkeypatch):
 
 
 def test_safe_registry_after_stop(tmp_path,monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     registry=build_registry(force=True);SecurityStore().set_stop(True)
     result=asyncio.run(registry.execute('draft_postmortem',{'title':'Draft'}))
     assert result.ok and not result.data['shared']

@@ -1,4 +1,4 @@
-from jarvis.terminal.command_center import render_dashboard
+from aether.terminal.command_center import render_dashboard
 
 
 def test_dashboard_contains_expected_sections():

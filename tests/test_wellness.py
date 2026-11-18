@@ -3,15 +3,15 @@ from datetime import UTC, datetime
 
 import pytest
 
-from jarvis import wellness
-from jarvis.personal import PersonalStore
-from jarvis.tools.builtin_tools import build_registry
+from aether import wellness
+from aether.personal import PersonalStore
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.fixture
 def stores(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'backend.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'backend.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     personal = PersonalStore(tmp_path / 'personal.db')
     monkeypatch.setattr(wellness, '_habits', personal._connect)
     monkeypatch.setattr(wellness, '_now', lambda: datetime(2026, 11, 13, 12, tzinfo=UTC))

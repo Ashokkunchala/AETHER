@@ -1,7 +1,7 @@
 """Offline source/metadata checks only. Never query/control the host laptop."""
 from pathlib import Path
 
-from jarvis.tools.builtin_tools import build_registry
+from aether.tools.builtin_tools import build_registry
 from windows_agent.agent import app
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -19,7 +19,7 @@ def test_source_contract_does_not_claim_remote_enforcement():
 
 
 def test_registry_sensitive_execution_gates_without_controller_calls(tmp_path,monkeypatch):
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     registry=build_registry(force=True)
     for name in ['run_shell','kill_process','start_process','close_app']:
         assert registry.get(name).confirm_required
@@ -30,7 +30,7 @@ def test_registry_sensitive_execution_gates_without_controller_calls(tmp_path,mo
 
 
 def test_stop_contract_does_not_claim_thread_cancellation():
-    source=(ROOT/'jarvis/tools/orchestrator.py').read_text()
+    source=(ROOT/'aether/tools/orchestrator.py').read_text()
     assert 'Never report such an action as stopped by timeout.' in source
     text=(ROOT/'docs/WINDOWS-CAPABILITY-CONTRACT.md').read_text()
     assert 'Does not guarantee cancellation' in text

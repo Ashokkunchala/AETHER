@@ -5,8 +5,8 @@ import json
 
 import pytest
 
-from jarvis.control.approved_apps import launch_approved_app, preview_approved_app
-from jarvis.tools.builtin_tools import build_registry
+from aether.control.approved_apps import launch_approved_app, preview_approved_app
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.fixture
@@ -15,8 +15,8 @@ def setup(tmp_path,monkeypatch):
     digest=hashlib.sha256(path.read_bytes()).hexdigest()
     config=tmp_path/'approved.json'
     doc={'version':1,'apps':{'editor':{'executable':str(path),'sha256':digest}}};config.write_text(json.dumps(doc))
-    monkeypatch.setenv('JARVIS_APPROVED_APPS_FILE',str(config))
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    monkeypatch.setenv('AETHER_APPROVED_APPS_FILE',str(config))
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     calls=[]
     import subprocess
     def fake(args,**kwargs):
@@ -35,7 +35,7 @@ def test_exact_local_entry_no_shell_fallback_or_args(setup):
 
 def test_no_default_allowlist(setup,monkeypatch,tmp_path):
     args,_,_,calls,_=setup
-    monkeypatch.setenv('JARVIS_APPROVED_APPS_FILE',str(tmp_path/'missing.json'))
+    monkeypatch.setenv('AETHER_APPROVED_APPS_FILE',str(tmp_path/'missing.json'))
     with pytest.raises(ValueError):launch_approved_app(**args)
     assert not calls
 
@@ -93,7 +93,7 @@ def test_config_redirect_during_confirmation_cannot_change_frozen_target(setup,t
 
 
 def test_emergency_stop_and_missing_fields_fail_closed(setup):
-    from jarvis.security import SecurityStore
+    from aether.security import SecurityStore
     args,_,_,calls,registry=setup
     async def yes(*a):return True
     assert not asyncio.run(registry.execute('open_app',{'app_name':'editor'},confirm=yes)).ok
@@ -102,8 +102,8 @@ def test_emergency_stop_and_missing_fields_fail_closed(setup):
 
 
 def test_legacy_direct_launch_and_voice_refuse_without_os_calls():
-    from jarvis.control.apps import launch_app
-    from jarvis.core.agent.voice_tools import _open_app
+    from aether.control.apps import launch_app
+    from aether.core.agent.voice_tools import _open_app
     assert not launch_app('notepad')['success']
     assert not launch_app('cmd /c something')['success']
     class Fake:

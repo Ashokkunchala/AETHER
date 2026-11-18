@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from fastapi import Header, HTTPException
 
 from app.core.ws_sessions import SessionIdentity
-from jarvis.security import SecurityStore
+from aether.security import SecurityStore
 
 
 def identity(authorization: str | None = Header(default=None)) -> SessionIdentity:

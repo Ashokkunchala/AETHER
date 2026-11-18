@@ -4,14 +4,14 @@ import os
 
 import pytest
 
-from jarvis.control.process_stop import preview_process_stop, stop_exact_process
-from jarvis.tools.builtin_tools import build_registry
+from aether.control.process_stop import preview_process_stop, stop_exact_process
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.fixture
 def setup(monkeypatch,tmp_path):
     import psutil
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     args={'pid':999123,'expected_create_time':123.5,'expected_executable':str(tmp_path/'editor.exe')}
     class Fake:
         pid=999123
@@ -84,16 +84,16 @@ def test_close_and_kill_require_new_prompt_each_time(setup):
 
 
 def test_legacy_name_stop_fails_closed():
-    from jarvis.control.apps import close_app
-    from jarvis.control.process import terminate_process
-    from jarvis.tools.system.app_control import close_app as other
+    from aether.control.apps import close_app
+    from aether.control.process import terminate_process
+    from aether.tools.system.app_control import close_app as other
     assert not close_app('editor')['success']
     assert not terminate_process('editor',True)['success']
     assert not other('editor')['success']
 
 
 def test_denied_and_emergency_stop_during_confirmation(setup):
-    from jarvis.security import SecurityStore
+    from aether.security import SecurityStore
     args,fake,registry=setup
     async def no(*a):return False
     assert asyncio.run(registry.execute('kill_process',args,confirm=no)).cancelled

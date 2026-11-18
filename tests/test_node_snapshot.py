@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from jarvis.devops.node_snapshot import CONDITIONS, review_nodes, review_nodes_export
+from aether.devops.node_snapshot import CONDITIONS, review_nodes, review_nodes_export
 
 
 def condition(kind='Ready', status='True', **extra):
@@ -130,9 +130,9 @@ def test_no_file_mutation_code_execution_or_special_files(tmp_path):
 
 
 def test_registry_safe_stop_no_cluster_command(tmp_path, monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'safety.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'safety.db'))
     path=tmp_path/'node.json';path.write_text(json.dumps(node()))
     registry=build_registry(force=True);SecurityStore().set_stop(True)
     result=asyncio.run(registry.execute('review_kubernetes_nodes',{'path':str(path)}))

@@ -9,8 +9,8 @@ from app import life_manager
 
 def test_daily_plan_context_is_serializable_without_real_provider(monkeypatch, tmp_path):
     token = 'mock-daily-plan-token-for-tests-only-1234567'
-    monkeypatch.setenv('JARVIS_API_TOKEN', token)
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'plan.sqlite3'))
+    monkeypatch.setenv('AETHER_API_TOKEN', token)
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'plan.sqlite3'))
     captured = {}
     monkeypatch.setattr(life_manager, 'configured_provider_order', lambda _: ['mock'])
 

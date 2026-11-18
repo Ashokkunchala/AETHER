@@ -4,10 +4,10 @@ These APIs use SQLite and require a bearer token. They are intended for a local-
 
 ## Configure
 
-Set `JARVIS_API_TOKEN` to a random secret at least 32 characters long and `JARVIS_DB_PATH=data/jarvis.sqlite3` in `.env`. Keep `HOST=127.0.0.1`. Never commit `.env`, the SQLite database, or exported JSON. Every protected request needs:
+Set `AETHER_API_TOKEN` to a random secret at least 32 characters long and `AETHER_DB_PATH=data/aether.sqlite3` in `.env`. Keep `HOST=127.0.0.1`. Never commit `.env`, the SQLite database, or exported JSON. Every protected request needs:
 
 ```http
-Authorization: Bearer YOUR_JARVIS_API_TOKEN
+Authorization: Bearer YOUR_AETHER_API_TOKEN
 Content-Type: application/json
 ```
 

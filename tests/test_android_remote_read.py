@@ -3,7 +3,7 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = ROOT / "android/app/src/main/java/com/ashok/jarvis"
+BASE = ROOT / "android/app/src/main/java/com/ashok/aether"
 
 
 def test_foreground_separate_token_fixed_action_and_no_approval_or_shell():

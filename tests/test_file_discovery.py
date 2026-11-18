@@ -8,9 +8,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from jarvis import file_discovery as files
-from jarvis.security import SecurityStore
-from jarvis.tools.registry import ToolRegistry
+from aether import file_discovery as files
+from aether.security import SecurityStore
+from aether.tools.registry import ToolRegistry
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def scope(tmp_path, monkeypatch):
     root = tmp_path / 'selected'
     root.mkdir()
     monkeypatch.setenv('AETHER_FILE_ROOTS', json.dumps([str(root)]))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     return root
 
 

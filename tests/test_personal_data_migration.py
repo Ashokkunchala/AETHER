@@ -25,7 +25,7 @@ def test_concurrent_first_connect_upgrades_once(monkeypatch, tmp_path, old_datab
     path = tmp_path / 'concurrent.sqlite3'
     if old_database:
         legacy_db(path)
-    monkeypatch.setenv('JARVIS_DB_PATH', str(path))
+    monkeypatch.setenv('AETHER_DB_PATH', str(path))
     original = sqlite3.connect
     class SlowInspection(sqlite3.Connection):
         def execute(self, sql, parameters=()):
@@ -60,7 +60,7 @@ def test_concurrent_first_connect_upgrades_once(monkeypatch, tmp_path, old_datab
 def test_upgrade_error_rolls_back_and_releases_lock(monkeypatch, tmp_path):
     path = tmp_path / 'rollback.sqlite3'
     legacy_db(path)
-    monkeypatch.setenv('JARVIS_DB_PATH', str(path))
+    monkeypatch.setenv('AETHER_DB_PATH', str(path))
     original = sqlite3.connect
     class FailOnce(sqlite3.Connection):
         def execute(self, sql, parameters=()):
@@ -79,7 +79,7 @@ def test_upgrade_error_rolls_back_and_releases_lock(monkeypatch, tmp_path):
 
 @pytest.mark.parametrize('code', [sqlite3.SQLITE_BUSY, sqlite3.SQLITE_LOCKED, sqlite3.SQLITE_BUSY | (2 << 8)])
 def test_wal_lock_contention_retries_then_succeeds(monkeypatch, tmp_path, code):
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'busy.sqlite3'))
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'busy.sqlite3'))
     original = sqlite3.connect
     attempts = []
     class BusySetup(sqlite3.Connection):
@@ -101,7 +101,7 @@ def test_wal_lock_contention_retries_then_succeeds(monkeypatch, tmp_path, code):
 
 @pytest.mark.parametrize('failure', ['timeout', 'not_busy', 'schema'])
 def test_initial_setup_error_closes_connection_and_stops(monkeypatch, tmp_path, failure):
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'fail.sqlite3'))
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'fail.sqlite3'))
     original = sqlite3.connect
     closed, attempts = [], []
     class FailedSetup(sqlite3.Connection):

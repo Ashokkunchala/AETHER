@@ -4,8 +4,8 @@ from datetime import date, timedelta
 
 import pytest
 
-from jarvis.mentor import LESSONS, MentorStore
-from jarvis.tools.builtin_tools import build_registry
+from aether.mentor import LESSONS, MentorStore
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.fixture
@@ -94,8 +94,8 @@ def test_concurrent_reschedules_cannot_claim_same_day(store):
 
 
 def test_registration_and_exact_arguments(store, monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_MENTOR_DB', store.path)
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setenv('AETHER_MENTOR_DB', store.path)
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     store.plan(['linux'], day(-1))
     registry = build_registry(force=True)
     result = asyncio.run(registry.execute('mentor_reschedule_preview', {'start_date': day(0)}))

@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from jarvis.devops.endpoint_snapshot import review_endpoint_slices, review_endpoint_slices_export
+from aether.devops.endpoint_snapshot import review_endpoint_slices, review_endpoint_slices_export
 
 
 def endpoint(**changes):
@@ -129,9 +129,9 @@ def test_no_writes_exec_or_special_files(tmp_path):
 
 
 def test_registry_safe_after_stop_no_network_probe(tmp_path,monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     path=tmp_path/'slice.json';path.write_text(json.dumps(snapshot()))
     registry=build_registry(force=True);SecurityStore().set_stop(True)
     result=asyncio.run(registry.execute('review_kubernetes_endpoints',{'path':str(path)}))

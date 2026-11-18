@@ -3,7 +3,7 @@
 Run from the reviewed installed source folder to see missing package metadata and opt-in configuration without starting AETHER, a provider, ADB, audio or a network listener:
 
 ```powershell
-.\.venv\Scripts\python.exe -B -m jarvis.setup_preflight
+.\.venv\Scripts\python.exe -B -m aether.setup_preflight
 ```
 
 `-B` avoids Python's ordinary bytecode-cache writes for this command. The command intentionally creates no application files, folders or databases. It reads installed distribution metadata and selected environment-variable presence/shape, not `.env` contents, secret-store values or source-code configuration imports. Normal Python startup/environment hooks remain outside its control. Use a trusted interpreter and environment.
@@ -20,6 +20,6 @@ Output includes:
 
 No automatic repair, pip install, browser download, directory search, microphone/camera capture, speech playback, subprocess, pairing, device permission, credential validation, cloud read/write or provider message is part of this command. It intentionally does not answer whether the phone/laptop actually works. Follow the separate [installation](INSTALLABLE-FILES.md), [owner device](OWNER-DEVICE-AND-CLOUD-SETUP.md), [browser/dashboard](BROWSER-AND-DASHBOARDS.md) and [filename discovery](LOCAL-FILE-DISCOVERY.md) guides for exact reviewed next steps.
 
-The older `jarvis doctor` is a separate active local diagnostic. It can initialize local stores, probe audio and run `adb devices` if ADB is available; ADB can start its local daemon. Do not mistake it for this passive preflight or run it merely to obtain package/configuration presence. Neither command was run on the owner's devices during development.
+The older `aether doctor` is a separate active local diagnostic. It can initialize local stores, probe audio and run `adb devices` if ADB is available; ADB can start its local daemon. Do not mistake it for this passive preflight or run it merely to obtain package/configuration presence. Neither command was run on the owner's devices during development.
 
 Tests cover no network/subprocess/application-write calls, no optional SDK/config/security import, secret/path/host omission, malformed configuration, unreadable package metadata, off defaults and the strict-base exit. Actual owner environment remains unverified.

@@ -10,7 +10,7 @@ if (-not (Test-Path -LiteralPath $pythonExe)) {
 }
 Push-Location $root
 try {
-    & $pythonExe (Join-Path $root "jarvis_cli.py") command-center
+    & $pythonExe (Join-Path $root "aether_cli.py") command-center
     if ($LASTEXITCODE -ne 0) {
         Write-Host "AETHER command centre exited with code $LASTEXITCODE." -ForegroundColor Yellow
         exit $LASTEXITCODE

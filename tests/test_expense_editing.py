@@ -3,8 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from jarvis.personal import PersonalStore
-from jarvis.tools.builtin_tools import build_registry
+from aether.personal import PersonalStore
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.fixture
@@ -84,10 +84,10 @@ def test_concurrent_corrections_only_one_wins(store):
 
 
 def test_registry_boundary_blocks_edit_after_stop(store, monkeypatch, tmp_path):
-    from jarvis import personal
-    from jarvis.security import SecurityStore
+    from aether import personal
+    from aether.security import SecurityStore
     monkeypatch.setattr(personal, '_default', store)
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
     row = add(store)
     registry = build_registry(force=True)
     SecurityStore().set_stop(True)

@@ -13,8 +13,8 @@ from app import integrations, personal_data
 @pytest.fixture
 def database(monkeypatch, tmp_path):
     path = tmp_path / 'dispatch.sqlite3'
-    monkeypatch.setenv('JARVIS_DB_PATH', str(path))
-    monkeypatch.setattr(integrations.settings, 'jarvis_db_path', str(path))
+    monkeypatch.setenv('AETHER_DB_PATH', str(path))
+    monkeypatch.setattr(integrations.settings, 'aether_db_path', str(path))
     personal_data.create_reminder(personal_data.ReminderCreate(title='Due one', due_at=datetime.now(UTC) - timedelta(minutes=1)))
     personal_data.create_reminder(personal_data.ReminderCreate(title='Due two', due_at=datetime.now(UTC) + timedelta(minutes=5)))
     personal_data.create_reminder(personal_data.ReminderCreate(title='Future', due_at=datetime.now(UTC) + timedelta(days=1)))

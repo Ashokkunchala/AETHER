@@ -8,7 +8,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from jarvis.devops import python_wheel as mod
+from aether.devops import python_wheel as mod
 
 
 @pytest.fixture
@@ -261,10 +261,10 @@ def test_dispatch_revalidates_after_preview(project, monkeypatch):
 
 
 def test_registry_fresh_review_deny_and_emergency_stop(project, monkeypatch, tmp_path):
-    from jarvis.tools.builtin_tools import build_registry
-    from jarvis.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    from aether.security import SecurityStore
 
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "security.db"))
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "security.db"))
     registry = build_registry(force=True)
     tool = registry.tools["build_python_wheel"]
     assert (
@@ -298,10 +298,10 @@ def test_registry_fresh_review_deny_and_emergency_stop(project, monkeypatch, tmp
 
 
 def test_stop_or_output_changed_during_review_prevents_dispatch(project, monkeypatch, tmp_path):
-    from jarvis.tools.builtin_tools import build_registry
-    from jarvis.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    from aether.security import SecurityStore
 
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "security.db"))
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "security.db"))
     registry = build_registry(force=True)
     monkeypatch.setattr(mod.subprocess, "run", lambda *a, **kw: pytest.fail("must not execute"))
     args = {"project": str(project[0]), "output": str(project[1])}

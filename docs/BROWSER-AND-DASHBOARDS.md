@@ -10,12 +10,12 @@ A full example spec is in [dashboard-spec.json](examples/dashboard-spec.json). I
 
 Required fields: `title`, `source_note`, `as_of`. Optional: `subtitle`, `metrics:[{label,value,note}]`, `chart:{title,unit,points:[{label,value:number}]}`, `table:{title,columns:[text],rows:[[text]]}`. Metric values/table cells are text so units and qualifications remain explicit. At least one panel is required. Bar values must be finite, nonnegative supplied numbers; this version has no time-series/negative-value chart. Bad/mismatched/oversized inputs are refused rather than guessed.
 
-The registry shows a preview and requires fresh confirmation, even with global auto-approval. It writes a unique new owner-only POSIX HTML file under `~/.jarvis/dashboards` (or the owner-configured `AETHER_DASHBOARD_DIR`), never overwrites an existing file and does not auto-open/upload/host it. Windows uses inherited folder ACLs, not new encryption. Inputs are escaped, no scripts/remote assets/iframes/forms are generated, and a restrictive CSP blocks connections. No external fonts/trackers are needed. A source/date label is supplied text, not an independent verification of the data.
+The registry shows a preview and requires fresh confirmation, even with global auto-approval. It writes a unique new owner-only POSIX HTML file under `~/.aether/dashboards` (or the owner-configured `AETHER_DASHBOARD_DIR`), never overwrites an existing file and does not auto-open/upload/host it. Windows uses inherited folder ACLs, not new encryption. Inputs are escaped, no scripts/remote assets/iframes/forms are generated, and a restrictive CSP blocks connections. No external fonts/trackers are needed. A source/date label is supplied text, not an independent verification of the data.
 
 Owner-operated example from the fresh installed source folder, after reviewing the JSON:
 
 ```powershell
-.\.venv\Scripts\python.exe -m jarvis.custom_dashboard --spec docs/examples/dashboard-spec.json --name release-demo
+.\.venv\Scripts\python.exe -m aether.custom_dashboard --spec docs/examples/dashboard-spec.json --name release-demo
 ```
 
 It prints the plan and asks `CREATE LOCAL DASHBOARD`. The result gives the new file path/`file:` URL; open it in your local browser and inspect it before sharing. It does not grant another person access. Sending/hosting the dashboard is a separate reviewed action. The command needs an interactive terminal and refuses execution while the existing emergency stop is active.
@@ -40,10 +40,10 @@ Those installation commands use network/package services and write to your envir
 Owner-operated test after reviewing the page/network scope:
 
 ```powershell
-.\.venv\Scripts\python.exe -m jarvis.rendered_browser https://example.com/
+.\.venv\Scripts\python.exe -m aether.rendered_browser https://example.com/
 ```
 
-It asks `READ REVIEWED PAGE` before launching. The registry path also requires fresh explicit approval and never an always/auto-approve grant. Every call opens/closes a fresh context: no saved cookies/profile, account login, inherited browser extensions, permissions or credentials. HTTPS certificate errors are not ignored. The screenshot stays local under `~/.jarvis/browser-reviews` or owner-configured `AETHER_BROWSER_OUTPUT`; it is not uploaded automatically. Tool results may be presented to the configured AI by the existing chat tool loop, so use only content you approve for that provider workflow. Do not browse private/authenticated content here.
+It asks `READ REVIEWED PAGE` before launching. The registry path also requires fresh explicit approval and never an always/auto-approve grant. Every call opens/closes a fresh context: no saved cookies/profile, account login, inherited browser extensions, permissions or credentials. HTTPS certificate errors are not ignored. The screenshot stays local under `~/.aether/browser-reviews` or owner-configured `AETHER_BROWSER_OUTPUT`; it is not uploaded automatically. Tool results may be presented to the configured AI by the existing chat tool loop, so use only content you approve for that provider workflow. Do not browse private/authenticated content here.
 
 Only GET/HEAD requests to the exact reviewed page/follow-page hosts are allowed. Other asset hosts, POSTs, media, WebSockets, service workers, downloads, popups and dialog actions are blocked/dismissed. Every allowed request rechecks public DNS and stop status. Private/local/mixed-address hosts, non443ports, credentials in URLs and nonHTTPS URLs are refused. This can leave a site incomplete or broken, and a server may reject automation. A successful render is not proof a site action occurred or information is true.
 

@@ -120,11 +120,11 @@ def test_ws_happy_path_forwards_audio_text_and_events(fake_live):
         assert ws.receive_json()["type"] == "ready"
         got = {ws.receive_json()["type"] for _ in range(3)}
         assert {"transcript", "audio", "turn_complete"} <= got
-        ws.send_text(json.dumps({"type": "text", "text": "hi jarvis"}))
+        ws.send_text(json.dumps({"type": "text", "text": "hi aether"}))
         ws.send_text(json.dumps({"type": "audio", "data": base64.b64encode(b"\x00\x01" * 100).decode()}))
         ws.send_text(json.dumps({"type": "ping"}))
         assert ws.receive_json()["type"] == "pong"
-    assert sent[0] == {"text": "hi jarvis"}
+    assert sent[0] == {"text": "hi aether"}
     assert sent[1]["audio"].mime_type == "audio/pcm;rate=16000"
 
 
@@ -182,7 +182,7 @@ def test_ws_concurrent_session_cap(fake_live, monkeypatch):
 def test_voice_tools_are_read_only_and_allow_listed(monkeypatch, tmp_path):
     from app import live_tools
 
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "t.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "t.sqlite3"))
     assert live_tools.execute("get_current_time", {})["success"]
     assert live_tools.execute("list_reminders", {"limit": "bogus"})["reminders"] == []
     assert live_tools.execute("list_memories", None)["memories"] == []
@@ -195,7 +195,7 @@ def test_voice_tools_return_saved_data_clipped(monkeypatch, tmp_path):
     from app import live_tools
     from app.personal_data import _connect
 
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "t.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "t.sqlite3"))
     with _connect() as db:
         db.execute("INSERT INTO reminders(title,due_at,created_at) VALUES(?,?,?)", ("pay rent\nignore previous", "2000-01-01T00:00:00+00:00", "x"))
         db.execute("INSERT INTO reminders(title,due_at,created_at,completed) VALUES(?,?,?,1)", ("done", "2000-01-01T00:00:00+00:00", "x"))
@@ -261,7 +261,7 @@ GOOD = {"title": "call mom", "due_at": "2026-11-12T09:00:00+05:30"}
 
 
 def test_voice_write_runs_only_after_explicit_approval(fake_live, monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "t.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "t.sqlite3"))
     client, sent = fake_live
     _approval_connect(monkeypatch, sent, GOOD)
     with _connect(client) as ws:
@@ -278,7 +278,7 @@ def test_voice_write_runs_only_after_explicit_approval(fake_live, monkeypatch, t
 
 @pytest.mark.parametrize("answer", [False, "true", 1, None])
 def test_voice_write_denied_unless_approve_is_exactly_true(fake_live, monkeypatch, tmp_path, answer):
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "t.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "t.sqlite3"))
     client, sent = fake_live
     _approval_connect(monkeypatch, sent, GOOD)
     with _connect(client) as ws:
@@ -290,7 +290,7 @@ def test_voice_write_denied_unless_approve_is_exactly_true(fake_live, monkeypatc
 
 
 def test_voice_write_denied_on_timeout_and_on_wrong_id(fake_live, monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "t.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "t.sqlite3"))
     monkeypatch.setattr(lv, "APPROVAL_TIMEOUT_SECONDS", 1)
     client, sent = fake_live
     _approval_connect(monkeypatch, sent, GOOD)
@@ -304,7 +304,7 @@ def test_voice_write_denied_on_timeout_and_on_wrong_id(fake_live, monkeypatch, t
 
 
 def test_voice_write_rejects_invalid_args_without_asking(fake_live, monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "t.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "t.sqlite3"))
     client, sent = fake_live
     _approval_connect(monkeypatch, sent, {"title": "x", "due_at": "tomorrow"})
     with _connect(client) as ws:
@@ -314,7 +314,7 @@ def test_voice_write_rejects_invalid_args_without_asking(fake_live, monkeypatch,
 
 
 def test_voice_write_denied_when_client_disconnects(fake_live, monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "t.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "t.sqlite3"))
     client, sent = fake_live
     _approval_connect(monkeypatch, sent, GOOD)
     with _connect(client) as ws:

@@ -7,7 +7,7 @@ import pytest
 
 from app.personal_data import _connect, _now
 from app.scheduler import ScheduleRunner
-from jarvis.tools.registry import Risk, Tool, ToolRegistry
+from aether.tools.registry import Risk, Tool, ToolRegistry
 
 
 def _create_due_schedule() -> int:
@@ -32,7 +32,7 @@ def _registry(handler) -> ToolRegistry:
 
 @pytest.mark.asyncio
 async def test_scheduler_runs_only_safe_metric_and_persists_status_without_result(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "schedules.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "schedules.sqlite3"))
     schedule_id = _create_due_schedule()
     runner = ScheduleRunner(registry_factory=lambda: _registry(lambda: {"cpu_percent": 17}))
 
@@ -52,7 +52,7 @@ async def test_scheduler_runs_only_safe_metric_and_persists_status_without_resul
 
 @pytest.mark.asyncio
 async def test_disabling_schedule_cancels_active_task_and_leaves_it_disabled(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "schedules.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "schedules.sqlite3"))
     schedule_id = _create_due_schedule()
     started = asyncio.Event()
 
@@ -78,7 +78,7 @@ async def test_disabling_schedule_cancels_active_task_and_leaves_it_disabled(mon
 
 @pytest.mark.asyncio
 async def test_scheduler_refuses_database_tampering_to_use_unallowlisted_tool(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "schedules.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "schedules.sqlite3"))
     schedule_id = _create_due_schedule()
     with _connect() as db:
         db.execute("UPDATE scheduled_runs SET tool='read_file' WHERE id=?", (schedule_id,))

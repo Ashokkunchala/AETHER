@@ -2,7 +2,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-JAVA = ROOT / "android/app/src/main/java/com/ashok/jarvis"
+JAVA = ROOT / "android/app/src/main/java/com/ashok/aether"
 
 
 def test_semantic_image_models_are_bundled_bounded_and_never_dispatch_ocr():

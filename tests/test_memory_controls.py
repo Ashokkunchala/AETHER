@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.personal_data import MemoryCreate, create_memory, get_memory_context
-from jarvis.memory.controls import (
+from aether.memory.controls import (
     purge_expired_memories,
     retention_status,
     search_memories,
@@ -16,9 +16,9 @@ from jarvis.memory.controls import (
 
 @pytest.fixture(autouse=True)
 def isolated(monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'memory.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
-    monkeypatch.setenv('JARVIS_API_TOKEN', 'test-token-that-is-at-least-32-characters')
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'memory.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
+    monkeypatch.setenv('AETHER_API_TOKEN', 'test-token-that-is-at-least-32-characters')
 
 
 def test_expired_context_exclusion_search_and_explicit_purge():
@@ -70,7 +70,7 @@ def test_api_preserves_expiry_on_unrelated_edits_and_allows_explicit_clear():
 
 
 def test_registry_purge_needs_real_confirmation():
-    from jarvis.tools.builtin_tools import build_registry
+    from aether.tools.builtin_tools import build_registry
     create_memory(MemoryCreate(text='Expired', expires_at=datetime.now(UTC) - timedelta(days=1)))
     registry = build_registry(force=True)
     result = asyncio.run(registry.execute('memory_purge_expired', auto_approve=True))
@@ -92,7 +92,7 @@ def test_search_validation(query, category, expired):
 
 
 def test_existing_document_search_remains_registered():
-    from jarvis.tools.builtin_tools import build_registry
+    from aether.tools.builtin_tools import build_registry
     registry = build_registry(force=True)
     assert registry.get('memory_search') is not None
     assert registry.get('memory_search_saved') is not None
@@ -102,7 +102,7 @@ def test_existing_document_search_remains_registered():
 def test_existing_schema_migrates_without_losing_rows(monkeypatch, tmp_path):
     import sqlite3
     path = tmp_path / 'legacy.db'
-    monkeypatch.setenv('JARVIS_DB_PATH', str(path))
+    monkeypatch.setenv('AETHER_DB_PATH', str(path))
     with sqlite3.connect(path) as db:
         db.executescript("CREATE TABLE memories(id INTEGER PRIMARY KEY,text TEXT NOT NULL,category TEXT NOT NULL,created_at TEXT NOT NULL); INSERT INTO memories VALUES(1,'Keep me','general','2026-11-01');")
     rows = search_memories()
@@ -112,7 +112,7 @@ def test_existing_schema_migrates_without_losing_rows(monkeypatch, tmp_path):
 def test_live_voice_omits_expired_memory_without_deleting_it(tmp_path, monkeypatch):
     from app import live_tools
     from app.personal_data import _connect
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'voice-memory.db'))
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'voice-memory.db'))
     with _connect() as db:
         db.executemany('INSERT INTO memories(text,category,created_at,expires_at) VALUES(?,?,?,?)', [
             ('expired-private', 'general', '', '2020-01-01T00:00:00Z'),

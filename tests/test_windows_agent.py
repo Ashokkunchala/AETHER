@@ -14,16 +14,16 @@ HEADERS={'Authorization':'Bearer '+TOKEN}
 
 @pytest.fixture
 def setup(tmp_path,monkeypatch):
-    monkeypatch.setenv('JARVIS_AGENT_TOKEN',TOKEN)
-    monkeypatch.setenv('JARVIS_ALLOWED_URL_HOSTS','github.com')
-    monkeypatch.setenv('JARVIS_AGENT_APPROVAL_DB',str(tmp_path/'approval.db'))
+    monkeypatch.setenv('AETHER_AGENT_TOKEN',TOKEN)
+    monkeypatch.setenv('AETHER_ALLOWED_URL_HOSTS','github.com')
+    monkeypatch.setenv('AETHER_AGENT_APPROVAL_DB',str(tmp_path/'approval.db'))
     opened=[]
     monkeypatch.setattr('windows_agent.agent.webbrowser.open',lambda url,new=0:opened.append(url) or True)
     return LocalApprovalStore(),opened
 
 
 def test_agent_requires_token(monkeypatch):
-    monkeypatch.delenv('JARVIS_AGENT_TOKEN',raising=False)
+    monkeypatch.delenv('AETHER_AGENT_TOKEN',raising=False)
     with TestClient(app) as c:assert c.get('/v1/status').status_code==503
 
 
@@ -60,7 +60,7 @@ def test_invalid_or_unapproved_url_denied(setup,url):
 
 
 def test_empty_default_allowlist(setup,monkeypatch):
-    monkeypatch.delenv('JARVIS_ALLOWED_URL_HOSTS')
+    monkeypatch.delenv('AETHER_ALLOWED_URL_HOSTS')
     with pytest.raises(ValueError):validate_url('https://github.com')
 
 
@@ -69,9 +69,9 @@ def test_expiry_rejection_rotation_revocation(setup,monkeypatch):
     key=store.request('https://github.com');store.decide_local(key,'https://github.com',False)
     with pytest.raises(ValueError):store.consume(key,'https://github.com')
     key=store.request('https://github.com');store.decide_local(key,'https://github.com',True)
-    monkeypatch.setenv('JARVIS_AGENT_TOKEN','rotated-token-that-is-also-at-least-32-characters')
+    monkeypatch.setenv('AETHER_AGENT_TOKEN','rotated-token-that-is-also-at-least-32-characters')
     with pytest.raises(ValueError):store.consume(key,'https://github.com')
-    monkeypatch.setenv('JARVIS_AGENT_TOKEN',TOKEN)
+    monkeypatch.setenv('AETHER_AGENT_TOKEN',TOKEN)
     store.set_stop(True);store.set_stop(False)
     with pytest.raises(ValueError):store.consume(key,'https://github.com')
     key=store.request('https://github.com')
@@ -82,9 +82,9 @@ def test_expiry_rejection_rotation_revocation(setup,monkeypatch):
 def test_allowlist_change_and_stop_before_execution(setup,monkeypatch):
     store,opened=setup
     key=store.request('https://github.com');store.decide_local(key,'https://github.com',True)
-    monkeypatch.setenv('JARVIS_ALLOWED_URL_HOSTS','example.com')
+    monkeypatch.setenv('AETHER_ALLOWED_URL_HOSTS','example.com')
     with pytest.raises(ValueError):store.consume(key,'https://github.com')
-    monkeypatch.setenv('JARVIS_ALLOWED_URL_HOSTS','github.com');store.set_stop(True)
+    monkeypatch.setenv('AETHER_ALLOWED_URL_HOSTS','github.com');store.set_stop(True)
     with pytest.raises(ValueError):store.consume(key,'https://github.com')
     with pytest.raises(ValueError):store.request('https://github.com')
     assert not opened

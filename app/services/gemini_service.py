@@ -7,7 +7,7 @@ from google.genai import types
 
 from app.core.config import get_settings
 
-logger = logging.getLogger("jarvis.gemini")
+logger = logging.getLogger("aether.gemini")
 
 
 class GeminiService:

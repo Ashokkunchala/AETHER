@@ -21,7 +21,7 @@ def _issue_ticket(client: TestClient) -> str:
 def _configured_token(monkeypatch):
     from app.core.config import get_settings
 
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()
@@ -57,7 +57,7 @@ def test_websocket_reports_provider_timeout(monkeypatch):
             raise TimeoutError("provider timed out")
             yield  # Make this an async generator like the real brain.
 
-    monkeypatch.setattr("app.ws.JarvisBrain", FakeBrain)
+    monkeypatch.setattr("app.ws.AETHERBrain", FakeBrain)
 
     with TestClient(app) as client:
         ticket = _issue_ticket(client)
@@ -93,7 +93,7 @@ def test_websocket_cannot_self_approve_sensitive_tools(monkeypatch):
             observed["auto_approve"] = auto_approve
             yield {"type": "done", "text": "approval remains required"}
 
-    monkeypatch.setattr("app.ws.JarvisBrain", FakeBrain)
+    monkeypatch.setattr("app.ws.AETHERBrain", FakeBrain)
 
     with TestClient(app) as client:
         ticket = _issue_ticket(client)

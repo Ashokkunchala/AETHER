@@ -29,7 +29,7 @@ class SessionIdentity:
 
     def is_active(self) -> bool:
         """Recheck rotation/revocation without retaining or logging the secret."""
-        expected = Settings().jarvis_api_token
+        expected = Settings().aether_api_token
         if len(expected) < 32 or expected.startswith('replace_'):
             return False
         if self.kind == 'legacy':

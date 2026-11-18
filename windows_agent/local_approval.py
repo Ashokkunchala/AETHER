@@ -23,20 +23,20 @@ def validate_url(url):
         if parsed.scheme!='https' or not parsed.hostname or parsed.username or parsed.password or parsed.port not in (None,443):raise ValueError()
         host=parsed.hostname.lower()
     except ValueError as exc:raise ValueError('Only credential-free HTTPS URLs on port443 are allowed.') from exc
-    allowed={v.strip().lower() for v in os.getenv('JARVIS_ALLOWED_URL_HOSTS','').replace(',',';').split(';') if v.strip()}
-    if host not in allowed:raise ValueError('Exact host is not in JARVIS_ALLOWED_URL_HOSTS. No subdomain wildcard or default allowlist.')
+    allowed={v.strip().lower() for v in os.getenv('AETHER_ALLOWED_URL_HOSTS','').replace(',',';').split(';') if v.strip()}
+    if host not in allowed:raise ValueError('Exact host is not in AETHER_ALLOWED_URL_HOSTS. No subdomain wildcard or default allowlist.')
     return host
 
 
 def token_digest():
-    token=os.getenv('JARVIS_AGENT_TOKEN','')
+    token=os.getenv('AETHER_AGENT_TOKEN','')
     if len(token)<32:raise ValueError('Configure the local agent token first.')
     return hashlib.sha256(token.encode()).hexdigest()
 
 
 class LocalApprovalStore:
     def __init__(self):
-        self.path=Path(os.environ.get('JARVIS_AGENT_APPROVAL_DB',str(Path.home()/'.jarvis'/'companion-approvals.db')))
+        self.path=Path(os.environ.get('AETHER_AGENT_APPROVAL_DB',str(Path.home()/'.aether'/'companion-approvals.db')))
         if str(self.path).startswith(('\\\\','//')) or not self.path.is_absolute() or self.path.resolve()!=self.path or self.path.is_symlink():raise ValueError('Use a canonical absolute local approval database path.')
         self.path.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
         fd=os.open(self.path,os.O_CREAT|os.O_WRONLY,0o600);os.close(fd)

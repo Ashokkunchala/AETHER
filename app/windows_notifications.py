@@ -18,10 +18,10 @@ def main() -> None:
     except ImportError as exc:
         raise SystemExit("Install the Windows extra: pip install -e '.[windows]'") from exc
     cfg = get_settings()
-    if len(cfg.jarvis_api_token) < 32 or cfg.jarvis_api_token.startswith("replace_"):
-        raise SystemExit("Configure JARVIS_API_TOKEN in .env before starting notifications.")
+    if len(cfg.aether_api_token) < 32 or cfg.aether_api_token.startswith("replace_"):
+        raise SystemExit("Configure AETHER_API_TOKEN in .env before starting notifications.")
     base = f"http://{cfg.host}:{cfg.port}".rstrip("/")
-    cursor_file = Path(cfg.jarvis_db_path).parent / "windows-notification-cursor.txt"
+    cursor_file = Path(cfg.aether_db_path).parent / "windows-notification-cursor.txt"
     try:
         cursor = int(cursor_file.read_text(encoding="ascii").strip())
     except (OSError, ValueError):
@@ -33,7 +33,7 @@ def main() -> None:
                 response = client.get(
                     f"{base}/api/integrations/notifications",
                     params={"after_id": cursor, "limit": 50},
-                    headers={"Authorization": f"Bearer {cfg.jarvis_api_token}"},
+                    headers={"Authorization": f"Bearer {cfg.aether_api_token}"},
                 )
                 if response.status_code in (401, 403):
                     logger.error("AETHER notification authentication failed; stopping.")

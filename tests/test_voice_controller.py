@@ -5,8 +5,8 @@ from __future__ import annotations
 import asyncio
 import time
 
-from jarvis.terminal import voice as voice_mod
-from jarvis.terminal.voice import VoiceCall, VoiceView
+from aether.terminal import voice as voice_mod
+from aether.terminal.voice import VoiceCall, VoiceView
 
 
 class FakeAgent:

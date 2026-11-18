@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  JARVIS network security config.
+  AETHER network security config.
 
   The app talks only to a user-configured backend. Two rules matter:
 
@@ -10,7 +10,7 @@
   2. User-installed CA certificates ARE trusted. The personal-LAN backend
      (scripts/start-mobile.ps1) serves TLS with a self-signed certificate
      that the user installs once on the phone as a CA certificate
-     (data/tls/jarvis-ca.crt). On Android 7+ (API 24+), apps ignore
+     (data/tls/aether-ca.crt). On Android 7+ (API 24+), apps ignore
      user CAs unless a network security config opts in - without this file
      the app would reject its own backend.
 

@@ -11,7 +11,7 @@
 - Server-side guardrails on each live session: session length, idle timeout, audio volume per minute and a concurrent-session cap (see CHANGELOG for the environment variables). Covered by tests with a fake provider client; not exercised against the real Live API.
 - The server also caps cumulative input per session at 16 MiB and permits at most two simultaneous Live Voice provider sessions per client IP in a single process; excess sessions are rejected with a clear limit status. This is a local guardrail, not a distributed or provider-account usage quota.
 
-- Browser wake word ("Hey Aether" checkbox) is opt-in and session-only. It uses the browser's built-in speech recognition, which in Chrome and Edge sends audio to the vendor speech service - it is not an offline wake word. The separate local detector used by `jarvis start` retains the legacy `jarvis` model selection and original trigger "hey jarvis" (install `requirements-voice.txt`). A product rename does not train an AETHER neural wake model; `jarvis call` skips wake words. The browser listener stops while a Live Voice session is active.
+- Browser wake word ("Hey Aether" checkbox) is opt-in and session-only. It uses the browser's built-in speech recognition, which in Chrome and Edge sends audio to the vendor speech service - it is not an offline wake word. The separate local detector used by `aether start` retains the built-in pre-trained model and its original trigger (not "Hey AETHER") (install `requirements-voice.txt`). A product rename does not train an AETHER neural wake model; `aether call` skips wake words. The browser listener stops while a Live Voice session is active.
 
 ## Not yet proven / not production-ready
 
@@ -71,6 +71,6 @@ Windows PowerShell from the repository root:
 
 The script checks Python 3.11+ and warns if Git is missing. With `-InstallDependencies`, it creates `.venv`, upgrades pip, and installs `requirements-dev.txt`. It edits only your local `.env`, which is ignored by Git. It cannot verify the Gemini model is enabled for your account or prove that microphone capture and audio playback work; test those in the browser after the backend starts.
 
-If you prefer manual setup, use `.\\scripts\\setup-windows.ps1`, set `GEMINI_API_KEY`, `GEMINI_LIVE_MODEL`, `GEMINI_LIVE_VOICE=Charon`, and a random `JARVIS_API_TOKEN` in `.env`, then run `.\\scripts\\start-windows.ps1`.
+If you prefer manual setup, use `.\\scripts\\setup-windows.ps1`, set `GEMINI_API_KEY`, `GEMINI_LIVE_MODEL`, `GEMINI_LIVE_VOICE=Charon`, and a random `AETHER_API_TOKEN` in `.env`, then run `.\\scripts\\start-windows.ps1`.
 
 Keep the backend local/private. Do not use a public tunnel until the security acceptance checklist is complete.

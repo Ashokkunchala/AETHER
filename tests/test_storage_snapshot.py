@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from jarvis.devops.storage_snapshot import PV, PVC, review_storage, review_storage_export
+from aether.devops.storage_snapshot import PV, PVC, review_storage, review_storage_export
 
 
 def resource(kind=PVC, **changes):
@@ -136,9 +136,9 @@ def test_regular_file_only_no_writes_or_execution(tmp_path):
 
 
 def test_registry_safe_after_stop_no_cluster_change(tmp_path,monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     path=tmp_path/'storage.json';path.write_text(json.dumps(resource()))
     registry=build_registry(force=True);SecurityStore().set_stop(True)
     result=asyncio.run(registry.execute('review_kubernetes_storage',{'path':str(path)}))

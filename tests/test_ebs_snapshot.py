@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from jarvis.devops.ebs_snapshot import review_volumes, review_volumes_export
+from aether.devops.ebs_snapshot import review_volumes, review_volumes_export
 
 
 def volume(**kwargs):
@@ -154,10 +154,10 @@ def test_symlink_and_fifo_refused(tmp_path):
 
 
 def test_safe_registry_read_does_not_widen_aws_policy(tmp_path, monkeypatch):
-    from jarvis.devops.awscli import classify
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
+    from aether.devops.awscli import classify
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
     path = tmp_path / 'volumes.json'
     path.write_text(json.dumps({'Volumes': [volume()]}))
     registry = build_registry(force=True)

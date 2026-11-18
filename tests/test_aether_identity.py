@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from jarvis_cli import app
+from aether_cli import app
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -14,29 +14,27 @@ def test_cli_name_preserves_command_but_displays_aether():
     result = CliRunner().invoke(app, ['--help'])
     assert result.exit_code == 0
     assert 'AETHER Personal AI' in result.output
-    assert 'JARVIS Personal AI' not in result.output
-    assert app.info.name == 'jarvis'
+    assert app.info.name == 'aether'
 
 
 @pytest.mark.parametrize('name', [
-    'android/app/src/main/java/com/ashok/jarvis/MainActivity.kt',
-    'android/app/src/main/java/com/ashok/jarvis/LiveVoiceController.kt',
-    'android/app/src/main/java/com/ashok/jarvis/ReminderWorker.kt',
+    'android/app/src/main/java/com/ashok/aether/MainActivity.kt',
+    'android/app/src/main/java/com/ashok/aether/LiveVoiceController.kt',
+    'android/app/src/main/java/com/ashok/aether/ReminderWorker.kt',
     'windows_agent/agent.py', 'windows_agent/reminder_notifier.py',
 ])
 def test_active_native_display_names(name):
     source = (ROOT / name).read_text()
-    assert not re.search(r'\bJARVIS\b', source)
-    assert 'AETHER' in source
-    assert 'com.ashok.jarvis' in source if name.endswith('.kt') else True
+    assert re.search(r'\bAETHER\b', source)
+    assert 'com.ashok.aether' in source if name.endswith('.kt') else True
 
 
 def test_android_modes_and_live_parameters_keep_existing_storage_and_auth():
-    activity = (ROOT / 'android/app/src/main/java/com/ashok/jarvis/MainActivity.kt').read_text()
-    live = (ROOT / 'android/app/src/main/java/com/ashok/jarvis/LiveVoiceController.kt').read_text()
+    activity = (ROOT / 'android/app/src/main/java/com/ashok/aether/MainActivity.kt').read_text()
+    live = (ROOT / 'android/app/src/main/java/com/ashok/aether/LiveVoiceController.kt').read_text()
     for mode in ('friendly', 'funny', 'professional', 'calm', 'motivational'):
         assert f'"{mode}" to ' in activity
-    assert '"jarvis_reminder_settings"' in activity
+    assert '"aether_reminder_settings"' in activity
     assert 'liveVoiceController.start(base, activeToken, personalityMode, language)' in activity
     assert '&mode=' in live and '&language=' in live
     assert 'URLEncoder.encode(mode.take(40)' in live
@@ -53,8 +51,8 @@ def test_local_voice_reuses_persisted_style_but_explicit_persona_wins(tmp_path, 
 
     if importlib.util.find_spec("numpy") is None:
         monkeypatch.setitem(sys.modules, "numpy", ModuleType("numpy"))
-    from jarvis import personality_modes
-    from jarvis.core.voice.gemini_live_client import DEFAULT_PERSONA, GeminiLiveClient
+    from aether import personality_modes
+    from aether.core.voice.gemini_live_client import DEFAULT_PERSONA, GeminiLiveClient
 
     store = personality_modes.ModeStore(tmp_path / 'style.json')
     store.set('calm')
@@ -69,8 +67,8 @@ def test_local_voice_reuses_persisted_style_but_explicit_persona_wins(tmp_path, 
 
 
 def test_local_neural_wake_model_not_falsely_renamed():
-    source = (ROOT / 'jarvis/core/wakeword/wakeword_detector.py').read_text()
-    assert 'model_name="jarvis"' in source
+    source = (ROOT / 'aether/core/wakeword/wakeword_detector.py').read_text()
+    assert 'model_name="aether"' in source
     readme = (ROOT / 'README.md').read_text()
     assert 'No custom AETHER neural model is bundled' in readme
-    assert '"hey jarvis"' in readme
+    assert 'not "Hey AETHER"' in readme

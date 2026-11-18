@@ -3,15 +3,15 @@ import asyncio
 
 import pytest
 
-from jarvis.control.screenshot_request import preview_screenshot
-from jarvis.tools.builtin_tools import build_registry
+from aether.control.screenshot_request import preview_screenshot
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.fixture
 def setup(tmp_path,monkeypatch):
-    from jarvis.control import screen
-    from jarvis.security import SecurityStore
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    from aether.control import screen
+    from aether.security import SecurityStore
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     calls=[]
     monkeypatch.setattr(screen,'_capture_screenshot',lambda path,region:calls.append((path,region)) or {'success':True,'path':path})
     reg=build_registry(force=True)
@@ -93,8 +93,8 @@ def test_preview_has_no_capture_or_write(tmp_path):
 
 
 def test_legacy_direct_and_voice_fail_closed(monkeypatch):
-    from jarvis.control import screen
-    from jarvis.core.agent.voice_tools import _screenshot
+    from aether.control import screen
+    from aether.core.agent.voice_tools import _screenshot
     def fail(*a):raise AssertionError('No direct capture')
     monkeypatch.setattr(screen,'_capture_screenshot',fail)
     assert not screen.screenshot()['success']
@@ -106,9 +106,9 @@ def test_legacy_direct_and_voice_fail_closed(monkeypatch):
 def test_legacy_controllers_no_capture_import_or_success():
     from pathlib import Path
     root=Path(__file__).resolve().parents[1]
-    controller=(root/'jarvis/control/system_controller.py').read_text().split('    def screenshot(',1)[1].split('    def shutdown(',1)[0]
+    controller=(root/'aether/control/system_controller.py').read_text().split('    def screenshot(',1)[1].split('    def shutdown(',1)[0]
     assert 'mss' not in controller and '"success": False' in controller
-    unified=(root/'jarvis/core/jarvis_unified.py').read_text()
+    unified=(root/'aether/core/aether_unified.py').read_text()
     assert 'result = self.laptop.screenshot()' not in unified and 'No capture performed.' in unified
 
 
@@ -116,7 +116,7 @@ def test_exclusive_output_creation_with_synthetic_pixels(tmp_path,monkeypatch):
     import sys
     import types
 
-    from jarvis.control.screen import _capture_screenshot
+    from aether.control.screen import _capture_screenshot
     class FakeCapture:
         monitors=[{'left':0,'top':0,'width':1,'height':1}]
         def __enter__(self):return self

@@ -50,7 +50,7 @@ is not implemented as unrestricted Android listening. No claim of human feelings
 or inferred emotional diagnosis is made.
 
 Sources: `app/personality.py`, `app/live_voice.py`, `app/static/live_voice.js`,
-`jarvis/personality_modes.py`; [voice/interface](REALTIME-VOICE-AND-INTERFACE.md),
+`aether/personality_modes.py`; [voice/interface](REALTIME-VOICE-AND-INTERFACE.md),
 [companion style](COMPANION-STYLE.md).
 
 ## 3. Mentor
@@ -77,7 +77,7 @@ placed in the existing local backend reminder store, but automatic terminal
 practice and broader proactive learning delivery still need their own scoped
 execution/notification integration.
 
-Sources: `jarvis/mentor.py`, `mentor_projects.py`, `mentor_terraform.py`,
+Sources: `aether/mentor.py`, `mentor_projects.py`, `mentor_terraform.py`,
 `mentor_activity.py`; [mentor activity](MENTOR-ACTIVITY.md),
 [Terraform mentor](MENTOR-TERRAFORM.md),
 [review prompts](MENTOR-REVIEW-PROMPTS.md),
@@ -155,8 +155,8 @@ No generic wrapper authorizes deployment, destructive operations or spending.
 - Backup creation/verification helpers are not evidence of a successful real
   restore. Dependency export review is not a live vulnerability scan.
 
-Sources: `jarvis/devops/`, `jarvis/backup_verify.py`, tool registrations in
-`jarvis/tools/builtin_tools.py`; [AWS scope](AWS-DEVOPS.md),
+Sources: `aether/devops/`, `aether/backup_verify.py`, tool registrations in
+`aether/tools/builtin_tools.py`; [AWS scope](AWS-DEVOPS.md),
 [CI/CD review](CICD-REVIEW.md), [pipeline generator](PYTHON-VERIFICATION-PIPELINES.md),
 [telemetry contract](TELEMETRY-WINDOW-CONTRACT.md),
 [backup verification](BACKUP-VERIFICATION.md).
@@ -254,7 +254,7 @@ not an OS sandbox or proof of remote authorization for every tool. Real laptop
 hardware/foreground UI behavior and local approve/deny/replay/stop acceptance remain
 unverified; development used mocked OS operations.
 
-Sources: `jarvis/control/`, `windows_agent/`, `jarvis/tools/registry.py`,
+Sources: `aether/control/`, `windows_agent/`, `aether/tools/registry.py`,
 [Windows contract](WINDOWS-CAPABILITY-CONTRACT.md),
 [local inspection](WINDOWS-READONLY-INSPECTION.md),
 [execution safety](EXECUTION-SAFETY.md).

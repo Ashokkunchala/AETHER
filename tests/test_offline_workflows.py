@@ -5,9 +5,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from jarvis import offline_workflows as workflows
-from jarvis.security import SecurityStore
-from jarvis.tools.registry import ToolRegistry
+from aether import offline_workflows as workflows
+from aether.security import SecurityStore
+from aether.tools.registry import ToolRegistry
 
 
 def spec():
@@ -19,7 +19,7 @@ def spec():
 
 @pytest.fixture
 def store(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'stop.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'stop.db'))
     return workflows.WorkflowStore(tmp_path / 'workflows.db')
 
 

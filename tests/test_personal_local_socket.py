@@ -12,9 +12,9 @@ TOKEN = 'aether-local-socket-test-token-at-least-32-characters'
 
 @pytest.fixture
 def client(monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN)
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'local.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN)
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'local.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
     token_auth._init_device_table()
     monkeypatch.setattr(ws, '_tickets', TicketStore())
     class Brain:
@@ -28,7 +28,7 @@ def client(monkeypatch, tmp_path):
             assert auto_approve is False
             result = await self.registry.execute('create_saved_task', {'title': message}, confirm=confirm, auto_approve=True)
             yield {'type': 'done', 'ok': result.ok}
-    monkeypatch.setattr(ws, 'JarvisBrain', Brain)
+    monkeypatch.setattr(ws, 'AETHERBrain', Brain)
     app = FastAPI()
     app.include_router(ws.router)
     with TestClient(app) as http:
@@ -147,7 +147,7 @@ def test_new_turn_cannot_reactivate_cancelled_worker_context(client, monkeypatch
                 release.set()
                 await asyncio.to_thread(finished.wait, 3)
                 yield {'type': 'done'}
-    monkeypatch.setattr(ws, 'JarvisBrain', DelayedBrain)
+    monkeypatch.setattr(ws, 'AETHERBrain', DelayedBrain)
     try:
         with connect(client, 'personal-local') as socket:
             socket.receive_json()

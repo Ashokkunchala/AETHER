@@ -1,13 +1,13 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Start the JARVIS HTTP backend for the browser UI on http://127.0.0.1:8000.
+    Start the AETHER HTTP backend for the browser UI on http://127.0.0.1:8000.
 
 .DESCRIPTION
-    Idempotent launcher used by START-JARVIS.bat:
+    Idempotent launcher used by START-AETHER.bat:
 
       1. Verifies .venv\Scripts\python.exe and .env exist (clear error if not).
-      2. If a healthy JARVIS already answers on the requested URL, reports the
+      2. If a healthy AETHER already answers on the requested URL, reports the
          owning PID and exits 0 instead of crashing with WSAEADDRINUSE (10048).
       3. If the port is held by something else, names the process/PID and prints
          the exact Stop-Process command instead of a raw socket error.
@@ -52,7 +52,7 @@ $pythonExe = Join-Path $root ".venv\Scripts\python.exe"
 $envFile = Join-Path $root ".env"
 
 if (-not (Test-Path -LiteralPath $pythonExe)) {
-    Write-Host "Virtual environment not found. Run: .\scripts\setup-windows.ps1 (or INSTALL_JARVIS.bat)" -ForegroundColor Yellow
+    Write-Host "Virtual environment not found. Run: .\scripts\setup-windows.ps1 (or INSTALL_AETHER.bat)" -ForegroundColor Yellow
     exit 1
 }
 if (-not (Test-Path -LiteralPath $envFile)) {
@@ -62,12 +62,12 @@ if (-not (Test-Path -LiteralPath $envFile)) {
 
 $baseUrl = "http://${BindAddress}:$Port"
 
-function Test-JarvisHealthEndpoint {
+function Test-AETHERHealthEndpoint {
     param([Parameter(Mandatory = $true)][string]$Url)
     # Plain HTTP, no TLS involved - a plain Invoke-WebRequest is enough.
     try {
         $response = Invoke-WebRequest -Uri "$Url/health" -TimeoutSec 3 -UseBasicParsing
-        return ($response.StatusCode -eq 200 -and $response.Content -match 'jarvis')
+        return ($response.StatusCode -eq 200 -and $response.Content -match 'aether')
     } catch {
         return $false
     }
@@ -93,13 +93,13 @@ function Get-TcpListenerProcessId {
 }
 
 # --------------------------------------------- already running / port conflict
-if (Test-JarvisHealthEndpoint -Url $baseUrl) {
+if (Test-AETHERHealthEndpoint -Url $baseUrl) {
     $ownerId = Get-TcpListenerProcessId -PortNumber $Port
     $ownerName = ""
     if ($ownerId) {
         try { $ownerName = ": $((Get-Process -Id $ownerId).ProcessName), started $((Get-Process -Id $ownerId).StartTime.ToString('HH:mm:ss'))" } catch { }
     }
-    Write-Host "[PASS] JARVIS backend already running at $baseUrl (PID $ownerId$ownerName)" -ForegroundColor Green
+    Write-Host "[PASS] AETHER backend already running at $baseUrl (PID $ownerId$ownerName)" -ForegroundColor Green
     Write-Host "       Open $baseUrl in your browser. To restart it, run:" -ForegroundColor DarkGray
     if ($ownerId) { Write-Host "       Stop-Process -Id $ownerId -Force" -ForegroundColor DarkGray }
     exit 0
@@ -116,7 +116,7 @@ if ($busyPid) {
     } catch { }
     Write-Host "[FAIL] Port $Port on $BindAddress is used by another program (PID ${busyPid}: $busyName)." -ForegroundColor Red
     if ($busyPath) { Write-Host "       Path: $busyPath" -ForegroundColor DarkGray }
-    Write-Host "       It does not answer /health, so it is not a JARVIS backend." -ForegroundColor Yellow
+    Write-Host "       It does not answer /health, so it is not a AETHER backend." -ForegroundColor Yellow
     Write-Host "       Free the port with:  Stop-Process -Id $busyPid -Force" -ForegroundColor Yellow
     Write-Host "       Or use another port: .\scripts\start-windows.ps1 -Port $($Port + 1)" -ForegroundColor Yellow
     exit 1

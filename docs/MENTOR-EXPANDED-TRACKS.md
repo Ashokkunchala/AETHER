@@ -26,7 +26,7 @@ After reviewing an exact lesson and timestamp, `mentor_deep_schedule_review_prom
 To list catalog metadata without provider access or initializing progress, run locally from the reviewed source environment:
 
 ```powershell
-.\.venv\Scripts\python.exe -B -c "import json; from jarvis.mentor_deep import DeepMentor; print(json.dumps(DeepMentor.catalog(), indent=2))"
+.\.venv\Scripts\python.exe -B -c "import json; from aether.mentor_deep import DeepMentor; print(json.dumps(DeepMentor.catalog(), indent=2))"
 ```
 
 Starting/submitting a lesson writes the existing local mentor database; progress/retention/clear behavior is unchanged. The existing stop and clear-confirmation rules apply. The separate safe `mentor_evaluate_reasoning(lesson_id, reasoning)` tool returns the same deterministic signal review without storing the answer. It refuses secret-shaped text and omits the supplied wording from its result. Nothing in a lesson approves a real system action. Labs are paper/fake/local-example exercises, not automatically executed scripts. No compiler, shell, cloud connection, CI dispatch, state unlock, key rotation, provider send, deployment or live exploit test is run by the mentor.

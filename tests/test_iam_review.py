@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from jarvis.devops.review import review_iam_policy
+from aether.devops.review import review_iam_policy
 
 
 def statement(**values):
@@ -122,9 +122,9 @@ def test_not_principal_review_and_no_global_policy_name_echo():
 
 
 def test_registry_same_name_safe_no_aws(tmp_path, monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
     registry = build_registry(force=True)
     SecurityStore().set_stop(True)
     result = asyncio.run(registry.execute('review_iam_policy', {'policy_json': json.dumps({'Statement': statement(Action='*', Resource='*')})}))

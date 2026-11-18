@@ -5,14 +5,14 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from jarvis.wellness_journal import WellnessJournal, schedule_wellness_prompt
+from aether.wellness_journal import WellnessJournal, schedule_wellness_prompt
 
 
 @pytest.fixture
 def journal(tmp_path, monkeypatch):
     monkeypatch.setenv("AETHER_WELLNESS_DB", str(tmp_path / "wellness.db"))
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "backend.db"))
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "security.db"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "backend.db"))
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "security.db"))
     from app.personal_data import _connect
     with _connect() as db: pass
     return WellnessJournal()
@@ -122,8 +122,8 @@ def test_concurrent_identical_prompt_deduplicates(journal):
 
 
 def test_registry_confirmation_stop_and_existing_review_preserved(journal):
-    from jarvis.tools.builtin_tools import build_registry
-    from jarvis.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    from aether.security import SecurityStore
     registry = build_registry(force=True)
     assert "weekly_wellness_review" in registry.tools
     assert len(registry.names("wellness")) == 10
@@ -141,7 +141,7 @@ def test_registry_confirmation_stop_and_existing_review_preserved(journal):
 
 def test_prompt_does_not_initialize_or_migrate_an_unrelated_backend(journal, monkeypatch, tmp_path):
     path = tmp_path / "missing.db"
-    monkeypatch.setenv("JARVIS_DB_PATH", str(path))
+    monkeypatch.setenv("AETHER_DB_PATH", str(path))
     due = (datetime.now(UTC) + timedelta(hours=1)).isoformat()
     with pytest.raises(ValueError): schedule_wellness_prompt("hydration", due, "Optional drink")
     assert not path.exists()

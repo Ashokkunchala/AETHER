@@ -4,8 +4,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from jarvis.mentor import MentorStore
-from jarvis.mentor_deep import DeepMentor, TRACKS
+from aether.mentor import MentorStore
+from aether.mentor_deep import DeepMentor, TRACKS
 
 
 @pytest.fixture
@@ -92,10 +92,10 @@ def test_clear_is_scoped_and_does_not_erase_starter(mentor):
 
 
 def test_registered_deep_paths_respect_stop_and_clear_confirmation(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_MENTOR_DB", str(tmp_path / "mentor.db"))
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "security.db"))
-    from jarvis.tools.builtin_tools import build_registry
-    from jarvis.security import SecurityStore
+    monkeypatch.setenv("AETHER_MENTOR_DB", str(tmp_path / "mentor.db"))
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "security.db"))
+    from aether.tools.builtin_tools import build_registry
+    from aether.security import SecurityStore
     registry = build_registry(force=True)
     async def run():
         assert (await registry.execute("mentor_deep_start", {"lesson_id": "python-1"})).ok

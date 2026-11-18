@@ -6,9 +6,9 @@ from unittest.mock import Mock
 
 import pytest
 
-from jarvis.devops.python_tests import preview_python_tests, run_python_tests
-from jarvis.tools.builtin_tools import build_registry
-from jarvis.tools.registry import Risk
+from aether.devops.python_tests import preview_python_tests, run_python_tests
+from aether.tools.builtin_tools import build_registry
+from aether.tools.registry import Risk
 
 
 @pytest.fixture
@@ -97,7 +97,7 @@ def test_changed_symlink_selection_denied(project, monkeypatch, tmp_path):
 
 
 def test_registry_exact_fresh_approval_stop_and_argument_freeze(project, tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path/'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path/'security.db'))
     registry = build_registry(force=True)
     tool = registry.get('run_python_tests')
     assert tool.risk == Risk.HIGH and not tool.allow_auto_approve and not tool.allow_always
@@ -112,7 +112,7 @@ def test_registry_exact_fresh_approval_stop_and_argument_freeze(project, tmp_pat
     assert asyncio.run(registry.execute(tool.name, {'project':project}, confirm=approve)).ok
     called.assert_called_once_with(project=project)
     called.reset_mock()
-    from jarvis.security import SecurityStore
+    from aether.security import SecurityStore
     async def stop(tool, args):
         SecurityStore().set_stop(True)
         return True
@@ -121,7 +121,7 @@ def test_registry_exact_fresh_approval_stop_and_argument_freeze(project, tmp_pat
 
 
 def test_registry_keeps_nonzero_exit_context_without_raw_output(project, tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path/'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path/'security.db'))
     monkeypatch.setattr(subprocess, 'run', Mock(return_value=Mock(returncode=5)))
     async def approve(tool, args):
         return True
@@ -132,7 +132,7 @@ def test_registry_keeps_nonzero_exit_context_without_raw_output(project, tmp_pat
 
 
 def test_selection_revalidated_after_confirmation(project, tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path/'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path/'security.db'))
     child = Mock(side_effect=AssertionError('No process permitted'))
     monkeypatch.setattr(subprocess, 'run', child)
     async def approve(tool, args):

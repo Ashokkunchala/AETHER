@@ -6,26 +6,26 @@ the box - no tofu squares.
 
 ## Start
 
-`jarvis` with no arguments launches the floating robot (the default command):
+`aether` with no arguments launches the floating robot (the default command):
 
 ```powershell
-.\.venv\Scripts\python.exe jarvis_cli.py
+.\.venv\Scripts\python.exe aether_cli.py
 ```
 
-`jarvis robot` is the explicit form and `jarvis tui` remains an alias. Both
+`aether robot` is the explicit form and `aether tui` remains an alias. Both
 `robot` and `tui` accept `--call` and `--no-laptop`; `robot` also accepts
 `--frames`, `--fps`, `--ascii`, `--unicode`, `--no-color` and `--dump`.
 
 To open the robot automatically when you sign in:
 
 ```powershell
-.\scripts\install-jarvis-startup.ps1          # robot only; microphone closed
-.\scripts\install-jarvis-startup.ps1 -Call    # dial a call at sign-in
-.\scripts\install-jarvis-startup.ps1 -Remove  # uninstall
+.\scripts\install-aether-startup.ps1          # robot only; microphone closed
+.\scripts\install-aether-startup.ps1 -Call    # dial a call at sign-in
+.\scripts\install-aether-startup.ps1 -Remove  # uninstall
 ```
 
-The shortcut is `JARVIS.lnk` in your per-user Startup folder and runs
-`scripts\start-jarvis-terminal.ps1`; no backend or browser is started.
+The shortcut is `AETHER.lnk` in your per-user Startup folder and runs
+`scripts\start-aether-terminal.ps1`; no backend or browser is started.
 
 ## Keys
 
@@ -49,11 +49,11 @@ omitted. Gauges refresh at most every two seconds and never block a frame.
 Press `v` in the robot, or run:
 
 ```powershell
-.\.venv\Scripts\python.exe jarvis_cli.py call
+.\.venv\Scripts\python.exe aether_cli.py call
 ```
 
-This is a normal two-way Gemini Live call: speak immediately, no "Hey JARVIS"
-wake word, barge-in and laptop tools work the same as `jarvis start`. The call
+This is a normal two-way Gemini Live call: speak immediately, no "Hey AETHER"
+wake word, barge-in and laptop tools work the same as `aether start`. The call
 runs in a background thread so the robot keeps animating, and the speech line
 shows `You:` / `AETHER:` transcripts.
 
@@ -67,7 +67,7 @@ microphone. Install the stack with:
 .\.venv\Scripts\python.exe -m pip install -r requirements-voice.txt
 ```
 
-`INSTALL-JARVIS.ps1` installs this file automatically for installed copies.
+`INSTALL-AETHER.ps1` installs this file automatically for installed copies.
 The animation and gauge themselves are local-only and never call a model or
 the network.
 
@@ -79,12 +79,12 @@ For the full box art (rounded borders) use
 Settings -> Profiles -> Appearance -> Font. AETHER detects the UTF-8 code
 page and switches to Unicode automatically.
 
-- `--ascii` / `--unicode` force a rendering mode (`JARVIS_ROBOT_ASCII=1`
+- `--ascii` / `--unicode` force a rendering mode (`AETHER_ROBOT_ASCII=1`
   also forces ASCII).
-- `--no-color`, `JARVIS_ROBOT_NO_COLOR=1` or `NO_COLOR` disable colour.
+- `--no-color`, `AETHER_ROBOT_NO_COLOR=1` or `NO_COLOR` disable colour.
 - `--frames N --dump` prints frames without redrawing, for logs and
   screenshots.
 
-The display name is AETHER. Compatibility commands, `JARVIS.lnk`, environment
+The display name is AETHER. Compatibility commands, `AETHER.lnk`, environment
 variables and the local legacy neural wake trigger remain unchanged. The browser
-wake phrase is Hey Aether; `jarvis call` needs no wake phrase.
+wake phrase is Hey Aether; `aether call` needs no wake phrase.

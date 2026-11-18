@@ -15,8 +15,8 @@ AUTH = {'Authorization': f'Bearer {TOKEN}'}
 
 @pytest.fixture(autouse=True)
 def local_db(monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'reports.sqlite3'))
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN)
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'reports.sqlite3'))
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN)
 
 
 def task(title, due=None, priority=3, status='open'):

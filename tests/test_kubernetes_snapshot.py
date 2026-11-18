@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from jarvis.devops.kubernetes_snapshot import review_pods, review_pods_export
-from jarvis.tools.builtin_tools import build_registry
+from aether.devops.kubernetes_snapshot import review_pods, review_pods_export
+from aether.tools.builtin_tools import build_registry
 
 
 def pod(phase='Running', **status):
@@ -135,7 +135,7 @@ def test_ambiguous_duplicates_rejected():
 
 
 def test_registry_reads_only_the_supplied_snapshot(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     export = tmp_path / 'pods.json'
     export.write_text(json.dumps(pod()))
     result = asyncio.run(build_registry(force=True).execute('review_kubernetes_pods', {'path': str(export)}))

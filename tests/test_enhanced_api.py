@@ -1,4 +1,4 @@
-"""Tests for the enhanced backend (the app behind ``jarvis serve``)."""
+"""Tests for the enhanced backend (the app behind ``aether serve``)."""
 
 from __future__ import annotations
 
@@ -20,8 +20,8 @@ def _fresh_settings(monkeypatch, tmp_path):
     from app.core.auth import token_auth
     from app.core.config import get_settings
 
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "jarvis.sqlite3"))
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "aether.sqlite3"))
     get_settings.cache_clear()
     token_auth._init_device_table()
     yield
@@ -29,7 +29,7 @@ def _fresh_settings(monkeypatch, tmp_path):
 
 
 def test_health_reports_configured_providers(monkeypatch):
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
     # Health should report the provider configured in this isolated test.
     monkeypatch.setattr("app.main_enhanced.configured_provider_order", lambda _settings: ["openrouter"])
     with TestClient(app) as client:
@@ -176,7 +176,7 @@ def test_chat_falls_back_to_openrouter_when_gemini_unavailable(monkeypatch):
 
 
 def test_chat_rejects_missing_token(monkeypatch):
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
     with TestClient(app) as client:
         response = client.post("/api/chat", json={"message": "hi"})
     assert response.status_code == 401

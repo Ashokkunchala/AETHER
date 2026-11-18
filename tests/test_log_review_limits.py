@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from jarvis.devops.logs import MAX_LINES, triage_log, triage_text
+from aether.devops.logs import MAX_LINES, triage_log, triage_text
 
 
 def test_exit137_never_proves_memory_cause():
@@ -86,9 +86,9 @@ def test_file_retains_path_but_never_raw_private_text(tmp_path):
 
 
 def test_safe_registry_available_after_stop(tmp_path,monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     path=tmp_path/'export.log';path.write_text('ERROR AccessDenied')
     registry=build_registry(force=True);SecurityStore().set_stop(True)
     result=asyncio.run(registry.execute('triage_log',{'path':str(path)}))

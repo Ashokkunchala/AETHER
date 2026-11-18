@@ -15,9 +15,9 @@ from typing import Any
 import httpx
 
 from app.config import Settings
-from jarvis.telemetry import record_runtime_event
+from aether.telemetry import record_runtime_event
 
-logger = logging.getLogger("jarvis.providers")
+logger = logging.getLogger("aether.providers")
 
 PROVIDERS = ("gemini", "openrouter", "groq")
 
@@ -40,7 +40,7 @@ def configured_provider_order(settings: Settings) -> list[str]:
     for name, (_, key_field, _) in _PROVIDER_DETAILS.items():
         if _is_configured_key(getattr(settings, key_field, "")):
             available.append(name)
-    preferred = settings.jarvis_ai_provider.strip().lower()
+    preferred = settings.aether_ai_provider.strip().lower()
     if preferred in PROVIDERS and preferred in available:
         return [preferred] + [name for name in available if name != preferred]
     return available

@@ -3,7 +3,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from jarvis.devops.incident_durations import review_incident_durations
+from aether.devops.incident_durations import review_incident_durations
 
 DEFINITION='Start is reported user impact; end is reported service recovery, all incidents in the supplied cohort.'
 AS_OF='2020-02-01T00:00:00Z'
@@ -89,9 +89,9 @@ def test_odd_median_and_repeating_fraction():
 
 
 def test_registry_safe_after_stop(tmp_path,monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     registry=build_registry(force=True);SecurityStore().set_stop(True)
     result=asyncio.run(registry.execute('review_incident_durations',{'incidents':[row()],'boundary_definition':DEFINITION,'as_of':AS_OF}))
     assert result.ok and not result.data['measurement_boundaries_verified']

@@ -5,8 +5,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from jarvis.control import windows_inspection as wi
-from jarvis.tools.builtin_tools import build_registry
+from aether.control import windows_inspection as wi
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.fixture
@@ -101,8 +101,8 @@ def test_network_api_failure_unknown(monkeypatch):
 
 
 def test_new_reads_require_fresh_exact_approval_stop_rechecked(tmp_path,monkeypatch):
-    from jarvis.security import SecurityStore
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    from aether.security import SecurityStore
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     registry=build_registry(force=True);calls=[]
     for name in ['windows_service_inventory','windows_startup_inventory','network_link_inventory']:
         registry.get(name).handler=lambda:calls.append(name) or {'success':True}

@@ -63,8 +63,8 @@ A denied request does not execute. Request/result expiry prevents access but is
 not secure erasure. Completed/denied/request rows are only purged opportunistically
 on new queueing after applicable expiry; backing DB files, memory, logs, backups,
 phone display and screenshots remain separate. The DB is the existing local
-companion approval DB, default ~/.jarvis/companion-approvals.db or configured
-canonical JARVIS_AGENT_APPROVAL_DB. Existing local path/Windows ACL trust limits
+companion approval DB, default ~/.aether/companion-approvals.db or configured
+canonical AETHER_AGENT_APPROVAL_DB. Existing local path/Windows ACL trust limits
 apply; this is not protection against same-account DB edits, reparse/parent swaps
 or OS compromise. No real ACL/device acceptance has been performed.
 

@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from jarvis.mentor_terraform import SAMPLE_HCL, review_validate, terraform_lesson
+from aether.mentor_terraform import SAMPLE_HCL, review_validate, terraform_lesson
 
 
 def report(**kwargs):
@@ -102,7 +102,7 @@ def test_utf8_byte_limit_and_strict_types():
 
 
 def test_existing_project_journal_tracks_evidence_not_verified_labs(tmp_path):
-    from jarvis.mentor_projects import ProjectStore
+    from aether.mentor_projects import ProjectStore
     store = ProjectStore(tmp_path / 'mentor.db')
     key = store.start('terraform_local_foundations')['session_id']
     for i in range(3):
@@ -113,11 +113,11 @@ def test_existing_project_journal_tracks_evidence_not_verified_labs(tmp_path):
 
 
 def test_registry_uses_existing_safe_boundary_and_does_not_write_progress(tmp_path, monkeypatch):
-    from jarvis.mentor import MentorStore
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_MENTOR_DB', str(tmp_path / 'mentor.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    from aether.mentor import MentorStore
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_MENTOR_DB', str(tmp_path / 'mentor.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     registry = build_registry(force=True)
     before = MentorStore().progress()
     SecurityStore().set_stop(True)

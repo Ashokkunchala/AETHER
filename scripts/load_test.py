@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bounded HTTP load test for a running JARVIS server.
+"""Bounded HTTP load test for a running AETHER server.
 
 The script sends only the request path you specify, makes no provider calls, and
 refuses non-loopback targets unless --allow-remote is set. It is intended for
@@ -166,8 +166,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--token", default="", help="Bearer token; prefer --token-env")
     parser.add_argument(
         "--token-env",
-        default="JARVIS_API_TOKEN",
-        help="Environment variable holding the bearer token (default: JARVIS_API_TOKEN)",
+        default="AETHER_API_TOKEN",
+        help="Environment variable holding the bearer token (default: AETHER_API_TOKEN)",
     )
     parser.add_argument("--max-error-rate", type=float, default=0.01, help="Fail above this rate")
     parser.add_argument("--json-out", type=Path, help="Write the summary as JSON to this path")

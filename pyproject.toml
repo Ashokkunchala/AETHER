@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "jarvis-personal-ai"
+name = "aether"
 version = "0.4.0"
 description = "Enhanced Gemini-powered personal assistant"
 readme = "README.md"
@@ -40,7 +40,7 @@ dependencies = [
 ]
 
 [project.scripts]
-jarvis = "jarvis_cli:app"
+aether = "aether_cli:app"
 
 [project.optional-dependencies]
 browser = ["playwright>=1.48,<2"]
@@ -94,12 +94,12 @@ asyncio_mode = "auto"
 addopts = "-v --cov=app --cov-report=term-missing --basetemp=.pytest-tmp"
 
 [tool.setuptools]
-py-modules = ["jarvis_cli", "jarvis_daemon", "run_enhanced"]
+py-modules = ["aether_cli", "aether_daemon", "run_enhanced"]
 zip-safe = false
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["app*", "jarvis*", "windows_agent*"]
+include = ["app*", "aether*", "windows_agent*"]
 exclude = ["tests*", "scripts*", "docs*", "data*", "android*", "alembic*"]
 namespaces = true
 

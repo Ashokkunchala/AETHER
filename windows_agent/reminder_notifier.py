@@ -8,10 +8,10 @@ from pathlib import Path
 from urllib.error import URLError
 from urllib.request import Request, urlopen
 
-API_BASE = os.getenv("JARVIS_API_BASE", "http://127.0.0.1:8000").rstrip("/")
-TOKEN = os.getenv("JARVIS_API_TOKEN", "")
-POLL_SECONDS = max(15, int(os.getenv("JARVIS_REMINDER_POLL_SECONDS", "30")))
-STATE_PATH = Path(os.getenv("JARVIS_REMINDER_STATE_PATH", "data/reminder-notifier-state.json"))
+API_BASE = os.getenv("AETHER_API_BASE", "http://127.0.0.1:8000").rstrip("/")
+TOKEN = os.getenv("AETHER_API_TOKEN", "")
+POLL_SECONDS = max(15, int(os.getenv("AETHER_REMINDER_POLL_SECONDS", "30")))
+STATE_PATH = Path(os.getenv("AETHER_REMINDER_STATE_PATH", "data/reminder-notifier-state.json"))
 MAX_RETRY_SECONDS = 15 * 60
 
 
@@ -88,7 +88,7 @@ def process_due(items: list[dict], state: dict, notify=show_toast, now: float | 
 
 def run():
     if len(TOKEN) < 32:
-        raise SystemExit("Set JARVIS_API_TOKEN to the same random token configured in the local backend.")
+        raise SystemExit("Set AETHER_API_TOKEN to the same random token configured in the local backend.")
     state = _load_state()
     print(f"AETHER reminder notifier polling {API_BASE}; Ctrl+C stops it.")
     print(f"Delivery state is saved in {STATE_PATH.resolve()}")

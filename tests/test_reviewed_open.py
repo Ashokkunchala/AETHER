@@ -6,13 +6,13 @@ from types import SimpleNamespace
 
 import pytest
 
-from jarvis.control.reviewed_open import (
+from aether.control.reviewed_open import (
     open_reviewed_path,
     plan_reviewed_open,
     preview_reviewed_open,
 )
-from jarvis.tools.builtin_tools import build_registry
-from jarvis.tools.registry import Risk
+from aether.tools.builtin_tools import build_registry
+from aether.tools.registry import Risk
 
 
 def _write_json(path, document):
@@ -47,16 +47,16 @@ def reviewed(tmp_path, monkeypatch):
             'extensions': ['.txt'],
         }},
     })
-    monkeypatch.setenv('JARVIS_APPROVED_APPS_FILE', str(approved_config))
-    monkeypatch.setenv('JARVIS_REVIEWED_OPEN_FILE', str(reviewed_config))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setenv('AETHER_APPROVED_APPS_FILE', str(approved_config))
+    monkeypatch.setenv('AETHER_REVIEWED_OPEN_FILE', str(reviewed_config))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     monkeypatch.delenv('AETHER_ACCESS_POLICY', raising=False)
 
     calls = []
     def fake_popen(args, **kwargs):
         calls.append((args, kwargs))
         return SimpleNamespace(pid=4321)
-    monkeypatch.setattr('jarvis.control.reviewed_open.subprocess.Popen', fake_popen)
+    monkeypatch.setattr('aether.control.reviewed_open.subprocess.Popen', fake_popen)
     return SimpleNamespace(
         root=root, handler=handler, handler_digest=handler_digest,
         document=document, folder=folder, approved_config=approved_config,
@@ -103,7 +103,7 @@ def test_open_revalidates_and_launches_exact_handler_with_one_path_arg(reviewed)
 
 
 def test_no_default_reviewed_open_config(reviewed, monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_REVIEWED_OPEN_FILE', str(tmp_path / 'missing.json'))
+    monkeypatch.setenv('AETHER_REVIEWED_OPEN_FILE', str(tmp_path / 'missing.json'))
     with pytest.raises(ValueError, match='No canonical'):
         plan_reviewed_open('documents', str(reviewed.document))
     assert reviewed.calls == []
@@ -240,7 +240,7 @@ def test_config_redirect_during_confirmation_fails_closed(reviewed):
 
 
 def test_emergency_stop_blocks_reviewed_open(reviewed):
-    from jarvis.security import SecurityStore
+    from aether.security import SecurityStore
     registry = build_registry(force=True)
     SecurityStore().set_stop(True)
     async def approve(_tool, _preview):

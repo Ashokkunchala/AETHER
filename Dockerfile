@@ -16,9 +16,9 @@ RUN python -m pip install --upgrade pip \
 
 COPY . .
 RUN mkdir -p /app/data \
-    && useradd --create-home --uid 10001 jarvis \
-    && chown -R jarvis:jarvis /app/data
-USER jarvis
+    && useradd --create-home --uid 10001 aether \
+    && chown -R aether:aether /app/data
+USER aether
 
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \

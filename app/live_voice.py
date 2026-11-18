@@ -45,7 +45,7 @@ from app.config import get_settings
 from app.personal_data import require_device_token
 from app.personality import SYSTEM_INSTRUCTIONS, language_instruction, mode_instruction
 
-logger = logging.getLogger("jarvis.live_voice")
+logger = logging.getLogger("aether.live_voice")
 router = APIRouter()
 
 MAX_AUDIO_BYTES = 64 * 1024
@@ -80,12 +80,12 @@ def _release_live_session(client_key: str) -> None:
             _active_live_sessions[key] = active - 1
 
 # Per-session guardrails. They bound cost and exposure; override with env vars.
-MAX_SESSION_SECONDS = int(os.getenv("JARVIS_LIVE_MAX_SESSION_SECONDS", "900"))
-IDLE_TIMEOUT_SECONDS = int(os.getenv("JARVIS_LIVE_IDLE_TIMEOUT_SECONDS", "120"))
+MAX_SESSION_SECONDS = int(os.getenv("AETHER_LIVE_MAX_SESSION_SECONDS", "900"))
+IDLE_TIMEOUT_SECONDS = int(os.getenv("AETHER_LIVE_IDLE_TIMEOUT_SECONDS", "120"))
 # 16 kHz mono PCM16 is 32,000 bytes per second; allow 1.5x real time per minute.
-MAX_AUDIO_BYTES_PER_MINUTE = int(os.getenv("JARVIS_LIVE_MAX_AUDIO_BYTES_PER_MINUTE", str(32_000 * 60 * 3 // 2)))
-APPROVAL_TIMEOUT_SECONDS = int(os.getenv("JARVIS_LIVE_APPROVAL_TIMEOUT_SECONDS", "60"))
-MAX_CONCURRENT_SESSIONS = int(os.getenv("JARVIS_LIVE_MAX_CONCURRENT_SESSIONS", "2"))
+MAX_AUDIO_BYTES_PER_MINUTE = int(os.getenv("AETHER_LIVE_MAX_AUDIO_BYTES_PER_MINUTE", str(32_000 * 60 * 3 // 2)))
+APPROVAL_TIMEOUT_SECONDS = int(os.getenv("AETHER_LIVE_APPROVAL_TIMEOUT_SECONDS", "60"))
+MAX_CONCURRENT_SESSIONS = int(os.getenv("AETHER_LIVE_MAX_CONCURRENT_SESSIONS", "2"))
 _active_sessions = 0
 
 

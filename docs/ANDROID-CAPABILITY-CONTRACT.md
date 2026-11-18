@@ -84,7 +84,7 @@ Implemented source paths, not real-device acceptance:
   This does not imply full sync, context parity or access to every desktop tool.
 
 Source files: android/app/src/main/AndroidManifest.xml, app/build.gradle.kts and
-src/main/java/com/ashok/jarvis/{MainActivity,LiveVoiceController,ReminderWorker,
+src/main/java/com/ashok/aether/{MainActivity,LiveVoiceController,ReminderWorker,
 TokenVault}.kt under android/app. Internal package/credential names are retained.
 
 ## Requested ability, safe route, current gap

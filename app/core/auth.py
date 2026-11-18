@@ -33,7 +33,7 @@ def verify_token_hmac(supplied: str, expected: str) -> bool:
 
 def get_db_path() -> Path:
     settings = Settings()
-    return Path(settings.jarvis_db_path)
+    return Path(settings.aether_db_path)
 
 
 def get_db_connection():
@@ -79,12 +79,12 @@ class TokenAuth:
 
     def validate_token(self, authorization: str | None = None) -> dict:
         settings = Settings()
-        expected = settings.jarvis_api_token
+        expected = settings.aether_api_token
 
         if len(expected) < 32 or expected.startswith("replace_"):
             raise HTTPException(
                 status_code=503,
-                detail="Set a random JARVIS_API_TOKEN of at least 32 characters in .env."
+                detail="Set a random AETHER_API_TOKEN of at least 32 characters in .env."
             )
 
         if not authorization:

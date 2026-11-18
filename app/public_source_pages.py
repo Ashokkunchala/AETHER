@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.personal_data import require_device_token
-from jarvis.tools.net.web_tools import _TextExtractor
+from aether.tools.net.web_tools import _TextExtractor
 
 router = APIRouter(prefix='/pages', dependencies=[Depends(require_device_token)])
 MAX_BYTES = 1_000_000

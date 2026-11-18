@@ -2,7 +2,7 @@
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-SOURCE=ROOT/'android/app/src/main/java/com/ashok/jarvis/PhoneActions.kt'
+SOURCE=ROOT/'android/app/src/main/java/com/ashok/aether/PhoneActions.kt'
 
 
 def test_phone_actions_wired_without_broad_grants_or_direct_send():

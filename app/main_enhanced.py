@@ -38,14 +38,14 @@ from app.personality import SYSTEM_INSTRUCTIONS, language_instruction, mode_inst
 from app.scheduler import ScheduleRunner
 from app.schemas import ChatRequest, ChatResponse
 from app.services.gemini_service import gemini_service
-from jarvis.telemetry import provider_health_summary, runtime_events
+from aether.telemetry import provider_health_summary, runtime_events
 
 # Structured logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("jarvis")
+logger = logging.getLogger("aether")
 settings = get_settings()
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -114,7 +114,7 @@ try:
 
     app.include_router(ws_router)
 except Exception:  # pragma: no cover - brain optional in minimal deploys
-    logging.getLogger("jarvis").exception("WebSocket bridge failed to load")
+    logging.getLogger("aether").exception("WebSocket bridge failed to load")
 
 
 
@@ -151,7 +151,7 @@ def _provider_order() -> list[str]:
 def health() -> dict:
     return {
         "status": "ok",
-        "service": "jarvis-personal-ai",
+        "service": "aether",
         "version": "0.4.0",
         "providers": _provider_order(),
         "gemini_configured": gemini_service.is_configured(),
@@ -226,7 +226,7 @@ def health_detailed(request: Request, _=Depends(require_api_token)):
 
     db_ok = False
     try:
-        db_path = Path(settings.jarvis_db_path)
+        db_path = Path(settings.aether_db_path)
         if db_path.exists():
             conn = sqlite3.connect(str(db_path))
             conn.execute("SELECT 1")

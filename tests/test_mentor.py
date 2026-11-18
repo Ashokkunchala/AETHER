@@ -2,8 +2,8 @@ import asyncio
 
 import pytest
 
-from jarvis.mentor import LESSONS, MentorStore
-from jarvis.tools.builtin_tools import build_registry
+from aether.mentor import LESSONS, MentorStore
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.fixture
@@ -74,8 +74,8 @@ def test_unknown_lesson_rejected(store):
 
 
 def test_registered_tools_run_through_existing_execution_boundary(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_MENTOR_DB', str(tmp_path / 'mentor.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setenv('AETHER_MENTOR_DB', str(tmp_path / 'mentor.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     registry = build_registry(force=True)
     async def run():
         assert len(registry.names('mentor')) == 26
@@ -85,7 +85,7 @@ def test_registered_tools_run_through_existing_execution_boundary(tmp_path, monk
         assert (await registry.execute('mentor_submit', {'lesson_id': 'linux', 'choice': 1})).ok
         progress = await registry.execute('mentor_progress')
         assert progress.ok and progress.data['data']['passed_checkpoints'] == 1
-        from jarvis.security import SecurityStore
+        from aether.security import SecurityStore
         SecurityStore().set_stop(True)
         assert not (await registry.execute('mentor_submit', {'lesson_id': 'cloud', 'choice': 1})).ok
         assert (await registry.execute('mentor_progress')).ok
@@ -93,8 +93,8 @@ def test_registered_tools_run_through_existing_execution_boundary(tmp_path, monk
 
 
 def test_tool_arguments_cannot_select_another_method(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_MENTOR_DB', str(tmp_path / 'mentor.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setenv('AETHER_MENTOR_DB', str(tmp_path / 'mentor.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     registry = build_registry(force=True)
     result = asyncio.run(registry.execute('mentor_catalog', {'_method': 'submit', 'lesson_id': 'linux', 'choice': 1}))
     assert not result.ok

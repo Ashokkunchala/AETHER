@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from jarvis.tools.registry import Risk, Tool, ToolRegistry
+from aether.tools.registry import Risk, Tool, ToolRegistry
 
 PERSONAL_PROMPT = """You are AETHER, a personal assistant. This opt-in chat can only
 read the saved personal records exposed by its tools. Use tools before claiming

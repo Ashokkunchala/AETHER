@@ -1,8 +1,8 @@
 from pathlib import Path
 import re
 
-from jarvis.devops.awscli import READ_OPERATIONS
-from jarvis.tools.builtin_tools import build_registry
+from aether.devops.awscli import READ_OPERATIONS
+from aether.tools.builtin_tools import build_registry
 
 ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT / 'docs' / 'AWS-DEVOPS.md'

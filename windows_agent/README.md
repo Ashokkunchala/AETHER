@@ -8,8 +8,8 @@ laptop/device acceptance or secure remote Android control is claimed.
 ## Local setup, not performed for you
 
 Use the repository's local Python environment and install its requirements. Set
-JARVIS_AGENT_TOKEN to a fresh 32+ character random secret privately in your local
-environment; never paste it in chat or commit it. Set JARVIS_ALLOWED_URL_HOSTS to
+AETHER_AGENT_TOKEN to a fresh 32+ character random secret privately in your local
+environment; never paste it in chat or commit it. Set AETHER_ALLOWED_URL_HOSTS to
 exact approved hosts separated by semicolons. There is no default host allowlist,
 no subdomain wildcard and no non443 port. Bind uvicorn windows_agent.agent:app
 only to127.0.0.1 port8765. Do not expose the port on a LAN or forward it. Distinct
@@ -49,8 +49,8 @@ not resurrect approvals. Stop cannot undo an already dispatched browser request.
 There remains a small consume-to-OS-call race; this is not atomic OS cancellation.
 These controls are companion-local, separate from desktop registry emergency stop.
 
-The owner-only local database defaults to ~/.jarvis/companion-approvals.db;
-JARVIS_AGENT_APPROVAL_DB can point to another canonical absolute local path in both
+The owner-only local database defaults to ~/.aether/companion-approvals.db;
+AETHER_AGENT_APPROVAL_DB can point to another canonical absolute local path in both
 processes. Local OS/account, config and inherited Windows ACLs must be trusted.
 This is not a sandbox against code under the same account, PTY emulation, DB edits,
 network mappings, reparse-point/parent-swap races or OS compromise. POSIX new files

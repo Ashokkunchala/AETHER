@@ -39,7 +39,7 @@ def test_performance_endpoint_reports_aggregate_network_counters(monkeypatch):
     import importlib
 
     main_module = importlib.import_module("app.main")
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
     monkeypatch.setattr(
         main_module.psutil,
         "net_io_counters",
@@ -53,9 +53,9 @@ def test_performance_endpoint_reports_aggregate_network_counters(monkeypatch):
 
 
 def test_runtime_event_endpoint_requires_auth_and_returns_redacted_events(monkeypatch):
-    from jarvis.telemetry import record_runtime_event
+    from aether.telemetry import record_runtime_event
 
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
     event_id = record_runtime_event(
         "provider", provider="gemini", action="request", elapsed=0.25, success=True,
         prompt="private text", api_key="secret",
@@ -166,7 +166,7 @@ async def test_api_body_limit_rejects_large_declared_and_chunked_bodies():
 
 
 def test_main_api_body_limit_returns_secure_413(monkeypatch):
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
     with TestClient(app) as client:
         response = client.post(
             "/api/chat", headers=AUTH,
@@ -191,22 +191,22 @@ def test_chat_rejects_oversized_history():
 
 
 def test_chat_fails_closed_without_configured_token(monkeypatch):
-    monkeypatch.setenv("JARVIS_API_TOKEN", "")
+    monkeypatch.setenv("AETHER_API_TOKEN", "")
     with TestClient(app) as client:
         response = client.post("/api/chat", json={"message": "hello"})
     assert response.status_code == 503
-    assert "JARVIS_API_TOKEN" in response.json()["detail"]
+    assert "AETHER_API_TOKEN" in response.json()["detail"]
 
 
 def test_chat_rejects_missing_token_when_configured(monkeypatch):
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
     with TestClient(app) as client:
         response = client.post("/api/chat", json={"message": "hello"})
     assert response.status_code == 401
 
 
 def test_chat_reports_missing_gemini_key(monkeypatch):
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
     # Simulate a machine with no provider keys configured at all.
     from app.config import Settings
 
@@ -216,13 +216,13 @@ def test_chat_reports_missing_gemini_key(monkeypatch):
     )
     with TestClient(app) as client:
         app.state.gemini_client = None
-        response = client.post("/api/chat", headers=AUTH, json={"message": "Hello JARVIS"})
+        response = client.post("/api/chat", headers=AUTH, json={"message": "Hello AETHER"})
     assert response.status_code == 503
     assert "GEMINI_API_KEY" in response.json()["detail"]
 
 
 def test_chat_uses_gemini_and_conversation_context(monkeypatch):
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
     captured = {}
 
     class FakeModels:
@@ -256,7 +256,7 @@ def test_chat_uses_gemini_and_conversation_context(monkeypatch):
 
 
 def test_authenticated_workout_coach_uses_gemini(monkeypatch):
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
 
     class FakeModels:
         def generate_content(self, **kwargs):
@@ -278,8 +278,8 @@ def test_authenticated_workout_coach_uses_gemini(monkeypatch):
 
 
 def test_explicit_memories_are_included_in_chat_context(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "jarvis.sqlite3"))
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "aether.sqlite3"))
     captured = {}
 
     class FakeModels:
@@ -308,7 +308,7 @@ def test_explicit_memories_are_included_in_chat_context(monkeypatch, tmp_path):
 
 def test_chat_history_reaches_openai_provider_with_assistant_role(monkeypatch):
     """Gemini-style 'model' history must be sent to OpenRouter/Groq as 'assistant'."""
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
     captured = {}
 
     def fake_chat(settings, provider, messages, temperature=0.8, gemini_client=None):
@@ -340,10 +340,10 @@ def test_chat_history_reaches_openai_provider_with_assistant_role(monkeypatch):
 
 
 def test_provider_health_endpoint_requires_auth_and_reports_recorded_summary(monkeypatch, tmp_path):
-    from jarvis.telemetry import record_runtime_event
+    from aether.telemetry import record_runtime_event
 
-    monkeypatch.setenv("JARVIS_API_TOKEN", TOKEN)
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "provider-health.sqlite3"))
+    monkeypatch.setenv("AETHER_API_TOKEN", TOKEN)
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "provider-health.sqlite3"))
     record_runtime_event("provider", provider="gemini", model="model-a", success=True, elapsed=0.25)
     with TestClient(app) as client:
         assert client.get("/api/provider/health").status_code == 401

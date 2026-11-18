@@ -9,7 +9,7 @@
   const status=(message,isError=false)=>{const el=$("liveVoiceStatus");if(el){el.textContent=message;el.className=isError?"tiny error":"tiny";}};
   const setUi=(state,detail,title)=>{
     document.body.dataset.liveState=active?"active":reconnecting?"reconnecting":"off";
-    if(typeof window.jarvisSetVoiceState==="function") window.jarvisSetVoiceState(state,
+    if(typeof window.aetherSetVoiceState==="function") window.aetherSetVoiceState(state,
       title||(state==="listening"?"Listening to you":state==="thinking"?"AETHER is thinking":state==="speaking"?"AETHER is speaking":"AETHER is ready"),detail);
     const dictationStop=$("voiceStop");if(dictationStop)dictationStop.hidden=true; // dictation is not running during live voice
     $("liveVoiceConnect").hidden=active;

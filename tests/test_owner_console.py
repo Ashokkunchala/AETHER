@@ -5,8 +5,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from jarvis import owner_console as console
-from jarvis.security import SecurityStore
+from aether import owner_console as console
+from aether.security import SecurityStore
 
 
 def test_fixed_registry_excludes_shell_network_provider_and_browser():
@@ -49,7 +49,7 @@ def test_confirmation_exact_phrase_only(monkeypatch, capsys):
 
 
 def test_dashboard_created_only_after_registry_confirmation(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     monkeypatch.setenv('AETHER_DASHBOARD_DIR', str(tmp_path / 'dashboards'))
     spec = {'title': 'Sample', 'source_note': 'Fictional', 'as_of': '2026-11-17', 'metrics': [{'label': 'Count', 'value': '1', 'note': 'sample'}]}
     args = {'name': 'sample', 'spec': spec}
@@ -73,9 +73,9 @@ def test_owner_console_parser_no_arbitrary_tools_or_yes_flag():
 
 
 def test_main_workflow_next_binds_step_before_prompt(tmp_path, monkeypatch, capsys):
-    from jarvis.offline_workflows import WorkflowStore
+    from aether.offline_workflows import WorkflowStore
     monkeypatch.setenv('AETHER_OFFLINE_WORKFLOW_DB', str(tmp_path / 'workflow.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'stop.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'stop.db'))
     store = WorkflowStore()
     identity = store.create({'title': 'Mock', 'steps': [{'operation': 'terraform_plan', 'inputs': {'document': {'format_version': '1.2', 'resource_changes': []}}}]})['workflow_id']
     monkeypatch.setattr(sys, 'argv', ['owner-console', 'workflow-next', '--id', identity])

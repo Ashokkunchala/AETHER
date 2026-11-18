@@ -17,7 +17,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 
 def _db_path() -> Path:
-    return Path(get_settings().jarvis_db_path)
+    return Path(get_settings().aether_db_path)
 
 
 def _connect():

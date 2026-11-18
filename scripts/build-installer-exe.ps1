@@ -1,36 +1,36 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Build JARVIS-Setup.exe - a single-click Windows installer executable.
+    Build AETHER-Setup.exe - a single-click Windows installer executable.
 
 .DESCRIPTION
     Compiles a small console launcher with the offline .NET Framework C#
     compiler (csc.exe, present on every Windows 10/11 machine - no PyInstaller,
-    no ps2exe, no network needed for the build) that embeds INSTALL-JARVIS.ps1
+    no ps2exe, no network needed for the build) that embeds INSTALL-AETHER.ps1
     as base64:
 
-      1. Reads INSTALL-JARVIS.ps1 as raw bytes and embeds them (byte-perfect).
-      2. The generated JARVIS-Setup.exe, when double-clicked, writes the
-         embedded script to %TEMP%\jarvis-setup-<guid>\, runs it with
+      1. Reads INSTALL-AETHER.ps1 as raw bytes and embeds them (byte-perfect).
+      2. The generated AETHER-Setup.exe, when double-clicked, writes the
+         embedded script to %TEMP%\aether-setup-<guid>\, runs it with
          powershell.exe -NoProfile -ExecutionPolicy Bypass, waits, forwards
          the child's exit code, and always cleans up its temp directory.
       3. The window stays open at the end (any-key pause) unless
-         JARVIS_SETUP_NO_PAUSE=1 is set or the output is redirected, so an
+         AETHER_SETUP_NO_PAUSE=1 is set or the output is redirected, so an
          unattended run can never hang.
 
     The embedded installer is the tested one: it finds/installs Python 3.11+,
     downloads the current branch from GitHub, creates .venv, installs
     dependencies, writes .env (asks for your API key), registers the sign-in
-    task, runs "jarvis doctor" and starts JARVIS.
+    task, runs "aether doctor" and starts AETHER.
 
     Because the payload downloads the published branch, push your commits
     before distributing the exe.
 
 .PARAMETER OutFile
-    Output executable path. Default: <repo>\dist\JARVIS-Setup.exe.
+    Output executable path. Default: <repo>\dist\AETHER-Setup.exe.
 
 .PARAMETER InstallerPath
-    PowerShell installer to embed. Default: <repo>\INSTALL-JARVIS.ps1.
+    PowerShell installer to embed. Default: <repo>\INSTALL-AETHER.ps1.
 
 .PARAMETER CscPath
     Explicit path to csc.exe. Auto-detected (Framework64, then Framework).
@@ -44,10 +44,10 @@
 
 .EXAMPLE
     .\scripts\build-installer-exe.ps1 -SelfTest
-    # Build dist\JARVIS-Setup.exe and prove the launcher plumbing works.
+    # Build dist\AETHER-Setup.exe and prove the launcher plumbing works.
 
 .EXAMPLE
-    .\scripts\build-installer-exe.ps1 -OutFile "$env:USERPROFILE\Desktop\JARVIS-Setup.exe"
+    .\scripts\build-installer-exe.ps1 -OutFile "$env:USERPROFILE\Desktop\AETHER-Setup.exe"
     # Build straight to the desktop for sharing.
 #>
 [CmdletBinding()]
@@ -62,14 +62,14 @@ param(
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-if ([string]::IsNullOrWhiteSpace($OutFile)) { $OutFile = Join-Path $repoRoot "dist\JARVIS-Setup.exe" }
-if ([string]::IsNullOrWhiteSpace($InstallerPath)) { $InstallerPath = (Join-Path $repoRoot "INSTALL-JARVIS.ps1") }
+if ([string]::IsNullOrWhiteSpace($OutFile)) { $OutFile = Join-Path $repoRoot "dist\AETHER-Setup.exe" }
+if ([string]::IsNullOrWhiteSpace($InstallerPath)) { $InstallerPath = (Join-Path $repoRoot "INSTALL-AETHER.ps1") }
 
 if (-not (Test-Path -LiteralPath $InstallerPath)) {
     throw "Installer script not found: $InstallerPath"
 }
 if (-not (Test-Path -LiteralPath (Join-Path $repoRoot "scripts"))) {
-    throw "Run this from the Jarvis-Personal-AI repository (expected <repo>\scripts)."
+    throw "Run this from the AETHER repository (expected <repo>\scripts)."
 }
 
 # ------------------------------------------------------------- 1. locate csc
@@ -99,17 +99,17 @@ using System.Reflection;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-namespace JarvisSetup
+namespace AETHERSetup
 {
     internal static class Program
     {
-        private const string InstallerScriptName = "INSTALL-JARVIS.ps1";
+        private const string InstallerScriptName = "INSTALL-AETHER.ps1";
         private const string InstallerScriptBase64 = "__SCRIPT_BASE64__";
 
         private static bool ShouldPause()
         {
             // Never block automated/CI runs; pause only for interactive humans.
-            string flag = Environment.GetEnvironmentVariable("JARVIS_SETUP_NO_PAUSE");
+            string flag = Environment.GetEnvironmentVariable("AETHER_SETUP_NO_PAUSE");
             if (string.Equals(flag, "1", StringComparison.OrdinalIgnoreCase)) { return false; }
             try { if (Console.IsInputRedirected) { return false; } } catch { }
             return true;
@@ -117,7 +117,7 @@ namespace JarvisSetup
 
         private static int Main(string[] args)
         {
-            string tempDir = Path.Combine(Path.GetTempPath(), "jarvis-setup-" + Guid.NewGuid().ToString("N"));
+            string tempDir = Path.Combine(Path.GetTempPath(), "aether-setup-" + Guid.NewGuid().ToString("N"));
             int exitCode = 1;
             try
             {
@@ -195,7 +195,7 @@ function Build-LauncherExe {
     $sourceText = $template.Replace("__SCRIPT_BASE64__", $b64)
     if ($sourceText.Contains("__SCRIPT_BASE64__")) { throw "Payload marker was not fully replaced." }
 
-    $workDir = Join-Path $env:TEMP ("jarvis-exe-build-" + [guid]::NewGuid().ToString("N"))
+    $workDir = Join-Path $env:TEMP ("aether-exe-build-" + [guid]::NewGuid().ToString("N"))
     New-Item -ItemType Directory -Force -Path $workDir | Out-Null
     $sourcePath = Join-Path $workDir "launcher.cs"
 
@@ -238,21 +238,21 @@ $selfTestFailed = $false
 if ($SelfTest) {
     Write-Host ""
     Write-Host "Self-test: compile + extract + run + exit-code plumbing..." -ForegroundColor Cyan
-    $probeScript = "Write-Output 'JARVIS-SETUP-SELFTEST-OK'" + [Environment]::NewLine + "exit 7" + [Environment]::NewLine
+    $probeScript = "Write-Output 'AETHER-SETUP-SELFTEST-OK'" + [Environment]::NewLine + "exit 7" + [Environment]::NewLine
     $probeExe = Join-Path $buildWorkDir "probe.exe"
     [void](Build-LauncherExe -PayloadText $probeScript -Destination $probeExe)
 
     $probeOut = Join-Path $buildWorkDir "probe.out.log"
     $probeErr = Join-Path $buildWorkDir "probe.err.log"
-    $previousNoPause = $env:JARVIS_SETUP_NO_PAUSE
-    $env:JARVIS_SETUP_NO_PAUSE = "1"
+    $previousNoPause = $env:AETHER_SETUP_NO_PAUSE
+    $env:AETHER_SETUP_NO_PAUSE = "1"
     try {
         $probe = Start-Process -FilePath $probeExe `
             -RedirectStandardOutput $probeOut -RedirectStandardError $probeErr `
             -PassThru -NoNewWindow -Wait
     } finally {
-        if ($null -eq $previousNoPause) { Remove-Item Env:JARVIS_SETUP_NO_PAUSE -ErrorAction SilentlyContinue }
-        else { $env:JARVIS_SETUP_NO_PAUSE = $previousNoPause }
+        if ($null -eq $previousNoPause) { Remove-Item Env:AETHER_SETUP_NO_PAUSE -ErrorAction SilentlyContinue }
+        else { $env:AETHER_SETUP_NO_PAUSE = $previousNoPause }
     }
 
     $probeOutput = ""
@@ -262,7 +262,7 @@ if ($SelfTest) {
     if ($probe.ExitCode -ne 7) {
         Write-Host "[FAIL] probe exit code: expected 7, got $($probe.ExitCode)" -ForegroundColor Red
         $selfTestFailed = $true
-    } elseif ($probeOutput -notmatch "JARVIS-SETUP-SELFTEST-OK") {
+    } elseif ($probeOutput -notmatch "AETHER-SETUP-SELFTEST-OK") {
         Write-Host "[FAIL] probe stdout marker missing (child output was not captured)." -ForegroundColor Red
         $selfTestFailed = $true
     } else {
@@ -270,12 +270,12 @@ if ($SelfTest) {
     }
 
     # The extracted temp dir must not survive the run.
-    $leftovers = @(Get-ChildItem -Path (Join-Path $env:TEMP "jarvis-setup-*") -Directory -ErrorAction SilentlyContinue)
+    $leftovers = @(Get-ChildItem -Path (Join-Path $env:TEMP "aether-setup-*") -Directory -ErrorAction SilentlyContinue)
     if ($leftovers.Count -gt 0) {
         Write-Host "[FAIL] temp dirs left behind: $($leftovers.Name -join ', ')" -ForegroundColor Red
         $selfTestFailed = $true
     } else {
-        Write-Host "[PASS] temp cleanup (no jarvis-setup-* directories left)" -ForegroundColor Green
+        Write-Host "[PASS] temp cleanup (no aether-setup-* directories left)" -ForegroundColor Green
     }
 }
 

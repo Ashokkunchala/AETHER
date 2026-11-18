@@ -14,7 +14,7 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-db_path = Path(get_settings().jarvis_db_path).resolve()
+db_path = Path(get_settings().aether_db_path).resolve()
 db_path.parent.mkdir(parents=True, exist_ok=True)
 config.set_main_option("sqlalchemy.url", f"sqlite:///{db_path.as_posix()}")
 

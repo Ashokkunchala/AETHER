@@ -15,8 +15,8 @@ DATA = {'amount': 10.25, 'category': 'Food', 'note': 'Lunch', 'spent_on': '2026-
 
 @pytest.fixture
 def client(monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN)
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'expenses.sqlite3'))
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN)
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'expenses.sqlite3'))
     with TestClient(app) as client:
         yield client
 

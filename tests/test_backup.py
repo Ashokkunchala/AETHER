@@ -6,8 +6,8 @@ import zipfile
 
 import pytest
 
-from jarvis.backup import create_backup, preview_backup
-from jarvis.tools.builtin_tools import build_registry
+from aether.backup import create_backup, preview_backup
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.fixture
@@ -141,9 +141,9 @@ def test_special_file_refused_without_blocking(tmp_path):
 
 
 def test_registry_requires_exact_confirmation_and_stop_blocks_write(selection, tmp_path, monkeypatch):
-    from jarvis.security import SecurityStore
+    from aether.security import SecurityStore
     files, destination = selection
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
     registry = build_registry(force=True)
     token = preview_backup(files, destination)['expected_manifest']
     args = dict(files=files, destination=destination, expected_manifest=token)

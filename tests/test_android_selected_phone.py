@@ -2,7 +2,7 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = ROOT / 'android/app/src/main/java/com/ashok/jarvis'
+BASE = ROOT / 'android/app/src/main/java/com/ashok/aether'
 
 
 def test_specific_number_picker_requires_local_review_before_number_field():

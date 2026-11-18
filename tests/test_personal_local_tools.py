@@ -5,13 +5,13 @@ import pytest
 
 from app import life_manager
 from app.personal_local_tools import build_local_registry
-from jarvis.security import SecurityStore
-from jarvis.tools.registry import Risk
+from aether.security import SecurityStore
+from aether.tools.registry import Risk
 
 
 @pytest.fixture
 def registry(monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'life.db'))
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'life.db'))
     result = build_local_registry(lambda: True)
     result.security_store = SecurityStore(tmp_path / 'safety.db')
     return result

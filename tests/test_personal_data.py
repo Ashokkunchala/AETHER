@@ -10,14 +10,14 @@ pytestmark = pytest.mark.usefixtures("manual_scheduler")
 
 
 def setup_client(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_API_TOKEN", "test-token-that-is-at-least-32-characters")
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "jarvis.sqlite3"))
+    monkeypatch.setenv("AETHER_API_TOKEN", "test-token-that-is-at-least-32-characters")
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "aether.sqlite3"))
     return TestClient(app)
 
 
 def test_personal_apis_require_device_token(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_API_TOKEN", "")
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "jarvis.sqlite3"))
+    monkeypatch.setenv("AETHER_API_TOKEN", "")
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "aether.sqlite3"))
     with TestClient(app) as client:
         response = client.get("/api/memories")
     assert response.status_code == 503
@@ -91,7 +91,7 @@ def test_reminder_recurrence_is_restricted(monkeypatch, tmp_path):
 
 
 def test_existing_reminder_database_gets_recurrence_default(monkeypatch, tmp_path):
-    database = tmp_path / "jarvis.sqlite3"
+    database = tmp_path / "aether.sqlite3"
     with sqlite3.connect(database) as connection:
         connection.execute(
             "CREATE TABLE reminders (id INTEGER PRIMARY KEY, title TEXT NOT NULL, "
@@ -101,8 +101,8 @@ def test_existing_reminder_database_gets_recurrence_default(monkeypatch, tmp_pat
             "INSERT INTO reminders(title,due_at,created_at) VALUES(?,?,?)",
             ("Legacy reminder", "2026-11-01T08:00:00+00:00", "2026-10-31T00:00:00+00:00"),
         )
-    monkeypatch.setenv("JARVIS_API_TOKEN", "test-token-that-is-at-least-32-characters")
-    monkeypatch.setenv("JARVIS_DB_PATH", str(database))
+    monkeypatch.setenv("AETHER_API_TOKEN", "test-token-that-is-at-least-32-characters")
+    monkeypatch.setenv("AETHER_DB_PATH", str(database))
     with TestClient(app) as client:
         response = client.get(
             "/api/reminders",
@@ -222,7 +222,7 @@ def test_saved_plan_requires_auth_and_valid_steps_and_timezone(monkeypatch, tmp_
 
 
 def test_existing_dated_plans_are_migrated_to_notification_reminders(monkeypatch, tmp_path):
-    database = tmp_path / "jarvis.sqlite3"
+    database = tmp_path / "aether.sqlite3"
     with sqlite3.connect(database) as connection:
         connection.execute(
             "CREATE TABLE plans (id INTEGER PRIMARY KEY, title TEXT NOT NULL, "
@@ -235,8 +235,8 @@ def test_existing_dated_plans_are_migrated_to_notification_reminders(monkeypatch
             ("Legacy plan", '["Review"]', "2026-11-05T12:30:00+00:00", "planned",
              "2026-10-31T00:00:00+00:00", "2026-10-31T00:00:00+00:00"),
         )
-    monkeypatch.setenv("JARVIS_API_TOKEN", "test-token-that-is-at-least-32-characters")
-    monkeypatch.setenv("JARVIS_DB_PATH", str(database))
+    monkeypatch.setenv("AETHER_API_TOKEN", "test-token-that-is-at-least-32-characters")
+    monkeypatch.setenv("AETHER_DB_PATH", str(database))
     headers = {"Authorization": "Bearer test-token-that-is-at-least-32-characters"}
     with TestClient(app) as client:
         plan = client.get("/api/plans", headers=headers).json()["items"][0]
@@ -267,7 +267,7 @@ def test_schedule_is_disabled_until_enabled_and_history_survives_delete(monkeypa
             f"/api/schedules/{item['id']}", headers=headers,
             json={"enabled": True},
         ).json()["state"] == "scheduled"
-        with sqlite3.connect(tmp_path / "jarvis.sqlite3") as db:
+        with sqlite3.connect(tmp_path / "aether.sqlite3") as db:
             db.execute("UPDATE scheduled_runs SET state='running' WHERE id=?", (item["id"],))
         assert client.patch(
             f"/api/schedules/{item['id']}", headers=headers,

@@ -2,7 +2,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-JAVA = ROOT / "android/app/src/main/java/com/ashok/jarvis"
+JAVA = ROOT / "android/app/src/main/java/com/ashok/aether"
 
 
 def test_native_data_is_integrated_not_backend_or_shell():
@@ -66,6 +66,6 @@ def test_location_one_shot_has_timeout_age_accuracy_and_cancel_gates():
 
 
 def test_native_policy_has_executable_jvm_boundary_tests():
-    tests = (ROOT / "android/app/src/test/java/com/ashok/jarvis/NativeDataPolicyTest.kt").read_text()
+    tests = (ROOT / "android/app/src/test/java/com/ashok/aether/NativeDataPolicyTest.kt").read_text()
     for case in ("sampleBoundsAndRounding", "rejectsHostileImageDimensions", "rejectsStaleFutureAndInvalidFixes", "proximityNeedsWholeAccuracyCircle", "distanceHandlesDatelineAndPoles"):
         assert case in tests

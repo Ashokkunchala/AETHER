@@ -3,12 +3,12 @@ import json
 
 import pytest
 
-from jarvis.devops.evidence import (
+from aether.devops.evidence import (
     analyze_daily_costs,
     review_security_groups,
     review_terraform_plan,
 )
-from jarvis.tools.builtin_tools import build_registry
+from aether.tools.builtin_tools import build_registry
 
 
 def sg(rule):
@@ -90,7 +90,7 @@ def test_costs_require_complete_consecutive_days_and_one_currency():
 
 
 def test_new_reviews_are_available_through_registry(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     registry = build_registry(force=True)
     result = asyncio.run(registry.execute('analyze_daily_costs', {'daily': rows([10, 10, 10, 30]), 'currency': 'USD', 'complete_days': True}))
     assert result.ok and result.data['threshold_flag']
@@ -104,7 +104,7 @@ def test_new_reviews_are_available_through_registry(tmp_path, monkeypatch):
 
 @pytest.mark.parametrize('payload', [b'{broken', b'[]', b'\xff'])
 def test_invalid_exports_fail_without_echoing_payload(tmp_path, payload):
-    from jarvis.devops.evidence import review_terraform_plan_export
+    from aether.devops.evidence import review_terraform_plan_export
     export = tmp_path / 'plan.json'
     export.write_bytes(payload)
     with pytest.raises(ValueError):
@@ -112,7 +112,7 @@ def test_invalid_exports_fail_without_echoing_payload(tmp_path, payload):
 
 
 def test_file_export_limits(tmp_path):
-    from jarvis.devops.evidence import review_terraform_plan_export
+    from aether.devops.evidence import review_terraform_plan_export
     export = tmp_path / 'large.json'
     export.write_bytes(b' ' * 2_000_001)
     with pytest.raises(ValueError, match='2 MB'):

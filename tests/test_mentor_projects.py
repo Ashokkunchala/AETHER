@@ -3,8 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from jarvis.mentor_projects import PROJECTS, ProjectStore, project_brief
-from jarvis.tools.builtin_tools import build_registry
+from aether.mentor_projects import PROJECTS, ProjectStore, project_brief
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.fixture
@@ -106,10 +106,10 @@ def test_missing_session_refused(store):
 
 
 def test_registry_stop_and_existing_mentor_progress_unchanged(store, monkeypatch, tmp_path):
-    from jarvis.mentor import MentorStore
-    from jarvis.security import SecurityStore
-    monkeypatch.setenv('JARVIS_MENTOR_DB', store.path)
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    from aether.mentor import MentorStore
+    from aether.security import SecurityStore
+    monkeypatch.setenv('AETHER_MENTOR_DB', store.path)
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     before = MentorStore(store.path).progress()
     registry = build_registry(force=True)
     assert len(registry.names('mentor_projects')) == 6

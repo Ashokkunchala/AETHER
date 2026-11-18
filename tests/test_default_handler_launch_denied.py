@@ -4,11 +4,11 @@ from unittest.mock import Mock
 
 import pytest
 
-from jarvis.control import files
-from jarvis.control.laptop import LaptopController
-from jarvis.tools.builtin_tools import build_registry
-from jarvis.tools.registry import Risk
-from jarvis.tools.system.file_ops import open_file
+from aether.control import files
+from aether.control.laptop import LaptopController
+from aether.tools.builtin_tools import build_registry
+from aether.tools.registry import Risk
+from aether.tools.system.file_ops import open_file
 
 
 @pytest.mark.parametrize('path', ['C:\\app.exe', 'C:\\task.cmd', 'C:\\shortcut.lnk',
@@ -27,7 +27,7 @@ def test_all_legacy_paths_fail_before_resolution_and_launch(path, monkeypatch):
 
 
 def test_registry_denies_before_prompt_handler_or_auto_bypass(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path/'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path/'security.db'))
     registry = build_registry(force=True)
     tool = registry.get('open_path')
     assert tool.risk == Risk.HIGH and tool.never_auto_approve

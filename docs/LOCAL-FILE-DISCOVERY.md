@@ -8,7 +8,7 @@ In a fresh installed source environment, choose a small non-sensitive local fold
 
 ```powershell
 $env:AETHER_FILE_ROOTS = '["C:\\Users\\YOUR-NAME\\Documents\\ReviewFolder"]'
-.\.venv\Scripts\python.exe -m jarvis.file_discovery --root 'C:\Users\YOUR-NAME\Documents\ReviewFolder' --query report --mode search
+.\.venv\Scripts\python.exe -m aether.file_discovery --root 'C:\Users\YOUR-NAME\Documents\ReviewFolder' --query report --mode search
 ```
 
 It displays the exact folder, literal filename query, mode and limits, then asks `READ FOLDER METADATA`. It refuses non-interactive execution. Review the folder and its privacy before approving. Do not choose credential stores, sensitive work folders or folders managed by an untrusted process.

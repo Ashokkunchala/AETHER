@@ -18,7 +18,7 @@ AUTH = {'Authorization': 'Bearer ' + TOKEN}
 def environment(monkeypatch, tmp_path):
     root = tmp_path / 'authorized'
     root.mkdir()
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN)
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN)
     monkeypatch.setattr(integrations.settings, 'document_allowed_roots', str(root))
     app = FastAPI()
     app.include_router(personal_documents.router)

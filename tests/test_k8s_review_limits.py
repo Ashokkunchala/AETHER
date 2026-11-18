@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from jarvis.devops.k8s import review_k8s, review_k8s_text
+from aether.devops.k8s import review_k8s, review_k8s_text
 
 
 def message(text, rule):
@@ -77,9 +77,9 @@ def test_comment_match_is_only_a_pattern_not_effective_setting():
 
 
 def test_registry_safe_after_stop_retains_name(tmp_path,monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     path=tmp_path/'pod.yaml';path.write_text('apiVersion: v1\nkind: Pod\n')
     registry=build_registry(force=True);SecurityStore().set_stop(True)
     result=asyncio.run(registry.execute('review_k8s',{'path':str(path)}))

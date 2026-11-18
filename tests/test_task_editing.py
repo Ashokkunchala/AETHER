@@ -3,7 +3,7 @@ import sqlite3
 
 import pytest
 
-from jarvis.ownership import OwnershipStore
+from aether.ownership import OwnershipStore
 
 
 @pytest.fixture
@@ -22,7 +22,7 @@ def test_correct_prioritize_postpone_and_clear(store):
 
 
 def test_timezone_offsets_compare_actual_instants(store, monkeypatch):
-    monkeypatch.setattr('jarvis.ownership._now_iso', lambda: '2026-11-13T10:00:00+00:00')
+    monkeypatch.setattr('aether.ownership._now_iso', lambda: '2026-11-13T10:00:00+00:00')
     past = store.add('Actually overdue', '2026-11-13T15:00:00+05:30')
     future = store.add('Actually later', '2026-11-13T06:00:00-05:00')
     assert past['overdue'] and not future['overdue']
@@ -64,10 +64,10 @@ def test_legacy_schema_upgrades_and_ambiguous_date_warns(tmp_path):
 
 
 def test_registry_edit_roundtrip(tmp_path, monkeypatch):
-    from jarvis import ownership
-    from jarvis.tools.builtin_tools import build_registry
+    from aether import ownership
+    from aether.tools.builtin_tools import build_registry
     monkeypatch.setattr(ownership, '_default_store', OwnershipStore(tmp_path / 'tasks.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     task = ownership.default_store().add('Read docs')
     registry = build_registry(force=True)
     result = asyncio.run(registry.execute('edit_commitment', {'commitment_id': task['id'], 'priority': 1, 'due_at': '2026-12-01T09:00:00+05:30'}))

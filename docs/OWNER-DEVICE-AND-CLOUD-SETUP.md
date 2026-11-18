@@ -4,7 +4,7 @@ This is a manual guide, not a report that anything was installed, enabled or tes
 
 ## A. Android: install and test local features first
 
-1. On your computer, open the green build above, sign in to GitHub if requested, and download the `jarvis-android-debug-apk` artifact under **Artifacts**. Extract its ZIP and confirm it contains `app-debug.apk`. This is a debug-signed test APK, not a production/store release. The artifact was available when this guide was written; retention is 14 days. Do not use an APK from a different run or unknown source.
+1. On your computer, open the green build above, sign in to GitHub if requested, and download the `aether-android-debug-apk` artifact under **Artifacts**. Extract its ZIP and confirm it contains `app-debug.apk`. This is a debug-signed test APK, not a production/store release. The artifact was available when this guide was written; retention is 14 days. Do not use an APK from a different run or unknown source.
 2. Transfer the APK to your own Android phone using your chosen USB/file-transfer route. Open it on the phone. If Android asks, allow installation from that file app only for this install, then turn that permission off afterward. If it reports an incompatible signature or asks to uninstall the old app, STOP and report that screen. Uninstalling may erase app settings/reminders; no uninstall or data wipe is part of this guide.
 3. Open AETHER. Leave backend URL/token empty for these local checks. No cloud/model API key is needed for bundled labels/OCR or local reminders. Keep Live Voice off. The older chat/voice functions need their own backend/provider setup and can consume paid API usage; they are not part of this test.
 4. Open **IMAGE UNDERSTANDING / BACKGROUND REMINDER**. Choose a harmless photo with an obvious object and some Latin text. Selection should not run analysis. Tap **Understand selected image locally**. Expect candidate labels and OCR with uncertainty notices, not guaranteed descriptions. Try rotation if text is sideways. Do not use private documents or medical/safety images for the first test.
@@ -23,7 +23,7 @@ Use a NEW folder, not the older working copy that previously had merge conflicts
 1. Open a normal, non-administrator PowerShell window in a parent folder you choose. Confirm no `AETHER-device-test` folder already exists there. Run one command at a time and stop if one fails:
 
 ```powershell
-git clone --branch jarvis-cinematic-local-voice --single-branch https://github.com/Ashokkunchala/AETHER.git AETHER-device-test
+git clone --branch aether-cinematic-local-voice --single-branch https://github.com/Ashokkunchala/AETHER.git AETHER-device-test
 Set-Location .\AETHER-device-test
 git status --short
 git rev-parse HEAD
@@ -39,7 +39,7 @@ py -3.14 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 ```
 
-If `py -3.14` is unavailable or pip reports an unavailable package/build failure, stop and send the nonsecret error. Do not silently replace pinned constraints. Voice drivers, startup registration, `INSTALL-JARVIS.ps1`, `SETUP-MOBILE.bat`, firewall rules and administrator access are intentionally excluded from this minimal path.
+If `py -3.14` is unavailable or pip reports an unavailable package/build failure, stop and send the nonsecret error. Do not silently replace pinned constraints. Voice drivers, startup registration, `INSTALL-AETHER.ps1`, `SETUP-MOBILE.bat`, firewall rules and administrator access are intentionally excluded from this minimal path.
 
 3. Run only the targeted local tests. They execute trusted project code against temporary databases and fakes, not real AWS/Kubernetes resources or providers:
 
@@ -52,7 +52,7 @@ These tests do not prove Windows hardware control or Android runtime acceptance.
 4. Read the deeper mentor catalog without calling a model/provider or changing cloud state:
 
 ```powershell
-.\.venv\Scripts\python.exe -c "import json; from jarvis.mentor_deep import DeepMentor; print(json.dumps(DeepMentor.catalog(), indent=2))"
+.\.venv\Scripts\python.exe -c "import json; from aether.mentor_deep import DeepMentor; print(json.dumps(DeepMentor.catalog(), indent=2))"
 ```
 
 Expected: twelve scenario lessons across Python/backend/Kubernetes/AWS. The registered `mentor_deep_start`, `mentor_deep_submit`, `mentor_deep_progress` and `mentor_deep_history` paths write only local mentor practice data when used. Objective results are not free-text mastery grades.
@@ -66,7 +66,7 @@ Test-Path Env:AETHER_ENABLE_TYPED_LIVE
 Expected: `False`. If `True`, STOP and review who enabled it and which targets were intended. Do not run the next check while it is enabled. If `False`, run:
 
 ```powershell
-.\.venv\Scripts\python.exe -m jarvis.devops.lifecycle_runtime status
+.\.venv\Scripts\python.exe -m aether.devops.lifecycle_runtime status
 ```
 
 Expected: a nonzero exit with **Disabled**. This is the expected safety result, not a setup failure. Do not set enable variables or run prepare/review/execute against real accounts yet.

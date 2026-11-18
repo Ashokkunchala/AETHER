@@ -21,10 +21,10 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.ashok.jarvis"
+    namespace = "com.ashok.aether"
     compileSdk = 35
     defaultConfig {
-        applicationId = "com.ashok.jarvis"
+        applicationId = "com.ashok.aether"
         minSdk = 26
         targetSdk = 35
         versionCode = 2

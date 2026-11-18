@@ -4,7 +4,7 @@ from datetime import date, timedelta
 
 import pytest
 
-from jarvis.devops.cost_snapshot import review_costs, review_costs_export
+from aether.devops.cost_snapshot import review_costs, review_costs_export
 
 
 def metric(amount='12.3456789012', unit='USD'):
@@ -179,10 +179,10 @@ def test_bad_export(tmp_path, payload):
 
 
 def test_registry_does_not_call_billed_api_or_change_policy(tmp_path, monkeypatch):
-    from jarvis.devops.awscli import classify
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
+    from aether.devops.awscli import classify
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
     path = tmp_path / 'cost.json'
     path.write_text(json.dumps({'ResultsByTime': [period()]}))
     registry = build_registry(force=True)

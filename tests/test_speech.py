@@ -7,7 +7,7 @@ import time
 
 import pytest
 
-from jarvis.core.voice.speech import (
+from aether.core.voice.speech import (
     ElevenLabsBackend,
     LocalTTSBackend,
     SpeechEngine,
@@ -76,11 +76,11 @@ def test_local_backend_reports_missing_pyttsx3(monkeypatch):
 
 def test_local_backend_synthesizes_with_engine_factory(tmp_path):
     backend = LocalTTSBackend(engine_factory=FakePyttsx)
-    result = backend.synthesize("hello jarvis")
+    result = backend.synthesize("hello aether")
     assert result.backend == "local"
     assert result.format == "wav"
     assert result.audio.startswith(b"RIFF")
-    assert result.chars == len("hello jarvis")
+    assert result.chars == len("hello aether")
 
 
 def test_local_backend_timeout():
@@ -153,7 +153,7 @@ def test_elevenlabs_timeout_is_passed_to_transport():
 
 def test_elevenlabs_key_never_appears_in_status():
     env = {"ELEVENLABS_API_KEY": "secret-key-123", "ELEVENLABS_VOICE_ID": "voice-9"}
-    engine = SpeechEngine.from_env({**env, "JARVIS_TTS_BACKEND": "elevenlabs"})
+    engine = SpeechEngine.from_env({**env, "AETHER_TTS_BACKEND": "elevenlabs"})
     rendered = str(engine.status())
     assert "secret-key-123" not in rendered
     assert all(entry["available"] for entry in engine.status())
@@ -166,10 +166,10 @@ def test_engine_defaults_to_local_first():
 
 
 def test_engine_order_follows_env():
-    engine = SpeechEngine.from_env({"JARVIS_TTS_BACKEND": "elevenlabs,local"})
+    engine = SpeechEngine.from_env({"AETHER_TTS_BACKEND": "elevenlabs,local"})
     assert [b.name for b in engine.backends] == ["elevenlabs", "local"]
     with pytest.raises(ValueError, match="Unknown TTS backend"):
-        SpeechEngine.from_env({"JARVIS_TTS_BACKEND": "bogus"})
+        SpeechEngine.from_env({"AETHER_TTS_BACKEND": "bogus"})
 
 
 def test_engine_falls_back_to_next_backend():

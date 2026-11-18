@@ -1,7 +1,7 @@
 .PHONY: help install dev run robot call test lint typecheck format migrate upgrade clean docker-build docker-up docker-down
 
 help:
-	@echo "JARVIS Personal AI - Makefile commands"
+	@echo "AETHER Personal AI - Makefile commands"
 	@echo "  make install   - Install dependencies"
 	@echo "  make dev       - Install dev dependencies"
 	@echo "  make run       - Run enhanced server"
@@ -27,10 +27,10 @@ run:
 	uvicorn app.main_enhanced:app --reload --host 127.0.0.1 --port 8000
 
 robot:
-	python jarvis_cli.py robot
+	python aether_cli.py robot
 
 call:
-	python jarvis_cli.py call
+	python aether_cli.py call
 
 test:
 	pytest -v
@@ -50,7 +50,7 @@ format:
 # Alembic autogenerate cannot work with target_metadata = None. Add the SQL to
 # the generated file by hand and review it before running `make upgrade`.
 migrate:
-	alembic revision -m "jarvis schema change"
+	alembic revision -m "aether schema change"
 
 upgrade:
 	alembic upgrade head

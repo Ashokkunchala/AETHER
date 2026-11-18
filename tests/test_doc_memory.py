@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-from jarvis.memory.doc_memory import DocMemory
+from aether.memory.doc_memory import DocMemory
 
 
 @pytest.fixture()

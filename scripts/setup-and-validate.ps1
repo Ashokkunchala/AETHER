@@ -41,10 +41,10 @@ function New-Secret {
     return [Convert]::ToBase64String($bytes).TrimEnd('=').Replace('+','-').Replace('/','_')
 }
 
-Write-Section "JARVIS Personal AI - setup and validation"
+Write-Section "AETHER Personal AI - setup and validation"
 Write-Host "Repository: $RepoRoot"
 if (!(Test-Path (Join-Path $RepoRoot "app\main_enhanced.py")) -or !(Test-Path (Join-Path $RepoRoot "requirements-dev.txt"))) {
-    throw "Run this script from the Jarvis-Personal-AI repository root. Expected app\main_enhanced.py and requirements-dev.txt."
+    throw "Run this script from the AETHER repository root. Expected app\main_enhanced.py and requirements-dev.txt."
 }
 if (!(Test-Path (Join-Path $RepoRoot "scripts\start-windows.ps1"))) {
     throw "scripts\start-windows.ps1 is missing from this checkout."
@@ -108,11 +108,11 @@ $examplePath = Join-Path $RepoRoot ".env.example"
 if (!(Test-Path $envPath)) {
     if (!(Test-Path $examplePath)) { throw ".env.example is missing; cannot create a safe environment file." }
     Copy-Item $examplePath $envPath
-    Warn "Created .env from .env.example. Review it before using JARVIS."
+    Warn "Created .env from .env.example. Review it before using AETHER."
 }
 $text = Get-Content -Raw -Path $envPath
 
-foreach ($name in @("JARVIS_API_TOKEN", "SECRET_KEY", "JARVIS_AGENT_TOKEN")) {
+foreach ($name in @("AETHER_API_TOKEN", "SECRET_KEY", "AETHER_AGENT_TOKEN")) {
     $match = [regex]::Match($text, "(?m)^\s*$([regex]::Escape($name))=(.*)$")
     if (!$match.Success -or (Test-Placeholder $match.Groups[1].Value) -or $match.Groups[1].Value.Trim().Length -lt 32) {
         $text = Set-EnvValue $text $name (New-Secret)
@@ -164,7 +164,7 @@ $requiredPaths = @(
     "app\main.py",
     "app\main_enhanced.py",
     "app\live_voice.py",
-    "jarvis_cli.py",
+    "aether_cli.py",
     "scripts\setup-windows.ps1",
     "scripts\start-windows.ps1",
     "tests"
@@ -174,7 +174,7 @@ foreach ($relative in $requiredPaths) {
     else { Fail "$relative is missing" }
 }
 
-& $venvPython -m compileall -q app jarvis
+& $venvPython -m compileall -q app aether
 if ($LASTEXITCODE -ne 0) { Fail "Python compile check failed." } else { Pass "Python modules compile" }
 
 if (!$SkipTests) {
@@ -193,27 +193,27 @@ try {
     Pass "Existing local API responded at $healthUrl"
     Write-Host ("Health response: " + ($health | ConvertTo-Json -Compress -Depth 4))
 } catch {
-    Warn "No responding JARVIS API found at $healthUrl. This is normal before startup; run the start script to check the live endpoint."
+    Warn "No responding AETHER API found at $healthUrl. This is normal before startup; run the start script to check the live endpoint."
 }
 
 Write-Section 'Summary'
 if ($Failures.Count -gt 0) {
     Write-Host ('Setup completed with {0} failure(s):' -f $Failures.Count) -ForegroundColor Red
     foreach ($item in $Failures) { Write-Host (' - ' + $item) -ForegroundColor Red }
-    throw 'JARVIS setup/validation failed. Resolve the failures above and rerun this script.'
+    throw 'AETHER setup/validation failed. Resolve the failures above and rerun this script.'
 }
 Write-Host 'Setup and local checks completed. This does not prove provider connectivity, microphone/speaker behavior, Android hardware actions, or production readiness.' -ForegroundColor Green
 Write-Host ''
 Write-Host 'Next steps:'
 Write-Host '  1. Review local .env; keep all API keys and tokens private.'
-Write-Host '  2. Start JARVIS with: .\scripts\start-windows.ps1'
+Write-Host '  2. Start AETHER with: .\scripts\start-windows.ps1'
 Write-Host '  3. Open http://127.0.0.1:8000 and test chat/voice manually.'
-Write-Host '  4. For the floating robot: .\.venv\Scripts\python.exe jarvis_cli.py'
-Write-Host '  5. For a live voice call: .\.venv\Scripts\python.exe jarvis_cli.py call'
+Write-Host '  4. For the floating robot: .\.venv\Scripts\python.exe aether_cli.py'
+Write-Host '  5. For a live voice call: .\.venv\Scripts\python.exe aether_cli.py call'
 Write-Host '  6. For Android, build/install the separate APK and test on a physical device.'
 
 if ($StartAfterSetup) {
-    Write-Section 'Starting JARVIS'
+    Write-Section 'Starting AETHER'
     $startScript = Join-Path -Path $RepoRoot -ChildPath 'scripts\start-windows.ps1'
     & $startScript
 }

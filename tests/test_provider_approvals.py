@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from app import integrations, provider_approvals
 from app.core.auth import token_auth
-from jarvis.security import SecurityStore
+from aether.security import SecurityStore
 
 TOKEN = 'aether-provider-approval-test-token-long-enough'
 AUTH = {'Authorization': 'Bearer ' + TOKEN}
@@ -16,10 +16,10 @@ AUTH = {'Authorization': 'Bearer ' + TOKEN}
 
 @pytest.fixture
 def env(monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN)
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'test.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
-    monkeypatch.setattr(integrations.settings, 'jarvis_db_path', str(tmp_path / 'test.db'))
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN)
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'test.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
+    monkeypatch.setattr(integrations.settings, 'aether_db_path', str(tmp_path / 'test.db'))
     monkeypatch.setattr(integrations.settings, 'secret_key', 'test-secret-key-with-at-least-32-chars')
     monkeypatch.setattr(integrations.settings, 'whatsapp_access_token', 'synthetic-only')
     monkeypatch.setattr(integrations.settings, 'whatsapp_phone_number_id', 'synthetic-phone-id')
@@ -101,9 +101,9 @@ def test_rotation_revocation_and_stop(env, monkeypatch):
     assert approve(client, key).status_code == 409
     assert client.post('/api/integrations/gmail/drafts', headers=AUTH, json={'to':'a@b.invalid','subject':'Mock','body':'Mock'}).status_code == 409
     SecurityStore().set_stop(False)
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN + 'rotated')
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN + 'rotated')
     assert approve(client, key).status_code == 401
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN)
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN)
     device = token_auth.issue_device_token('revoked')
     headers = {'Authorization': 'Bearer ' + device['token']}
     key = draft(client, headers)['id']
@@ -218,7 +218,7 @@ def test_parallel_schema_upgrade_is_additive(env):
     client, sends = env
     # Force old schema while retaining an unbound pending request from the older writer.
     import sqlite3
-    with sqlite3.connect(integrations.settings.jarvis_db_path) as db:
+    with sqlite3.connect(integrations.settings.aether_db_path) as db:
         db.executescript('''
             CREATE TABLE approval_requests (
               id INTEGER PRIMARY KEY, provider TEXT NOT NULL, action TEXT NOT NULL,

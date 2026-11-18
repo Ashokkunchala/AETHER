@@ -38,11 +38,11 @@ function New-Secret {
     return [Convert]::ToBase64String($bytes).TrimEnd('=').Replace('+','-').Replace('/','_')
 }
 
-Write-Host "JARVIS Live Voice setup (Windows PowerShell)" -ForegroundColor Green
+Write-Host "AETHER Live Voice setup (Windows PowerShell)" -ForegroundColor Green
 Write-Host "Repository: $RepoRoot"
 
 if (!(Test-Path (Join-Path $RepoRoot "app\core\config.py"))) {
-    throw "Run this script from the Jarvis-Personal-AI repository root (app\core\config.py not found)."
+    throw "Run this script from the AETHER repository root (app\core\config.py not found)."
 }
 if (!(Test-Path $EnvFile)) {
     if (!(Test-Path $EnvExample)) { throw ".env.example not found. Cannot create .env safely." }
@@ -72,7 +72,7 @@ if (!$apiKeyMatch.Success -or [string]::IsNullOrWhiteSpace($apiKeyMatch.Groups[1
 $text = Set-EnvValue $text "GEMINI_LIVE_VOICE" "Charon"
 $text = Set-EnvValue $text "GEMINI_LIVE_MODEL" "gemini-3.8-live"
 
-foreach ($name in @("JARVIS_API_TOKEN", "SECRET_KEY", "JARVIS_AGENT_TOKEN")) {
+foreach ($name in @("AETHER_API_TOKEN", "SECRET_KEY", "AETHER_AGENT_TOKEN")) {
     $match = [regex]::Match($text, "(?m)^$([regex]::Escape($name))=(.*)$")
     if (!$match.Success -or $match.Groups[2].Value.Trim().StartsWith("replace_") -or $match.Groups[2].Value.Trim().Length -lt 32) {
         $text = Set-EnvValue $text $name (New-Secret)
@@ -90,9 +90,9 @@ Write-Host "Updated .env (secrets are not displayed)." -ForegroundColor Green
 Write-Step "Validate local configuration"
 $finalText = Get-Content -Raw -Path $EnvFile
 $apiKeyMatch = [regex]::Match($finalText, '(?m)^GEMINI_API_KEY=(.*)$')
-$apiTokenMatch = [regex]::Match($finalText, '(?m)^JARVIS_API_TOKEN=(.*)$')
+$apiTokenMatch = [regex]::Match($finalText, '(?m)^AETHER_API_TOKEN=(.*)$')
 $secretMatch = [regex]::Match($finalText, '(?m)^SECRET_KEY=(.*)$')
-$agentTokenMatch = [regex]::Match($finalText, '(?m)^JARVIS_AGENT_TOKEN=(.*)$')
+$agentTokenMatch = [regex]::Match($finalText, '(?m)^AETHER_AGENT_TOKEN=(.*)$')
 $checks = @(
     @{ Name = "Gemini API key configured"; Pass = ($apiKeyMatch.Success -and $apiKeyMatch.Groups[1].Value.Trim().Length -gt 10 -and !$apiKeyMatch.Groups[1].Value.Trim().StartsWith("replace_")) },
     @{ Name = "Live voice set to Charon"; Pass = ($finalText -match '(?m)^GEMINI_LIVE_VOICE=Charon\s*$') },
@@ -173,11 +173,11 @@ if ($shouldInstall) {
 Write-Step "Setup complete"
 Write-Host "Voice profile: Charon"
 Write-Host "Configured model: gemini-3.8-live. Confirm that this model ID is currently available to your Gemini API project."
-Write-Host "Next: run .\scripts\start-windows.ps1, open http://127.0.0.1:8000, enter JARVIS_API_TOKEN from .env, and click Start Live Voice."
+Write-Host "Next: run .\scripts\start-windows.ps1, open http://127.0.0.1:8000, enter AETHER_API_TOKEN from .env, and click Start Live Voice."
 Write-Host "Do not share or commit .env. These checks do not prove live API connectivity or audible playback."
 
 if ($StartAfterSetup) {
     if (!(Test-Path $StartScript)) { throw "Start script not found: $StartScript" }
-    Write-Step "Starting JARVIS"
+    Write-Step "Starting AETHER"
     & $StartScript
 }

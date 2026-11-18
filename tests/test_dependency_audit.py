@@ -3,8 +3,8 @@ import json
 
 import pytest
 
-from jarvis.devops.dependency_audit import review_audit, review_audit_export
-from jarvis.tools.builtin_tools import build_registry
+from aether.devops.dependency_audit import review_audit, review_audit_export
+from aether.tools.builtin_tools import build_registry
 
 
 def dep(name='example', vulns=None):
@@ -73,8 +73,8 @@ def test_export_file_limits_and_no_raw_error_echo(tmp_path):
 
 
 def test_registry_uses_supplied_snapshot_only(tmp_path, monkeypatch):
-    from jarvis.security import SecurityStore
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
+    from aether.security import SecurityStore
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
     export = tmp_path / 'audit.json'
     export.write_text(json.dumps({'dependencies': [dep(vulns=[vuln()])]}))
     SecurityStore().set_stop(True)

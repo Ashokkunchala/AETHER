@@ -4,19 +4,19 @@ import asyncio
 
 import pytest
 
-from jarvis.tools.plan_resume import (
+from aether.tools.plan_resume import (
     forget_plan,
     list_plans,
     plan_status,
     run_plan,
     save_plan,
 )
-from jarvis.tools.registry import Risk, Tool, ToolRegistry
+from aether.tools.registry import Risk, Tool, ToolRegistry
 
 
 @pytest.fixture(autouse=True)
 def isolated_plan_store(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "plans.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "plans.sqlite3"))
 
 
 def _registry(**handlers):
@@ -94,7 +94,7 @@ def test_failed_dependency_marks_dependents_skipped_until_resume():
 
 def test_save_rejects_mutating_confirmation_and_unknown_tools():
     registry = _registry(tool_a=lambda: {"message": "ok"})
-    from jarvis.tools.registry import Tool as _Tool
+    from aether.tools.registry import Tool as _Tool
     registry.register(_Tool(
         name="writer", description="writes", parameters={"type": "object", "properties": {}},
         handler=lambda: {"message": "wrote"}, risk=Risk.MEDIUM, category="system",
@@ -171,7 +171,7 @@ def test_plan_steps_record_runtime_events_without_arguments():
     save_plan("events", [{"task_id": "a", "tool": "tool_a",
                           "args": {"path": "/secret-place"}}], registry)
     asyncio.run(run_plan("events", registry))
-    from jarvis.telemetry import runtime_events
+    from aether.telemetry import runtime_events
     snapshot = runtime_events(limit=50)
     plan_events = [e for e in snapshot["events"] if e.get("task_id") == "plan-events"]
     assert plan_events and all(e["action"] == "plan_step" for e in plan_events)

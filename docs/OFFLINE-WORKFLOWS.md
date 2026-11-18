@@ -36,7 +36,7 @@ Completed output is published only after its local result state commits. Cancell
 
 ## Local data and limits
 
-Journal default: `~/.jarvis/offline-workflows.db`, override with owner-controlled `AETHER_OFFLINE_WORKFLOW_DB`. Creating the store can initialize its folder/schema. New POSIX journal files are created mode0600; Windows inherits directory ACLs. This is not encryption, secure erasure, a retention service or tamper-proof audit. Keep the folder private. No clear/delete operation is added. Existing backups/processes may retain data; do not include secrets. A same-user program can edit the journal and paths can race, so this is not an OS sandbox or per-device authorization.
+Journal default: `~/.aether/offline-workflows.db`, override with owner-controlled `AETHER_OFFLINE_WORKFLOW_DB`. Creating the store can initialize its folder/schema. New POSIX journal files are created mode0600; Windows inherits directory ACLs. This is not encryption, secure erasure, a retention service or tamper-proof audit. Keep the folder private. No clear/delete operation is added. Existing backups/processes may retain data; do not include secrets. A same-user program can edit the journal and paths can race, so this is not an OS sandbox or per-device authorization.
 
 Inputs persist locally, including supplied resource identifiers. Results can enter the configured AI through the existing chat tool loop. Use only evidence approved for that workflow. No provider send was performed during development. The engine is local single-journal orchestration, not distributed execution, arbitrary effect workflows, dependency DAGs, dynamic planning, remote cancellation, automatic remediation or general multi-agent autonomy.
 

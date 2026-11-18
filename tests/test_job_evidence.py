@@ -3,9 +3,9 @@ import json
 
 import pytest
 
-from jarvis.job_evidence import review_job_evidence, register_job_evidence
-from jarvis.security import SecurityStore
-from jarvis.tools.registry import ToolRegistry
+from aether.job_evidence import review_job_evidence, register_job_evidence
+from aether.security import SecurityStore
+from aether.tools.registry import ToolRegistry
 
 
 def request(phrase='Python', resume='Built a Python demo.', job='Python is required.'):
@@ -66,7 +66,7 @@ def test_excerpt_limits_and_no_instruction_execution():
 
 
 def test_registry_fresh_review_stop(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
     registry = ToolRegistry();registry.security_store = SecurityStore();register_job_evidence(registry)
     tool = registry.get('review_job_evidence')
     assert tool.never_auto_approve and not tool.allow_always and not tool.allow_auto_approve
@@ -86,9 +86,9 @@ def test_programming_punctuation_is_literal():
 def test_console_job_review_exact_spec(tmp_path, monkeypatch, capsys):
     import sys
     from types import SimpleNamespace
-    from jarvis import owner_console as console
+    from aether import owner_console as console
     path = tmp_path / 'evidence.json';path.write_text(json.dumps(request()))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'review.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'review.db'))
     monkeypatch.setattr(sys, 'argv', ['owner-console', 'job-review', '--spec', str(path)])
     monkeypatch.setattr(sys, 'stdin', SimpleNamespace(isatty=lambda: True))
     monkeypatch.setattr('builtins.input', lambda _: 'APPROVE review_job_evidence')

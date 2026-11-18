@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from jarvis.mentor import INTERVIEW_QUESTIONS, LESSONS, SOURCES, MentorStore
+from aether.mentor import INTERVIEW_QUESTIONS, LESSONS, SOURCES, MentorStore
 
 
 @pytest.fixture
@@ -83,9 +83,9 @@ def test_unknown_session_and_literal_answer_text(store):
 def test_interview_tools_execute_through_registry(tmp_path, monkeypatch):
     import asyncio
 
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_MENTOR_DB', str(tmp_path / 'mentor.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_MENTOR_DB', str(tmp_path / 'mentor.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     registry = build_registry(force=True)
     started = asyncio.run(registry.execute('mentor_interview_start', {'lesson_ids': ['linux']}))
     assert started.ok

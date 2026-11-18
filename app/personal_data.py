@@ -1,6 +1,6 @@
 """Authenticated local personal-data APIs backed by SQLite.
 
-This module deliberately refuses access until JARVIS_API_TOKEN is configured.
+This module deliberately refuses access until AETHER_API_TOKEN is configured.
 Keep the server bound to localhost until TLS and device pairing are deployed.
 """
 import json
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/api", tags=["personal data"])
 
 
 def _db_path() -> Path:
-    return Path(Settings().jarvis_db_path)
+    return Path(Settings().aether_db_path)
 
 
 def _connect():
@@ -263,7 +263,7 @@ class ScheduledRunToggle(BaseModel):
 
 @router.get("/memories", dependencies=[Depends(require_device_token)])
 def list_memories(query: str = '', category: str = '', include_expired: bool = True):
-    from jarvis.memory.controls import search_memories
+    from aether.memory.controls import search_memories
     try:
         return {'items': search_memories(query, category, include_expired)}
     except ValueError as exc:

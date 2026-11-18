@@ -54,7 +54,7 @@ to Live Voice behind the scenes.
 ## Compatibility and remaining work
 
 Active web chat, dashboard, live-voice status, model identities and API title now say AETHER.
-Internal `jarvis` packages, storage keys, branch name, configuration variable names and file
+Internal `aether` packages, storage keys, branch name, configuration variable names and file
 paths are retained for compatibility. This is not a full legacy-documentation/installer
 branding migration. Music app/device control remains limited to actually supported tools;
 no new playback integration was added. Real microphone, installed voice quality, emotional
@@ -72,6 +72,6 @@ The local desktop Live client now uses the same companion guidance and the curre
 persisted CLI/TUI style when the caller does not supply an explicit persona. An explicit
 caller persona is preserved. The robot, terminal dashboard, CLI responses, Windows toast
 labels, native Android chat/transcripts and backend titles use AETHER display names.
-Compatibility commands, data paths, installer filenames and scheduled-task identities are
-not migrated. The separate neural wake detector retains its legacy `jarvis` model
+Commands, data paths, installer filenames and scheduled-task identities use the AETHER name;
+older installs are mapped and copied non-destructively by `aether/legacy_compat.py`. The separate neural wake detector retains its built-in pre-trained model
 selection and spoken trigger; this work does not bundle a trained AETHER wake model.

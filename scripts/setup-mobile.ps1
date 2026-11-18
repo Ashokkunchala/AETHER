@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    One-shot setup to install and run JARVIS on Windows + Android over the LAN.
+    One-shot setup to install and run AETHER on Windows + Android over the LAN.
 
 .DESCRIPTION
     Prepares everything the phone needs, in order:
@@ -9,7 +9,7 @@
       1. Verifies the local Python environment (runs scripts\setup-windows.ps1
          when .venv is missing).
       2. Detects this machine's LAN IP and mints the self-signed HTTPS
-         certificate the Android app will trust (data\tls\jarvis-ca.crt).
+         certificate the Android app will trust (data\tls\aether-ca.crt).
       3. Builds the debug APK (scripts\setup-android.ps1) and, with -Install,
          pushes it to a USB-connected device over adb.
       4. Adds the inbound firewall rule for the HTTPS port.
@@ -55,7 +55,7 @@ $ErrorActionPreference = "Stop"
 
 . (Join-Path $PSScriptRoot "mobile-common.ps1")
 
-$root = Get-JarvisRepoRoot
+$root = Get-AETHERRepoRoot
 
 function Write-Step([string]$Message) {
     Write-Host ""
@@ -63,18 +63,18 @@ function Write-Step([string]$Message) {
 }
 
 Write-Host ""
-Write-Host "JARVIS Mobile - complete setup (Windows + Android over LAN)" -ForegroundColor Cyan
+Write-Host "AETHER Mobile - complete setup (Windows + Android over LAN)" -ForegroundColor Cyan
 Write-Host "=============================================================" -ForegroundColor Cyan
 Write-Host "Repository: $root"
 
 # ------------------------------------------------------------ 1. python env
 Write-Step "Step 1/5: Python environment"
 $python = $null
-try { $python = Test-JarvisVenv -Root $root } catch {
+try { $python = Test-AETHERVenv -Root $root } catch {
     Write-Host ".venv missing - running scripts\setup-windows.ps1 first..." -ForegroundColor Yellow
     & (Join-Path $root "scripts\setup-windows.ps1") -SkipVerify
     if ($LASTEXITCODE -ne 0) { throw "scripts\setup-windows.ps1 failed (exit $LASTEXITCODE)." }
-    $python = Test-JarvisVenv -Root $root
+    $python = Test-AETHERVenv -Root $root
 }
 Write-Host "[PASS] $python" -ForegroundColor Green
 
@@ -84,12 +84,12 @@ if (-not (Test-Path (Join-Path $root ".env"))) {
 
 # ------------------------------------------------------- 2. HTTPS certificate
 Write-Step "Step 2/5: LAN address + HTTPS certificate"
-$lanIp = Get-JarvisLanIPv4
+$lanIp = Get-AETHERLanIPv4
 Write-Host "[PASS] LAN IP: $lanIp" -ForegroundColor Green
-$certInfo = New-JarvisHttpsCert -LanIp $lanIp -Force:$ForceCert
+$certInfo = New-AETHERHttpsCert -LanIp $lanIp -Force:$ForceCert
 Write-Host "[PASS] Certificate ready: $($certInfo.Cert)" -ForegroundColor Green
 Write-Host "       Phone CA file:     $($certInfo.CaCopy)" -ForegroundColor Green
-$baseUrl = Get-JarvisMobileUrl -LanIp $lanIp -Port $Port
+$baseUrl = Get-AETHERMobileUrl -LanIp $lanIp -Port $Port
 
 # ------------------------------------------------------------------- 3. APK
 Write-Step "Step 3/5: Android APK"
@@ -109,13 +109,13 @@ Write-Host "[PASS] APK: $apkPath" -ForegroundColor Green
 
 # ---------------------------------------------------------------- 4. firewall
 Write-Step "Step 4/5: Firewall rule for TCP $Port"
-Add-JarvisFirewallRule -Port $Port | Out-Null
+Add-AETHERFirewallRule -Port $Port | Out-Null
 
 # --------------------------------------------------------------- 5. summary
 Write-Step "Step 5/5: What to do on the phone"
 Write-Host "  Backend URL   : $baseUrl" -ForegroundColor White
 Write-Host "  Pairing token : not displayed (secret protection)" -ForegroundColor Green
-Write-Host "  To retrieve it locally, open .env in Notepad and copy JARVIS_API_TOKEN." -ForegroundColor Yellow
+Write-Host "  To retrieve it locally, open .env in Notepad and copy AETHER_API_TOKEN." -ForegroundColor Yellow
 Write-Host ""
 Write-Host "  a. Install the APK on the phone:" -ForegroundColor Green
 Write-Host "     - USB: rerun with -Install, or"
@@ -123,13 +123,13 @@ Write-Host "     - Copy $apkPath to the phone and tap it."
 Write-Host "  b. One-time CA install (required for HTTPS):" -ForegroundColor Green
 Write-Host "     - Send $($certInfo.CaCopy) to the phone (USB/Bluetooth/Drive)."
 Write-Host "     - Settings > Security > Encryption & credentials > Install a certificate"
-Write-Host "       > CA certificate > select jarvis-ca.crt."
-Write-Host "  c. In the app: paste the backend URL and copy JARVIS_API_TOKEN" -ForegroundColor Green
+Write-Host "       > CA certificate > select aether-ca.crt."
+Write-Host "  c. In the app: paste the backend URL and copy AETHER_API_TOKEN" -ForegroundColor Green
 Write-Host "     from your local .env file into the pairing field, then tap Pair device."
 Write-Host "     After pairing, tap Connect securely. Never share or screenshot the token."
 Write-Host ""
 Write-Host "  Keep this Windows account signed in and this machine on the same Wi-Fi" -ForegroundColor DarkGray
-Write-Host "  as the phone whenever you want JARVIS reachable. Never port-forward $Port" -ForegroundColor DarkGray
+Write-Host "  as the phone whenever you want AETHER reachable. Never port-forward $Port" -ForegroundColor DarkGray
 Write-Host "  to the internet; this prototype is private-LAN only." -ForegroundColor DarkGray
 
 # ------------------------------------------------------------------ start it

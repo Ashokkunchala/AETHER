@@ -7,7 +7,7 @@ all requested laptop abilities work. Python test hosts are not the user's laptop
 
 ## Separate the execution surfaces
 
-The desktop registry uses jarvis/control/laptop.py and its module adapters.
+The desktop registry uses aether/control/laptop.py and its module adapters.
 Other older controllers also exist; they are not interchangeable acceptance
 paths. windows_agent/agent.py is a separate experimental loopback HTTP helper:
 health, bearer-token platform/Python status, pending exact HTTPS URL requests

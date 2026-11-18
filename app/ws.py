@@ -1,6 +1,6 @@
 """WebSocket bridge for the browser UI and any remote client.
 
-Speaks the same event vocabulary as ``JarvisBrain.ask`` so a browser gets the
+Speaks the same event vocabulary as ``AETHERBrain.ask`` so a browser gets the
 realtime experience the terminal gets: streamed text, tool lifecycle events,
 and an interactive confirmation dialog before anything risky runs.
 
@@ -45,9 +45,9 @@ from pydantic import BaseModel, ConfigDict, Field, RootModel, StrictBool, Valida
 from starlette.websockets import WebSocketState
 
 from app.core.ws_sessions import SessionIdentity, TicketStore
-from jarvis.core.brain import JarvisBrain
+from aether.core.brain import AETHERBrain
 
-logger = logging.getLogger("jarvis.ws")
+logger = logging.getLogger("aether.ws")
 
 router = APIRouter()
 
@@ -145,7 +145,7 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
         if not len(registry):
             await websocket.close(code=1011, reason="personal tools unavailable")
             return
-        brain = JarvisBrain(registry=registry, system_prompt=PERSONAL_PROMPT)
+        brain = AETHERBrain(registry=registry, system_prompt=PERSONAL_PROMPT)
     elif identity.profile == "personal-local":
         from app.personal_local_tools import LOCAL_PROMPT, build_local_registry
 
@@ -154,9 +154,9 @@ async def websocket_chat(websocket: WebSocket, ticket: str = Query(default="")):
             return context is not None and not context.is_set() and identity.is_active()
 
         registry = build_local_registry(local_session_active)
-        brain = JarvisBrain(registry=registry, system_prompt=LOCAL_PROMPT)
+        brain = AETHERBrain(registry=registry, system_prompt=LOCAL_PROMPT)
     else:
-        brain = JarvisBrain()
+        brain = AETHERBrain()
     pending_confirm: dict[str, asyncio.Future[bool]] = {}
     turn_task: asyncio.Task | None = None
 

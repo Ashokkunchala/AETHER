@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from jarvis.control import input_ctl
+from aether.control import input_ctl
 
 
 @pytest.fixture

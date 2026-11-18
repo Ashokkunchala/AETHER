@@ -24,7 +24,7 @@ Usage:
     python scripts/generate_https_cert.py --out-dir data/tls --ip 10.0.0.5 --hostname MYPC --force
 
 Outputs (in --out-dir):
-    cert.pem  - PEM certificate (also copied to jarvis-ca.crt for phone install)
+    cert.pem  - PEM certificate (also copied to aether-ca.crt for phone install)
     key.pem   - PEM private key (0600 where the OS supports it)
 """
 
@@ -57,7 +57,7 @@ KEY_SIZE = 2048
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Generate or refresh the self-signed HTTPS certificate "
-        "for the JARVIS mobile backend.",
+        "for the AETHER mobile backend.",
     )
     parser.add_argument(
         "--out-dir",
@@ -145,8 +145,8 @@ def _build_certificate(
     now = dt.datetime.now(dt.UTC)
     subject = x509.Name(
         [
-            x509.NameAttribute(NameOID.COMMON_NAME, "JARVIS Local HTTPS"),
-            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "JARVIS Personal AI (local only)"),
+            x509.NameAttribute(NameOID.COMMON_NAME, "AETHER Local HTTPS"),
+            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "AETHER Personal AI (local only)"),
         ]
     )
 
@@ -210,7 +210,7 @@ def _write_files(
 
     cert_path = out_dir / "cert.pem"
     key_path = out_dir / "key.pem"
-    ca_copy = out_dir / "jarvis-ca.crt"
+    ca_copy = out_dir / "aether-ca.crt"
 
     cert_bytes = cert.public_bytes(serialization.Encoding.PEM)
     key_bytes = key.private_bytes(
@@ -266,7 +266,7 @@ def main(argv: list[str] | None = None) -> int:
             not_after = existing.not_valid_after.replace(tzinfo=dt.UTC)
         print(f"Reusing existing certificate: {cert_path}")
         print(f"Valid until: {not_after:%Y-%m-%d %H:%M %Z}")
-        print(f"Install on phone: {out_dir / 'jarvis-ca.crt'}")
+        print(f"Install on phone: {out_dir / 'aether-ca.crt'}")
         return 0
 
     key, cert = _build_certificate(ips, hostnames, args.days)

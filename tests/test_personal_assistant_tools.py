@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from jarvis.tools.builtin_tools import build_registry, reset_controllers
-from jarvis.tools.registry import Risk
+from aether.tools.builtin_tools import build_registry, reset_controllers
+from aether.tools.registry import Risk
 
 
 @pytest.fixture()
@@ -64,7 +64,7 @@ def test_memory_and_briefing_tools_roundtrip(registry, tmp_path):
 def test_speak_text_fails_cleanly_without_backends(registry, monkeypatch):
     # Whatever the machine has installed, an unavailable backend must produce
     # a clean explanation, never a crash or a leaked secret.
-    from jarvis.core.voice import speech
+    from aether.core.voice import speech
 
     class Broken(speech.TTSBackend):
         name = "broken"

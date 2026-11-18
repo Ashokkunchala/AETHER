@@ -18,8 +18,8 @@ Example shape only, not an approved path or hash:
 {"version":1,"apps":{"viewer":{"executable":"C:\\Approved\\viewer.exe","sha256":"reviewed-64-lowercase-hex"}}}
 ```
 
-A second owner-managed file, default `~/.jarvis/reviewed_open.json` or the path
-in `JARVIS_REVIEWED_OPEN_FILE`, binds a handler ID to that approved app and exact
+A second owner-managed file, default `~/.aether/reviewed_open.json` or the path
+in `AETHER_REVIEWED_OPEN_FILE`, binds a handler ID to that approved app and exact
 local roots:
 
 ```json

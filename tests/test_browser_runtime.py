@@ -9,8 +9,8 @@ import pytest
 pytest.importorskip('playwright.async_api')
 from playwright.async_api import async_playwright
 
-from jarvis.custom_dashboard import render_dashboard
-from jarvis.rendered_browser import _browse, browser_preview
+from aether.custom_dashboard import render_dashboard
+from aether.rendered_browser import _browse, browser_preview
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def test_real_chromium_rendered_js_and_guarded_follow(tmp_path, monkeypatch):
     monkeypatch.setenv('AETHER_BROWSER_ENABLED','1')
     monkeypatch.setenv('AETHER_BROWSER_HOSTS','example.com')
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     monkeypatch.setenv('AETHER_BROWSER_OUTPUT',str(tmp_path))
     monkeypatch.setattr(socket,'getaddrinfo',lambda *_a,**_k:[(socket.AF_INET,socket.SOCK_STREAM,6,'',('93.184.216.34',443))])
     class FixtureLauncher:
@@ -237,7 +237,7 @@ def test_main_dashboard_alert_history_records_persists_and_clears(tmp_path):
             # Clearing removes only the local record.
             await page.click('#clearAlertHistory')
             assert 'No threshold crossings recorded' in await page.locator('#alertHistory').inner_text()
-            assert await page.evaluate('localStorage.getItem("jarvisAlertHistory")') is None
+            assert await page.evaluate('localStorage.getItem("aetherAlertHistory")') is None
             await context.close()
             await browser.close()
 
@@ -252,7 +252,7 @@ def test_main_dashboard_alert_history_is_bounded_and_survives_corrupt_storage():
             browser = await pw.chromium.launch(headless=True)
             context = await browser.new_context()
             await context.add_init_script(
-                'localStorage.setItem("jarvisAlertHistory", JSON.stringify('
+                'localStorage.setItem("aetherAlertHistory", JSON.stringify('
                 'Array.from({length: 60}, (_, i) => ({message: "CPU usage crossed " + i + "% <img src=x onerror=alert(1)>", time: "t" + i}))))'
             )
             page = await context.new_page()
@@ -264,7 +264,7 @@ def test_main_dashboard_alert_history_is_bounded_and_survives_corrupt_storage():
             assert '<img src=x' not in rendered
 
             # Corrupt storage falls back to the empty state without a script error.
-            await page.evaluate('localStorage.setItem("jarvisAlertHistory", "not json {")')
+            await page.evaluate('localStorage.setItem("aetherAlertHistory", "not json {")')
             await page.click('#clearAlertHistory')
             assert 'No threshold crossings recorded' in await page.locator('#alertHistory').inner_text()
             await context.close()
@@ -321,7 +321,7 @@ def test_main_dashboard_network_threshold_crossing_records_one_alert():
             assert text.count('Net download rate crossed') == 1
             await page.reload()
             await page.wait_for_function('document.getElementById("alertHistory") && document.getElementById("alertHistory").textContent.includes("Net download rate crossed")')
-            saved = await page.evaluate('localStorage.getItem("jarvisThresholdWarnings")')
+            saved = await page.evaluate('localStorage.getItem("aetherThresholdWarnings")')
             assert '"netDown":100' in saved
             await context.close()
             await browser.close()

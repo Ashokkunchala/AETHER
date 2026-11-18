@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from jarvis.devops import k8s, logs, postmortem
-from jarvis.tools.builtin_tools import build_registry, reset_controllers
+from aether.devops import k8s, logs, postmortem
+from aether.tools.builtin_tools import build_registry, reset_controllers
 
 BAD = """apiVersion: apps/v1
 kind: Deployment

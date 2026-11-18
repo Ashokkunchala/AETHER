@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Shared helpers for the JARVIS mobile (phone) setup scripts.
+    Shared helpers for the AETHER mobile (phone) setup scripts.
 
 .DESCRIPTION
     Dot-source this file from scripts\setup-mobile.ps1 and scripts\start-mobile.ps1:
@@ -10,7 +10,7 @@
 
     It provides LAN IP detection, self-signed HTTPS certificate generation,
     .env token reading and backend health checks. Nothing here starts a
-    server or modifies files except when New-JarvisHttpsCert writes the
+    server or modifies files except when New-AETHERHttpsCert writes the
     certificate into data\tls.
 #>
 
@@ -21,12 +21,12 @@ Set-StrictMode -Version Latest
 $script:MobileHttpsPort = 8443
 $script:MobileRepoRoot = Split-Path -Parent $PSScriptRoot
 
-function Get-JarvisRepoRoot {
+function Get-AETHERRepoRoot {
     # mobile-common.ps1 lives in <repo>\scripts
     return $script:MobileRepoRoot
 }
 
-function Get-JarvisLanIPv4 {
+function Get-AETHERLanIPv4 {
     <#
     .SYNOPSIS
         Return the preferred LAN IPv4 address of this machine.
@@ -67,10 +67,10 @@ function Get-JarvisLanIPv4 {
     return $candidates[0]
 }
 
-function Read-JarvisEnvValue {
+function Read-AETHEREnvValue {
     param(
         [Parameter(Mandatory = $true)][string]$Name,
-        [string]$EnvPath = (Join-Path (Get-JarvisRepoRoot) ".env")
+        [string]$EnvPath = (Join-Path (Get-AETHERRepoRoot) ".env")
     )
     if (-not (Test-Path -LiteralPath $EnvPath)) { return $null }
     $line = Get-Content -LiteralPath $EnvPath |
@@ -83,11 +83,11 @@ function Read-JarvisEnvValue {
     return $value
 }
 
-function Test-JarvisVenv {
-    param([string]$Root = (Get-JarvisRepoRoot))
+function Test-AETHERVenv {
+    param([string]$Root = (Get-AETHERRepoRoot))
     $python = Join-Path $Root ".venv\Scripts\python.exe"
     if (-not (Test-Path -LiteralPath $python)) {
-        throw "Virtual environment missing at $python. Run INSTALL_JARVIS.bat or scripts\setup-windows.ps1 first."
+        throw "Virtual environment missing at $python. Run INSTALL_AETHER.bat or scripts\setup-windows.ps1 first."
     }
     return $python
 }
@@ -107,7 +107,7 @@ function Invoke-NativeMerged {
     try { & $Block } finally { $ErrorActionPreference = $eap }
 }
 
-function New-JarvisHttpsCert {
+function New-AETHERHttpsCert {
     <#
     .SYNOPSIS
         Ensure data\tls holds a valid self-signed certificate covering this machine's LAN IP.
@@ -118,8 +118,8 @@ function New-JarvisHttpsCert {
         [Parameter(Mandatory = $true)][string]$LanIp,
         [switch]$Force
     )
-    $root = Get-JarvisRepoRoot
-    $python = Test-JarvisVenv -Root $root
+    $root = Get-AETHERRepoRoot
+    $python = Test-AETHERVenv -Root $root
     $outDir = Join-Path $root "data\tls"
     $generator = Join-Path $root "scripts\generate_https_cert.py"
     if (-not (Test-Path -LiteralPath $generator)) {
@@ -141,7 +141,7 @@ function New-JarvisHttpsCert {
 
     $cert = Join-Path $outDir "cert.pem"
     $key = Join-Path $outDir "key.pem"
-    $caCopy = Join-Path $outDir "jarvis-ca.crt"
+    $caCopy = Join-Path $outDir "aether-ca.crt"
     foreach ($path in @($cert, $key)) {
         if (-not (Test-Path -LiteralPath $path)) { throw "Expected certificate file missing: $path" }
     }
@@ -149,7 +149,7 @@ function New-JarvisHttpsCert {
     return @{ Cert = $cert; Key = $key; CaCopy = $caCopy; LanIp = $LanIp }
 }
 
-function Get-JarvisMobileUrl {
+function Get-AETHERMobileUrl {
     param(
         [Parameter(Mandatory = $true)][string]$LanIp,
         [int]$Port = $script:MobileHttpsPort
@@ -157,7 +157,7 @@ function Get-JarvisMobileUrl {
     return "https://${LanIp}:$Port"
 }
 
-function Test-JarvisBackendHealth {
+function Test-AETHERBackendHealth {
     param(
         [Parameter(Mandatory = $true)][string]$Url,
         [int]$TimeoutSeconds = 3
@@ -175,19 +175,19 @@ function Test-JarvisBackendHealth {
     }
 }
 
-function Wait-JarvisBackendHealth {
+function Wait-AETHERBackendHealth {
     param(
         [Parameter(Mandatory = $true)][string]$Url,
         [int]$Attempts = 40
     )
     for ($i = 0; $i -lt $Attempts; $i++) {
         Start-Sleep -Milliseconds 750
-        if (Test-JarvisBackendHealth -Url $Url) { return $true }
+        if (Test-AETHERBackendHealth -Url $Url) { return $true }
     }
     return $false
 }
 
-function Add-JarvisFirewallRule {
+function Add-AETHERFirewallRule {
     <#
     .SYNOPSIS
         Best-effort inbound firewall allow rule for the HTTPS port (private LAN use).
@@ -199,7 +199,7 @@ function Add-JarvisFirewallRule {
     param(
         [int]$Port = $script:MobileHttpsPort
     )
-    $ruleName = "JARVIS Mobile HTTPS (TCP $Port)"
+    $ruleName = "AETHER Mobile HTTPS (TCP $Port)"
     $existing = Get-NetFirewallRule -DisplayName $ruleName -ErrorAction SilentlyContinue
     if ($existing) {
         Write-Host "[PASS] Firewall rule already present: $ruleName" -ForegroundColor Green

@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from jarvis.mentor_python import review_python
+from aether.mentor_python import review_python
 
 
 @pytest.mark.parametrize(
@@ -92,7 +92,7 @@ def test_ast_node_budget():
 
 
 def test_parser_exceptions_not_raw_tracebacks(monkeypatch):
-    import jarvis.mentor_python as mod
+    import aether.mentor_python as mod
 
     def unavailable(*args, **kwargs):
         raise RecursionError("private details")
@@ -111,11 +111,11 @@ def test_results_are_independent():
 
 
 def test_registry_preserves_existing_mentor_and_progress(tmp_path, monkeypatch):
-    from jarvis.mentor import MentorStore
-    from jarvis.tools.builtin_tools import build_registry
+    from aether.mentor import MentorStore
+    from aether.tools.builtin_tools import build_registry
 
-    monkeypatch.setenv("JARVIS_MENTOR_DB", str(tmp_path / "mentor.db"))
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "security.db"))
+    monkeypatch.setenv("AETHER_MENTOR_DB", str(tmp_path / "mentor.db"))
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "security.db"))
     registry = build_registry(force=True)
     before = MentorStore().progress()
     result = asyncio.run(registry.execute("mentor_review_python", {"code": "eval(x)"}))

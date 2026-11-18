@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from jarvis.devops.review import review_cicd
+from aether.devops.review import review_cicd
 
 
 def scan(tmp_path, text, jenkins=False):
@@ -70,9 +70,9 @@ def test_secret_pattern_not_raw_key_echo(tmp_path):
 
 
 def test_registry_safe_review_after_emergency_stop(tmp_path,monkeypatch):
-    from jarvis.tools.builtin_tools import build_registry, reset_controllers
-    from jarvis.security import SecurityStore
-    monkeypatch.setenv("JARVIS_SECURITY_DB",str(tmp_path/"security.db"))
+    from aether.tools.builtin_tools import build_registry, reset_controllers
+    from aether.security import SecurityStore
+    monkeypatch.setenv("AETHER_SECURITY_DB",str(tmp_path/"security.db"))
     reset_controllers(); registry=build_registry(force=True); SecurityStore().set_stop(True)
     path=tmp_path/'Jenkinsfile'; path.write_text('// no executable pipeline')
     result=asyncio.run(registry.execute('review_cicd',{'path':str(path)}))

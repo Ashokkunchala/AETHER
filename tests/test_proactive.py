@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 
 import pytest
 
-from jarvis.proactive import ProactiveRunner, ProactiveStore
+from aether.proactive import ProactiveRunner, ProactiveStore
 
 
 @pytest.fixture
@@ -13,7 +13,7 @@ def store(tmp_path):
 
 
 def test_disabled_by_default_and_no_sampling_before_opt_in(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_PROACTIVE_DB', str(tmp_path / 'proactive.db'))
+    monkeypatch.setenv('AETHER_PROACTIVE_DB', str(tmp_path / 'proactive.db'))
     monkeypatch.setattr('pathlib.Path.home', lambda: tmp_path)
     runner = ProactiveRunner(sample_fn=lambda _: pytest.fail('Not opted in'))
     runner.tick()
@@ -79,18 +79,18 @@ def test_disable_and_history_bound(store):
 
 
 def test_runner_cadence_and_real_saved_briefing(tmp_path, monkeypatch):
-    from jarvis.briefing_schedule import BriefingScheduler
-    from jarvis.personal import PersonalStore
+    from aether.briefing_schedule import BriefingScheduler
+    from aether.personal import PersonalStore
     monkeypatch.setattr('pathlib.Path.home', lambda: tmp_path)
-    monkeypatch.setenv('JARVIS_PROACTIVE_DB', str(tmp_path / 'proactive.db'))
+    monkeypatch.setenv('AETHER_PROACTIVE_DB', str(tmp_path / 'proactive.db'))
     store = ProactiveStore(tmp_path / 'proactive.db')
     store.configure('memory', 90, True)
     personal = PersonalStore()
     briefing = BriefingScheduler(store=personal)
     morning = datetime(2026, 11, 13, 0, tzinfo=UTC)
-    monkeypatch.setattr('jarvis.briefing_schedule._utcnow', lambda: morning)
+    monkeypatch.setattr('aether.briefing_schedule._utcnow', lambda: morning)
     briefing.set_daily('test', '07:00', 'UTC')
-    monkeypatch.setattr('jarvis.briefing_schedule._utcnow', lambda: morning.replace(hour=8))
+    monkeypatch.setattr('aether.briefing_schedule._utcnow', lambda: morning.replace(hour=8))
     clock, calls = [0], []
     runner = ProactiveRunner(sample_fn=lambda metrics: calls.append(metrics) or {'memory': 99}, clock=lambda: clock[0])
     runner.tick()
@@ -106,7 +106,7 @@ def test_runner_cadence_and_real_saved_briefing(tmp_path, monkeypatch):
 @pytest.mark.asyncio
 async def test_existing_scheduler_invokes_proactive_tick_and_survives_failure(tmp_path, monkeypatch):
     from app.scheduler import ScheduleRunner
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'backend.db'))
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'backend.db'))
     runner = ScheduleRunner(poll_seconds=0.25)
     called = []
     def tick():
@@ -120,10 +120,10 @@ async def test_existing_scheduler_invokes_proactive_tick_and_survives_failure(tm
 
 
 def test_tools_are_executable_and_stop_blocks_config(tmp_path, monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_PROACTIVE_DB', str(tmp_path / 'proactive.db'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_PROACTIVE_DB', str(tmp_path / 'proactive.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     registry = build_registry(force=True)
     assert len(registry.names('proactive')) == 4
     assert asyncio.run(registry.execute('proactive_configure', {'metric': 'cpu', 'threshold': 90})).ok

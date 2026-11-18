@@ -8,8 +8,8 @@ import zipfile
 
 import pytest
 
-from jarvis.backup import create_backup, preview_backup
-from jarvis.backup_verify import verify_backup
+from aether.backup import create_backup, preview_backup
+from aether.backup_verify import verify_backup
 
 
 def sha(path):
@@ -43,7 +43,7 @@ def manifest_change(files, change):
 
 def test_saved_archive_reads_back_without_source_access_or_content_echo(saved, monkeypatch):
     source, path, created = saved
-    import jarvis.backup_verify as module
+    import aether.backup_verify as module
     seen = []
     real = module.os.open
     def watched(value, *args, **kwargs):
@@ -148,7 +148,7 @@ def test_duplicate_member_and_symlink_members_refused(saved):
 
 
 def test_oversized_directory_checked_before_zipfile_allocation(saved, monkeypatch):
-    import jarvis.backup_verify as module
+    import aether.backup_verify as module
     _, path, _ = saved
     raw = bytearray(path.read_bytes())
     offset = raw.rfind(b'PK\x05\x06')
@@ -161,7 +161,7 @@ def test_oversized_directory_checked_before_zipfile_allocation(saved, monkeypatc
 
 
 def test_outer_file_and_uncompressed_member_limits(saved, monkeypatch):
-    import jarvis.backup_verify as module
+    import aether.backup_verify as module
     _, path, _ = saved
     monkeypatch.setattr(module, 'MAX_ARCHIVE_BYTES', 10)
     with pytest.raises(ValueError):
@@ -211,9 +211,9 @@ def test_symlink_and_fifo_outer_paths_refused(saved, tmp_path):
 
 
 def test_safe_verifier_available_after_stop_but_never_restores(saved, tmp_path, monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
     registry = build_registry(force=True)
     SecurityStore().set_stop(True)
     result = asyncio.run(registry.execute('verify_document_backup', {'path': str(saved[1]), 'expected_archive_sha256': saved[2]['archive_sha256']}))

@@ -2,7 +2,7 @@ import subprocess
 
 import pytest
 
-from jarvis.devops import awscli
+from aether.devops import awscli
 
 
 @pytest.mark.parametrize('service,operation', [('ec2', 'describe-instances'), ('ecs', 'list-clusters'),

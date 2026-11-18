@@ -2,7 +2,7 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = ROOT / 'android/app/src/main/java/com/ashok/jarvis'
+BASE = ROOT / 'android/app/src/main/java/com/ashok/aether'
 
 
 def test_network_snapshot_explicit_foreground_button_and_normal_grant():

@@ -13,8 +13,8 @@ TOKEN = 'mock-personal-chat-token-for-tests-only-123456'
 
 @pytest.fixture(autouse=True)
 def isolated(monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN)
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'personal.sqlite3'))
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN)
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'personal.sqlite3'))
     token_auth._init_device_table()
     monkeypatch.setattr(ws, '_tickets', TicketStore())
 
@@ -67,7 +67,7 @@ def test_ticket_profile_cannot_be_upgraded_in_socket_url(monkeypatch):
         def provider_candidates(self):
             return []
 
-    monkeypatch.setattr(ws, 'JarvisBrain', Brain)
+    monkeypatch.setattr(ws, 'AETHERBrain', Brain)
     app = FastAPI()
     app.include_router(ws.router)
     with TestClient(app) as client:

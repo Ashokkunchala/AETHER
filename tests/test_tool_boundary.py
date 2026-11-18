@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import pytest
 
-from jarvis.tools.builtin_tools import build_registry, reset_controllers
-from jarvis.tools.registry import Risk
+from aether.tools.builtin_tools import build_registry, reset_controllers
+from aether.tools.registry import Risk
 
 
 @pytest.fixture()
@@ -66,7 +66,7 @@ def test_confirmation_required_tool_never_runs_without_a_confirm_callback(regist
         ran["called"] = True
         return {"success": True}
 
-    from jarvis.tools.registry import Tool, ToolRegistry
+    from aether.tools.registry import Tool, ToolRegistry
 
     reg = ToolRegistry()
     reg.register(Tool(

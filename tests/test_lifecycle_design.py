@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from jarvis.devops.lifecycle_design import GRAPH, design_lifecycle_change, simulate_lifecycle
+from aether.devops.lifecycle_design import GRAPH, design_lifecycle_change, simulate_lifecycle
 
 
 def ec2(operation="ec2_stop"):
@@ -140,9 +140,9 @@ def test_after_dispatch_stop_is_not_kill_and_acceptance_is_not_success():
 
 
 def test_registry_integration_invocation_is_safe_design_only(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "safety.db"))
-    from jarvis.tools.builtin_tools import build_registry
-    from jarvis.tools.registry import Risk
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "safety.db"))
+    from aether.tools.builtin_tools import build_registry
+    from aether.tools.registry import Risk
     registry = build_registry()
     tool = registry.tools["design_lifecycle_change"]
     assert tool.risk == Risk.SAFE and not tool.confirm_required
@@ -155,10 +155,10 @@ def test_registry_integration_invocation_is_safe_design_only(monkeypatch, tmp_pa
 def test_design_has_no_effect_imports_or_generic_adapter_dispatch():
     import ast
     from pathlib import Path
-    source = Path(__file__).resolve().parents[1] / "jarvis/devops/lifecycle_design.py"
+    source = Path(__file__).resolve().parents[1] / "aether/devops/lifecycle_design.py"
     tree = ast.parse(source.read_text())
     imports = [node.module if isinstance(node, ast.ImportFrom) else alias.name for node in ast.walk(tree) if isinstance(node, (ast.ImportFrom, ast.Import)) for alias in (node.names if isinstance(node, ast.Import) else [None])]
-    assert set(imports) <= {"__future__", "hashlib", "json", "re", "jarvis.tools.registry"}
+    assert set(imports) <= {"__future__", "hashlib", "json", "re", "aether.tools.registry"}
     for node in ast.walk(tree):
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
             assert node.func.id not in ("open", "eval", "exec", "__import__")

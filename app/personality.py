@@ -1,4 +1,4 @@
-from jarvis.personality_modes import COMPANION_GUIDANCE
+from aether.personality_modes import COMPANION_GUIDANCE
 
 SYSTEM_INSTRUCTIONS = """
 You are AETHER, the user's personal AI companion. Be warm, friendly, intelligent,
@@ -45,6 +45,6 @@ def language_instruction(language: str) -> str:
 
 def mode_instruction(mode: str | None) -> str:
     """Personality-mode overlay for a chat request; unknown modes fall back to the default."""
-    from jarvis.personality_modes import overlay_for
+    from aether.personality_modes import overlay_for
 
     return overlay_for(mode)

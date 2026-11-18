@@ -9,12 +9,12 @@ param(
 $ErrorActionPreference = "Stop"
 
 Write-Host ""
-Write-Host "JARVIS Personal AI - Windows setup" -ForegroundColor Cyan
+Write-Host "AETHER Personal AI - Windows setup" -ForegroundColor Cyan
 Write-Host "===================================" -ForegroundColor Cyan
 
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 if (-not (Test-Path (Join-Path $RepoRoot "app\main_enhanced.py"))) {
-    throw "Run this script from the Jarvis-Personal-AI repository (scripts\setup-windows.ps1 must live in scripts\)."
+    throw "Run this script from the AETHER repository (scripts\setup-windows.ps1 must live in scripts\)."
 }
 Push-Location $RepoRoot
 trap { Pop-Location; throw }
@@ -148,7 +148,7 @@ if (-not (Test-Path $envPath)) {
 $text = Get-Content -Raw -Path $envPath
 $dirty = $false
 
-foreach ($name in @("JARVIS_API_TOKEN", "SECRET_KEY", "JARVIS_AGENT_TOKEN")) {
+foreach ($name in @("AETHER_API_TOKEN", "SECRET_KEY", "AETHER_AGENT_TOKEN")) {
     $match = [regex]::Match($text, "(?m)^\s*$([regex]::Escape($name))=(.*)$")
     if (-not $match.Success -or (Test-Placeholder $match.Groups[1].Value) -or $match.Groups[1].Value.Trim().Length -lt 32) {
         $text = Set-EnvValue $text $name (New-Secret)
@@ -205,10 +205,10 @@ if ($dirty) {
 # -------------------------------------------------------------------- verify
 if (-not $SkipVerify) {
     Write-Host ""
-    Write-Host "Running verification (jarvis doctor)..." -ForegroundColor Cyan
-    & $venvPython (Join-Path $RepoRoot "jarvis_cli.py") doctor
+    Write-Host "Running verification (aether doctor)..." -ForegroundColor Cyan
+    & $venvPython (Join-Path $RepoRoot "aether_cli.py") doctor
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "jarvis doctor reported critical failures. Fix the FAIL rows above, then rerun: .\.venv\Scripts\python.exe jarvis_cli.py doctor"
+        Write-Warning "aether doctor reported critical failures. Fix the FAIL rows above, then rerun: .\.venv\Scripts\python.exe aether_cli.py doctor"
     } else {
         Write-Host "Verification passed." -ForegroundColor Green
     }

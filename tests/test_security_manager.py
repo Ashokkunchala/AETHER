@@ -8,9 +8,9 @@ from pathlib import Path
 
 import pytest
 
-from jarvis.access_policy import check_policy
-from jarvis.security import SecurityStore
-from jarvis.tools.registry import Risk, Tool, ToolRegistry
+from aether.access_policy import check_policy
+from aether.security import SecurityStore
+from aether.tools.registry import Risk, Tool, ToolRegistry
 
 
 @pytest.fixture
@@ -128,7 +128,7 @@ def test_model_args_cannot_set_role_or_allowlist(policy, tmp_path):
 
 
 def test_native_secret_has_no_plaintext_fallback(monkeypatch):
-    from jarvis import secret_store as s
+    from aether import secret_store as s
     monkeypatch.setenv('AETHER_SECRET_BACKEND', 'os-keyring')
     class Backend:
         def get_password(self, service, name): return None
@@ -140,13 +140,13 @@ def test_native_secret_has_no_plaintext_fallback(monkeypatch):
 
 
 def test_plaintext_and_chained_backend_refused(monkeypatch):
-    from jarvis.secret_store import _backend
+    from aether.secret_store import _backend
     monkeypatch.setitem(sys.modules, 'keyring', types.SimpleNamespace(get_keyring=lambda: object()))
     with pytest.raises(RuntimeError): _backend()
 
 
 def test_supported_native_backend_store_and_server_reads(monkeypatch):
-    from jarvis import secret_store as s
+    from aether import secret_store as s
     data = {}
     class Backend:
         def get_password(self, service, name): return data.get((service, name))
@@ -154,27 +154,27 @@ def test_supported_native_backend_store_and_server_reads(monkeypatch):
     monkeypatch.setattr(s, '_backend', lambda: Backend())
     monkeypatch.setenv('AETHER_SECRET_BACKEND', 'os-keyring')
     s.store_secret('GEMINI_API_KEY', 'not-a-real-test-key')
-    s.store_secret('JARVIS_API_TOKEN', 'x' * 40)
+    s.store_secret('AETHER_API_TOKEN', 'x' * 40)
     from app.core.config import Settings
     settings = Settings(_env_file=None, gemini_api_key='ignored-plaintext')
     assert settings.gemini_api_key == 'not-a-real-test-key'
-    assert settings.jarvis_api_token == 'x' * 40
+    assert settings.aether_api_token == 'x' * 40
     assert 'not-a-real-test-key' not in repr(settings)
     assert settings.groq_api_key == ''
 
 
 def test_brain_credentials_use_native_store(monkeypatch):
-    from jarvis import secret_store as s
-    from jarvis.core.brain import JarvisBrain
+    from aether import secret_store as s
+    from aether.core.brain import AETHERBrain
     monkeypatch.setenv('AETHER_SECRET_BACKEND', 'os-keyring')
     class Backend:
         def get_password(self, service, name): return 'key-from-test-native-store' if name == 'OPENROUTER_API_KEY' else None
     monkeypatch.setattr(s, '_backend', lambda: Backend())
-    assert JarvisBrain._configured_key('OPENROUTER_API_KEY') == 'key-from-test-native-store'
+    assert AETHERBrain._configured_key('OPENROUTER_API_KEY') == 'key-from-test-native-store'
 
 
 def test_scan_plan_exact_pins_no_invocation_or_unsafe_options(tmp_path, monkeypatch):
-    from jarvis.security_scans import scan_plan
+    from aether.security_scans import scan_plan
     p = tmp_path / 'pinned.txt'; p.write_text('example-package==1.0\n# note\n')
     monkeypatch.setattr(subprocess, 'run', lambda *_a, **_k: pytest.fail('Planning must not run a scanner'))
     plan = scan_plan('dependencies', str(p), str(tmp_path))
@@ -187,7 +187,7 @@ def test_scan_plan_exact_pins_no_invocation_or_unsafe_options(tmp_path, monkeypa
 
 def test_scan_scope_and_missing_clam(tmp_path, monkeypatch):
     import shutil
-    from jarvis.security_scans import scan_plan
+    from aether.security_scans import scan_plan
     child = tmp_path / 'scan.txt'; child.write_text('test')
     root = tmp_path / 'root'; root.mkdir()
     with pytest.raises(ValueError): scan_plan('malware', str(child), str(root))
@@ -198,7 +198,7 @@ def test_scan_scope_and_missing_clam(tmp_path, monkeypatch):
 @pytest.mark.parametrize('code,status', [(0, 'no_findings_reported'), (1, 'findings_reported'), (2, 'scan_error')])
 def test_clam_exit_codes_not_clean_on_error(tmp_path, monkeypatch, code, status):
     import shutil
-    from jarvis.security_scans import scan_plan, _run_reviewed
+    from aether.security_scans import scan_plan, _run_reviewed
     p = tmp_path / 'test.bin'; p.write_text('data')
     monkeypatch.setattr(shutil, 'which', lambda _: '/trusted/clamscan')
     def fake(command, **kw):
@@ -211,7 +211,7 @@ def test_clam_exit_codes_not_clean_on_error(tmp_path, monkeypatch, code, status)
 
 def test_scan_timeout_unknown(tmp_path, monkeypatch):
     import shutil
-    from jarvis.security_scans import scan_plan, _run_reviewed
+    from aether.security_scans import scan_plan, _run_reviewed
     p = tmp_path / 'test.bin'; p.write_text('data')
     monkeypatch.setattr(shutil, 'which', lambda _: '/trusted/clamscan')
     monkeypatch.setattr(subprocess, 'run', lambda *_a, **_kw: (_ for _ in ()).throw(subprocess.TimeoutExpired('clamscan', 120)))
@@ -219,7 +219,7 @@ def test_scan_timeout_unknown(tmp_path, monkeypatch):
 
 
 def test_status_does_not_claim_hardening(monkeypatch):
-    from jarvis.security_manager import security_manager_status
+    from aether.security_manager import security_manager_status
     monkeypatch.delenv('AETHER_ACCESS_POLICY', raising=False)
     result = security_manager_status()
     assert result['local_registry_policy_selected'] is False
@@ -227,7 +227,7 @@ def test_status_does_not_claim_hardening(monkeypatch):
 
 
 def test_dependency_audit_incomplete_invalid_and_valid_result(tmp_path, monkeypatch):
-    from jarvis.security_scans import scan_plan, _run_reviewed
+    from aether.security_scans import scan_plan, _run_reviewed
     p = tmp_path / 'pinned.txt'; p.write_text('example==1.0')
     for payload, expected in [({'dependencies': [{'name': 'example', 'version': '1.0', 'vulns': []}]}, 'dependency_report_review_required'), ({'dependencies': [{'name': 'example', 'skip_reason': 'unavailable'}]}, 'unknown_incomplete_audit'), ({'dependencies': []}, 'unknown_incomplete_audit'), ({'not_an_audit': []}, 'unknown_invalid_audit')]:
         def fake(_command, **kw):
@@ -238,7 +238,7 @@ def test_dependency_audit_incomplete_invalid_and_valid_result(tmp_path, monkeypa
 
 
 def test_reviewed_scanner_input_change_blocks_execution(tmp_path, monkeypatch):
-    from jarvis.security_scans import scan_plan, _run_reviewed
+    from aether.security_scans import scan_plan, _run_reviewed
     p = tmp_path / 'pinned.txt'; p.write_text('example==1.0')
     plan = scan_plan('dependencies', str(p), str(tmp_path))
     p.write_text('other-package==2.0')

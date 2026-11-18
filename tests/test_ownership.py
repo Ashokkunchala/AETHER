@@ -6,8 +6,8 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from jarvis import ownership
-from jarvis.ownership import OwnershipStore
+from aether import ownership
+from aether.ownership import OwnershipStore
 
 
 @pytest.fixture()
@@ -66,7 +66,7 @@ class TestCommitments:
 
 class TestRegistryIntegration:
     def test_ownership_tools_registered(self):
-        from jarvis.tools.builtin_tools import build_registry
+        from aether.tools.builtin_tools import build_registry
 
         registry = build_registry()
         for name in ("track_commitment", "list_commitments", "complete_commitment", "check_followups"):
@@ -74,7 +74,7 @@ class TestRegistryIntegration:
 
     def test_track_tool_roundtrip(self, tmp_path, monkeypatch):
         monkeypatch.setattr(ownership, "_default_store", OwnershipStore(tmp_path / "o.db"))
-        from jarvis.tools.builtin_tools import build_registry
+        from aether.tools.builtin_tools import build_registry
 
         registry = build_registry()
         added = registry.get("track_commitment").handler("Ship the release notes")

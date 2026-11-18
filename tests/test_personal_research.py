@@ -11,7 +11,7 @@ AUTH = {'Authorization': 'Bearer ' + TOKEN}
 
 @pytest.fixture
 def client(monkeypatch):
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN)
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN)
     app = FastAPI()
     app.include_router(personal_research.router)
     with TestClient(app) as result:

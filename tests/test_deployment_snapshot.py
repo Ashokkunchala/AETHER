@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from jarvis.devops.deployment_snapshot import review_deployments, review_deployments_export
+from aether.devops.deployment_snapshot import review_deployments, review_deployments_export
 
 
 def condition(kind='Progressing',status='True',reason='NewReplicaSetAvailable',**extra):
@@ -122,9 +122,9 @@ def test_no_file_writes_execution_or_special_file(tmp_path):
 
 
 def test_registry_safe_stop_not_deploy_or_scale(tmp_path,monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     path=tmp_path/'rollout.json';path.write_text(json.dumps(deployment()))
     registry=build_registry(force=True);SecurityStore().set_stop(True)
     result=asyncio.run(registry.execute('review_kubernetes_deployments',{'path':str(path)}))

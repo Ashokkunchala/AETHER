@@ -7,10 +7,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from jarvis.custom_dashboard import create_dashboard, render_dashboard, validate, register_dashboard_tools
-from jarvis.rendered_browser import browser_preview, public_url, register_rendered_browser, _browse
-from jarvis.security import SecurityStore
-from jarvis.tools.registry import ToolRegistry
+from aether.custom_dashboard import create_dashboard, render_dashboard, validate, register_dashboard_tools
+from aether.rendered_browser import browser_preview, public_url, register_rendered_browser, _browse
+from aether.security import SecurityStore
+from aether.tools.registry import ToolRegistry
 
 
 def spec():
@@ -57,7 +57,7 @@ def test_dashboard_new_file_no_overwrite_and_private_mode(tmp_path, monkeypatch)
 def browser_env(monkeypatch,tmp_path):
     monkeypatch.setenv('AETHER_BROWSER_ENABLED','1');monkeypatch.setenv('AETHER_BROWSER_HOSTS','example.com,www.example.com')
     monkeypatch.setenv('AETHER_BROWSER_OUTPUT',str(tmp_path/'screens'))
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'safety.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'safety.db'))
     monkeypatch.setattr(socket,'getaddrinfo', lambda *_a,**_k:[(socket.AF_INET,socket.SOCK_STREAM,6,'',('93.184.216.34',443))])
 
 

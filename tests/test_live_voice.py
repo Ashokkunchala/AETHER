@@ -56,8 +56,8 @@ def test_live_voice_ticket_endpoint_requires_device_token(monkeypatch, tmp_path)
 
     from app.main import app
 
-    monkeypatch.setenv("JARVIS_API_TOKEN", "test-token-that-is-at-least-32-characters")
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "jarvis.sqlite3"))
+    monkeypatch.setenv("AETHER_API_TOKEN", "test-token-that-is-at-least-32-characters")
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "aether.sqlite3"))
     with TestClient(app) as client:
         denied = client.post("/api/live-voice-ticket")
         assert denied.status_code == 401

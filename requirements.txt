@@ -32,7 +32,7 @@ pyautogui>=0.9.54,<1.0
 pygetwindow>=0.0.9; sys_platform == "win32"
 keyboard>=0.13.5,<1.0
 SpeechRecognition>=3.10,<4.0
-# Local text-to-speech for the shared speech engine (jarvis.core.voice.speech)
+# Local text-to-speech for the shared speech engine (aether.core.voice.speech)
 pyttsx3>=2.90,<3.0
 tzdata>=2024.1  # timezone database for zoneinfo on minimal/Windows systems
 # Desktop capture uses sounddevice from requirements-voice.txt; no legacy PyAudio C-extension.

@@ -8,8 +8,8 @@ Only the executable is passed as a single argv element with shell=False and its
 parent as working directory. No supplied arguments, PATH search, alias, URI,
 shortcut, script, elevation or shell fallback is accepted.
 
-A local owner-managed file, default ~/.jarvis/approved_apps.json or the explicitly
-configured JARVIS_APPROVED_APPS_FILE, must already contain exactly:
+A local owner-managed file, default ~/.aether/approved_apps.json or the explicitly
+configured AETHER_APPROVED_APPS_FILE, must already contain exactly:
 
 ```json
 {"version":1,"apps":{"editor":{"executable":"C:\\Approved\\editor.exe","sha256":"the-reviewed-64-lowercase-hex-digest"}}}

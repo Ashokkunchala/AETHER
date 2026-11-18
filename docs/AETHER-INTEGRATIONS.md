@@ -1,6 +1,6 @@
 # AETHER integrations and daily automation
 
-This guide describes the current integration implementation on `jarvis-cinematic-local-voice`. Keep the server bound to localhost or a private HTTPS endpoint. Never commit OAuth client secrets, Meta tokens, or device tokens.
+This guide describes the current integration implementation on `aether-cinematic-local-voice`. Keep the server bound to localhost or a private HTTPS endpoint. Never commit OAuth client secrets, Meta tokens, or device tokens.
 
 ## Google Calendar and Gmail
 

@@ -2,8 +2,8 @@ import asyncio
 
 import pytest
 
-from jarvis.devops.slo import review_slo
-from jarvis.tools.builtin_tools import build_registry
+from aether.devops.slo import review_slo
+from aether.tools.builtin_tools import build_registry
 
 
 def window(total=1000, good=999, start='2020-01-01T00:00:00Z', end='2020-01-02T00:00:00Z'):
@@ -89,8 +89,8 @@ def test_scope_and_completeness_required():
 
 
 def test_registry_runs_offline_and_stop_does_not_block_safe_review(tmp_path, monkeypatch):
-    from jarvis.security import SecurityStore
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
+    from aether.security import SecurityStore
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
     SecurityStore().set_stop(True)
     result = asyncio.run(build_registry(force=True).execute('review_slo_budget', dict(windows=[window()], target_percent='99.9', complete_window=True, event_definition='successful mock requests / all mock requests')))
     assert result.ok and result.data['objective_met']

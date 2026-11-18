@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app import life_manager
 from app.personal_tool_chat import build_personal_registry
-from jarvis.tools.registry import Risk, Tool, ToolRegistry
+from aether.tools.registry import Risk, Tool, ToolRegistry
 
 LOCAL_PROMPT = """You are AETHER. You can read the saved personal data exposed by
 this narrow profile and propose local writes only. Use tools before claiming data.
@@ -45,7 +45,7 @@ def build_local_registry(session_active: Callable[[], bool]) -> ToolRegistry:
     def guard():
         if session_active() is not True:
             raise PermissionError('Session ended, was revoked, or this turn was cancelled.')
-        from jarvis.security import SecurityStore
+        from aether.security import SecurityStore
         if (registry.security_store or SecurityStore()).stopped():
             raise PermissionError('Emergency stop is active.')
 

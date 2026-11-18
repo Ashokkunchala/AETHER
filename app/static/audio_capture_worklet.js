@@ -1,5 +1,5 @@
 /* Resamples microphone input to 16 kHz and posts bounded 40 ms PCM float blocks. */
-class JarvisCaptureProcessor extends AudioWorkletProcessor {
+class AETHERCaptureProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
     this.phase = 0;
@@ -44,4 +44,4 @@ class JarvisCaptureProcessor extends AudioWorkletProcessor {
   }
 }
 
-registerProcessor("jarvis-capture", JarvisCaptureProcessor);
+registerProcessor("aether-capture", AETHERCaptureProcessor);

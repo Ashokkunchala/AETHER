@@ -160,10 +160,10 @@ footer{max-width:1760px;margin:0 auto;padding:0 14px 24px;color:var(--muted);fon
 const $ = (id) => document.getElementById(id);
 const messagesEl=$("messages"), statusEl=$("status");
 let history=[],tasks=[],deviceToken="",agentToken="",busy=false,activeChat=null,activeRecognition=null;
-const HISTORY_KEY="jarvis.history.v1",SETTINGS_KEY="jarvis.settings.v1",TASKS_KEY="jarvis.tasks.v1";
+const HISTORY_KEY="aether.history.v1",SETTINGS_KEY="aether.settings.v1",TASKS_KEY="aether.tasks.v1";
 function setStatus(text,error=false){statusEl.textContent=text;statusEl.className=error?"status error":"status";}
 function setVoiceState(state,title,subtitle){const orb=$("voiceOrb");orb.classList.remove("listening","thinking","speaking");if(state)orb.classList.add(state);$("voiceTitle").textContent=title;$("voiceSubtitle").textContent=subtitle;$("voiceGlyph").textContent=state==="listening"?"●":state==="thinking"?"…":state==="speaking"?"♫":"✦";$("voiceStart").disabled=state==="listening"||busy;$("voiceStop").hidden=state!=="listening";}
-window.jarvisSetVoiceState=setVoiceState;
+window.aetherSetVoiceState=setVoiceState;
 function addMessage(role,text){$("welcome")?.remove();const node=document.createElement("div");node.className="message "+(role==="user"?"user":"assistant");const who=document.createElement("div");who.className="who";who.textContent=role==="user"?"You":"AETHER";const body=document.createElement("div");body.textContent=text;node.append(who,body);messagesEl.append(node);messagesEl.scrollTop=messagesEl.scrollHeight;return body;}
 function renderHistory(){messagesEl.innerHTML="";if(!history.length){const w=document.createElement("div");w.className="welcome";const hour=new Date().getHours(),greeting=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening",name=$("nickname").value.trim();w.textContent=greeting+(name?", "+name:"")+". I'm AETHER. What's on your mind? Open Life Manager for saved priorities and daily updates.";messagesEl.append(w);return;}history.forEach(m=>addMessage(m.role,m.content));}
 function saveHistory(){if($("saveHistory").checked){try{localStorage.setItem(HISTORY_KEY,JSON.stringify(history.slice(-40)));}catch(e){setStatus("Could not save history in this browser.",true);}}else localStorage.removeItem(HISTORY_KEY);}

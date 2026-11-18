@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Set up and build the JARVIS Android app on this Windows machine.
+    Set up and build the AETHER Android app on this Windows machine.
 
 .DESCRIPTION
     Checks the prerequisites (JDK 17+, Android SDK with platform 35 and
@@ -48,14 +48,14 @@ $AndroidDir = Join-Path $RepoRoot "android"
 $GradleBat = Join-Path $AndroidDir "gradlew.bat"
 $LocalProps = Join-Path $AndroidDir "local.properties"
 $ApkPath = Join-Path $AndroidDir "app\build\outputs\apk\debug\app-debug.apk"
-$PackageName = "com.ashok.jarvis"
+$PackageName = "com.ashok.aether"
 
 if (-not (Test-Path (Join-Path $AndroidDir "settings.gradle.kts"))) {
-    throw "Run this script from the Jarvis-Personal-AI repository (expected android\settings.gradle.kts)."
+    throw "Run this script from the AETHER repository (expected android\settings.gradle.kts)."
 }
 
 Write-Host ""
-Write-Host "JARVIS Personal AI - Android setup" -ForegroundColor Cyan
+Write-Host "AETHER Personal AI - Android setup" -ForegroundColor Cyan
 Write-Host "===================================" -ForegroundColor Cyan
 
 function Fail([string]$Message) {
@@ -229,7 +229,7 @@ if (-not $adb) {
 & $adb start-server | Out-Null
 $deviceLines = @(& $adb devices | Select-String -Pattern "^\S+\s+device\s*$")
 if ($deviceLines.Count -eq 0) {
-    Fail "No Android device connected. Enable Developer options > USB debugging, plug the phone in, accept the RSA prompt, then rerun with -Install. (Wireless debugging also works: jarvis android setup)."
+    Fail "No Android device connected. Enable Developer options > USB debugging, plug the phone in, accept the RSA prompt, then rerun with -Install. (Wireless debugging also works: aether android setup)."
 }
 if ($deviceLines.Count -gt 1) {
     Warn "Multiple devices connected; installing on the first one."
@@ -249,4 +249,4 @@ if ($LASTEXITCODE -ne 0 -or $installOutput -notmatch "Success") {
 Pass "Installed $PackageName on the device."
 
 Write-Host ""
-Write-Host "Launch JARVIS from the app drawer, then follow android\README.md to pair with your backend over HTTPS." -ForegroundColor Green
+Write-Host "Launch AETHER from the app drawer, then follow android\README.md to pair with your backend over HTTPS." -ForegroundColor Green

@@ -11,8 +11,8 @@ import json
 
 import pytest
 
-from jarvis.tools.builtin_tools import build_registry, reset_controllers
-from jarvis.tools.registry import Risk, ToolRegistry
+from aether.tools.builtin_tools import build_registry, reset_controllers
+from aether.tools.registry import Risk, ToolRegistry
 
 
 @pytest.fixture()
@@ -43,8 +43,8 @@ def test_direct_desktop_action_tools_are_registered(registry: ToolRegistry) -> N
 
 
 def test_open_app_and_type_checks_focus_and_reports_failures(monkeypatch) -> None:
-    from jarvis.control import input_ctl
-    from jarvis.tools import builtin_tools
+    from aether.control import input_ctl
+    from aether.tools import builtin_tools
 
     class FakeLaptop:
         def __init__(self, active):
@@ -94,7 +94,7 @@ def test_registry_lookup_helpers(registry: ToolRegistry, monkeypatch, tmp_path) 
     tool = registry.get("provider_health_summary")
     assert tool.risk is Risk.SAFE
     assert tool.requires_confirmation is False
-    monkeypatch.setenv("JARVIS_DB_PATH", str(tmp_path / "tool-health.sqlite3"))
+    monkeypatch.setenv("AETHER_DB_PATH", str(tmp_path / "tool-health.sqlite3"))
     assert tool.handler()["measured_only"] is True
     assert registry.get("battery_status") is not None
     assert registry.get("definitely_not_a_tool") is None
@@ -199,7 +199,7 @@ def test_rejected_confirmation_blocks_the_tool(registry: ToolRegistry) -> None:
 
 
 def test_low_risk_tools_run_without_a_prompt(registry: ToolRegistry, monkeypatch) -> None:
-    from jarvis.control import audio
+    from aether.control import audio
 
     monkeypatch.setattr(audio, "get_volume", lambda: {"success": True, "volume": 40, "muted": False})
 
@@ -224,7 +224,7 @@ def test_approved_confirmation_runs_tool(registry: ToolRegistry) -> None:
         return {"success": True, "value": value}
 
     registry.register(
-        __import__("jarvis.tools.registry", fromlist=["Tool"]).Tool(
+        __import__("aether.tools.registry", fromlist=["Tool"]).Tool(
             name="confirmed_test_action",
             description="A deterministic test action.",
             parameters={"type": "object", "properties": {}},
@@ -257,7 +257,7 @@ def test_auto_approve_skips_prompt_for_safe_tool(registry: ToolRegistry) -> None
     original = registry.get("system_status")
     assert original is not None
     registry.register(
-        __import__("jarvis.tools.registry", fromlist=["Tool"]).Tool(
+        __import__("aether.tools.registry", fromlist=["Tool"]).Tool(
             name="system_status",
             description=original.description,
             parameters=original.parameters,
@@ -285,7 +285,7 @@ def test_event_stream_reports_tool_lifecycle(registry: ToolRegistry) -> None:
     async def handler() -> dict:
         return {"success": True, "status": "ready"}
 
-    from jarvis.tools.registry import Tool
+    from aether.tools.registry import Tool
 
     registry.register(
         Tool(
@@ -314,7 +314,7 @@ def test_laptop_status_shape(registry: ToolRegistry) -> None:
     async def fake_status() -> dict:
         return {"success": True, "cpu_percent": 8.0, "memory_percent": 28.0}
 
-    from jarvis.tools.registry import Tool
+    from aether.tools.registry import Tool
 
     registry.register(
         Tool(
@@ -332,7 +332,7 @@ def test_laptop_status_shape(registry: ToolRegistry) -> None:
 
 
 def test_volume_round_trip(registry: ToolRegistry, monkeypatch) -> None:
-    from jarvis.control import audio
+    from aether.control import audio
 
     state = {"volume": 32, "muted": False}
     monkeypatch.setattr(audio, "set_volume", lambda level: state.update(volume=level) or {"success": True, "volume": level})
@@ -344,7 +344,7 @@ def test_volume_round_trip(registry: ToolRegistry, monkeypatch) -> None:
 
 
 def test_clipboard_round_trip(registry: ToolRegistry, monkeypatch) -> None:
-    from jarvis.control import clipboard
+    from aether.control import clipboard
 
     state = {"text": ""}
 
@@ -357,10 +357,10 @@ def test_clipboard_round_trip(registry: ToolRegistry, monkeypatch) -> None:
 
     monkeypatch.setattr(clipboard, "set_clipboard", fake_set_clipboard)
     monkeypatch.setattr(clipboard, "get_clipboard", fake_get_clipboard)
-    asyncio.run(registry.execute("set_clipboard", {"text": "jarvis-test-clip"}, auto_approve=True))
+    asyncio.run(registry.execute("set_clipboard", {"text": "aether-test-clip"}, auto_approve=True))
     result = asyncio.run(registry.execute("get_clipboard", {}, auto_approve=True))
     assert result.ok is True
-    assert result.data["text"] == "jarvis-test-clip"
+    assert result.data["text"] == "aether-test-clip"
 
 
 def test_blocked_shell_is_refused(registry: ToolRegistry) -> None:
@@ -376,9 +376,9 @@ def test_android_tools_report_no_device(registry: ToolRegistry) -> None:
 
 
 def test_brain_builds_tool_chain_without_live_api() -> None:
-    from jarvis.core.brain import DEFAULT_FALLBACKS, JarvisBrain
+    from aether.core.brain import DEFAULT_FALLBACKS, AETHERBrain
 
-    brain = JarvisBrain(api_key="fake-key-for-schema-only")
+    brain = AETHERBrain(api_key="fake-key-for-schema-only")
     assert brain.configured is True
     assert brain.model in brain.model_candidates()
     assert brain.model_candidates()[0] == brain.model
@@ -388,7 +388,7 @@ def test_brain_builds_tool_chain_without_live_api() -> None:
 
 
 def test_brain_marks_transient_errors_and_falls_back() -> None:
-    from jarvis.core.brain import _is_transient, _mark_bad, _mark_good, _model_cooldown
+    from aether.core.brain import _is_transient, _mark_bad, _mark_good, _model_cooldown
 
     class FakeError(Exception):
         status_code = 429
@@ -404,42 +404,42 @@ def test_brain_marks_transient_errors_and_falls_back() -> None:
 
 
 def test_brain_provider_candidates_order(monkeypatch) -> None:
-    from jarvis.core.brain import JarvisBrain
+    from aether.core.brain import AETHERBrain
 
     monkeypatch.setenv("GEMINI_API_KEY", "gem-key")
     monkeypatch.setenv("OPENROUTER_API_KEY", "or-key")
     monkeypatch.setenv("GROQ_API_KEY", "gsk-key")
-    monkeypatch.setenv("JARVIS_AI_PROVIDER", "auto")
-    brain = JarvisBrain(api_key="gem-key")
+    monkeypatch.setenv("AETHER_AI_PROVIDER", "auto")
+    brain = AETHERBrain(api_key="gem-key")
     assert brain.provider_candidates() == ["gemini", "openrouter", "groq"]
     assert brain.configured is True
     assert brain.active_model == brain.model
 
-    monkeypatch.setenv("JARVIS_AI_PROVIDER", "groq")
-    brain2 = JarvisBrain(api_key="")
+    monkeypatch.setenv("AETHER_AI_PROVIDER", "groq")
+    brain2 = AETHERBrain(api_key="")
     assert brain2.provider_candidates() == ["groq", "gemini", "openrouter"]
     assert brain2.active_model == "llama-3.3-70b-versatile"
 
 
 def test_brain_configured_without_any_key_is_false(monkeypatch) -> None:
-    from jarvis.core import brain as brain_module
-    from jarvis.core.brain import JarvisBrain
+    from aether.core import brain as brain_module
+    from aether.core.brain import AETHERBrain
 
     # Stop .env from re-injecting keys after we clear them.
     monkeypatch.setattr(brain_module, "load_env", lambda: None)
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
     monkeypatch.delenv("GROQ_API_KEY", raising=False)
-    brain = JarvisBrain(api_key="")
+    brain = AETHERBrain(api_key="")
     assert brain.provider_candidates() == []
     assert brain.configured is False
 
 
 def test_brain_openai_history_maps_roles(monkeypatch) -> None:
-    from jarvis.core.brain import JarvisBrain
+    from aether.core.brain import AETHERBrain
 
     monkeypatch.setenv("GEMINI_API_KEY", "gem-key")
-    brain = JarvisBrain(
+    brain = AETHERBrain(
         api_key="gem-key",
         history=[
             {"role": "user", "parts": [{"text": "hello"}]},
@@ -456,14 +456,14 @@ def test_brain_openai_history_maps_roles(monkeypatch) -> None:
 def test_brain_ask_without_providers_yields_error(monkeypatch) -> None:
     import asyncio
 
-    from jarvis.core import brain as brain_module
-    from jarvis.core.brain import JarvisBrain
+    from aether.core import brain as brain_module
+    from aether.core.brain import AETHERBrain
 
     monkeypatch.setattr(brain_module, "load_env", lambda: None)
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
     monkeypatch.delenv("GROQ_API_KEY", raising=False)
-    brain = JarvisBrain(api_key="")
+    brain = AETHERBrain(api_key="")
 
     async def collect():
         return [event async for event in brain.ask("hi")]
@@ -476,12 +476,12 @@ def test_brain_ask_without_providers_yields_error(monkeypatch) -> None:
 def test_brain_ask_falls_back_to_next_provider_before_output(monkeypatch) -> None:
     import asyncio
 
-    from jarvis.core.brain import JarvisBrain
+    from aether.core.brain import AETHERBrain
 
     monkeypatch.setenv("GEMINI_API_KEY", "gem-key")
     monkeypatch.setenv("GROQ_API_KEY", "gsk-key")
-    monkeypatch.setenv("JARVIS_AI_PROVIDER", "gemini")
-    brain = JarvisBrain(api_key="gem-key")
+    monkeypatch.setenv("AETHER_AI_PROVIDER", "gemini")
+    brain = AETHERBrain(api_key="gem-key")
 
     async def broken_gemini(*args, **kwargs):
         raise RuntimeError("503 UNAVAILABLE")
@@ -518,7 +518,7 @@ def test_confirm_required_tool_is_denied_without_a_confirm_callback(registry: To
 
 
 def test_chained_shell_commands_are_never_classified_safe() -> None:
-    from jarvis.control import shell
+    from aether.control import shell
 
     assert shell.classify("dir") == "safe"
     for cmd in ("echo hi && del file.txt", "dir & whoami", "echo x | more", "echo x > out.txt", "echo $(whoami)"):
@@ -531,5 +531,5 @@ def test_entrypoint_scripts_compile() -> None:
     import py_compile
 
     root = pathlib.Path(__file__).resolve().parents[1]
-    for name in ("jarvis_daemon.py", "run_enhanced.py", "jarvis_cli.py"):
+    for name in ("aether_daemon.py", "run_enhanced.py", "aether_cli.py"):
         py_compile.compile(str(root / name), doraise=True)

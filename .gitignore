@@ -11,7 +11,7 @@ __pycache__/
 htmlcov/
 data/
 logs/
-jarvis.log
+aether.log
 .tmp-pytest-recurrence/
 *.sqlite
 *.sqlite3

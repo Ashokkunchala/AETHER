@@ -116,7 +116,7 @@ def test_script_text_not_extracted_and_no_instructions_executed(network):
 def test_endpoint_inherits_auth_validates_size_and_partial(network, monkeypatch):
     app = FastAPI()
     app.include_router(personal_research.router)
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN)
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN)
     with TestClient(app) as client:
         assert client.post('/api/research/pages/compare', json={'urls':['https://public.invalid/']}).status_code == 401
         assert client.post('/api/research/pages/compare', headers=AUTH, json={'urls':[]}).status_code == 422

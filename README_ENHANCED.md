@@ -1,7 +1,7 @@
-# JARVIS Personal AI - Enhanced Backend
+# AETHER Personal AI - Enhanced Backend
 
 This document describes the enhanced FastAPI backend (`app.main_enhanced:app`),
-which is the entry point used by `jarvis serve` and the Windows start scripts.
+which is the entry point used by `aether serve` and the Windows start scripts.
 
 > **Status: local prototype, not production-ready.** Bind the server to
 > `127.0.0.1` and keep it on a trusted machine. There is no public deployment
@@ -43,11 +43,11 @@ operational dashboard, and `/docs` for the API schema.
 
 Send `Authorization: Bearer <token>`.
 
-- `JARVIS_API_TOKEN` acts as the master/legacy token.
+- `AETHER_API_TOKEN` acts as the master/legacy token.
 - `/api/devices/*` requires the master token.
 - Issued device tokens authenticate normal data and chat routes but cannot
   administer other devices.
-- If `JARVIS_API_TOKEN` is unset, shorter than 32 characters, or still starts
+- If `AETHER_API_TOKEN` is unset, shorter than 32 characters, or still starts
   with `replace_`, authenticated routes fail closed with `503`.
 
 ## Endpoints
@@ -93,7 +93,7 @@ is unused legacy code and is not part of the running application.
 ```powershell
 python -m pytest -q
 python -m ruff check .
-python -m compileall -q app jarvis windows_agent jarvis_cli.py jarvis_daemon.py run_enhanced.py
+python -m compileall -q app aether windows_agent aether_cli.py aether_daemon.py run_enhanced.py
 ```
 
 `ruff` is the merge gate. mypy has a pre-existing error baseline and is
@@ -107,7 +107,7 @@ the DDL, then run `alembic upgrade head`.
 ## Security notes
 
 - Keep `127.0.0.1` binding; do not publish the container port on `0.0.0.0`.
-- Use a random `JARVIS_API_TOKEN` of at least 32 characters.
+- Use a random `AETHER_API_TOKEN` of at least 32 characters.
 - Revoke unused device tokens and review `/api/devices`.
 - Provider keys stay server-side in `.env`; never commit or print them.
 - Rate limiting, body caps and security headers reduce abuse but are not a

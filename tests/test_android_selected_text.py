@@ -2,7 +2,7 @@
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = ROOT/'android/app/src/main/java/com/ashok/jarvis'
+BASE = ROOT/'android/app/src/main/java/com/ashok/aether'
 
 
 def test_selected_text_requires_separate_explicit_read_and_keeps_io_off_main():

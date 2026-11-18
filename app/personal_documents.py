@@ -14,7 +14,7 @@ from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.personal_data import require_device_token
-from jarvis.memory.doc_memory import SECRET_CONTENT_MARKERS, SKIP_DIRS, _looks_secret
+from aether.memory.doc_memory import SECRET_CONTENT_MARKERS, SKIP_DIRS, _looks_secret
 
 router = APIRouter(prefix='/api/documents', tags=['AETHER documents'], dependencies=[Depends(require_device_token)])
 SUFFIXES = {'.txt', '.md', '.log', '.pdf', '.docx'}

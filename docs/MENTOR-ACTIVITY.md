@@ -42,7 +42,7 @@ interface. Correct choices are not skill certification or course completion.
 - No duration, attendance, project/interview activity, live coding grade,
   external calendar, background reminder or notification is inferred or added.
   The web saved-data and Live Voice tool sets are not widened by this change.
-- Attempts remain in the local mentor database, under `JARVIS_MENTOR_DB` or its
+- Attempts remain in the local mentor database, under `AETHER_MENTOR_DB` or its
   existing default. There is no new retention/deletion control. Backend-memory
   expiry does not delete these rows. Backups may include them.
 

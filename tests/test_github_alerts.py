@@ -28,7 +28,7 @@ def client(tmp_path, monkeypatch):
         ),
     )
     monkeypatch.setattr(
-        integrations, "settings", SimpleNamespace(jarvis_db_path=str(tmp_path / "alerts.db"))
+        integrations, "settings", SimpleNamespace(aether_db_path=str(tmp_path / "alerts.db"))
     )
     app = FastAPI()
     app.include_router(github_alerts.router, prefix="/api/integrations")

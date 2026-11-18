@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from jarvis.devops.aws_backup_snapshot import review_backup_jobs, review_backup_jobs_export
+from aether.devops.aws_backup_snapshot import review_backup_jobs, review_backup_jobs_export
 
 
 def job(**changes):
@@ -156,10 +156,10 @@ def test_no_special_files_or_links(tmp_path):
 
 
 def test_registry_safe_stop_no_live_policy_expansion(tmp_path, monkeypatch):
-    from jarvis.devops.awscli import classify
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'safety.db'))
+    from aether.devops.awscli import classify
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'safety.db'))
     path = tmp_path / 'backup.json'
     path.write_text(json.dumps({'BackupJobs': [job()]}))
     registry = build_registry(force=True)

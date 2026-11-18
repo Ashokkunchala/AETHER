@@ -13,7 +13,7 @@
          backend already owns 8443 the test runs on the next free port.
       3. Starts uvicorn app.main_enhanced:app bound to the LAN IP with
          --ssl-certfile/--ssl-keyfile (same flags as scripts\start-mobile.ps1).
-      4. Waits for the shared Test-JarvisBackendHealth helper to report 200.
+      4. Waits for the shared Test-AETHERBackendHealth helper to report 200.
       5. Runs scripts\verify_tls.py --mode endpoint: full TLS handshake with
          the local certificate trusted as the CA (chain + hostname), served
          certificate byte-equality, and GET /health -> {"status": "ok"}.
@@ -55,11 +55,11 @@ $ErrorActionPreference = "Stop"
 
 . (Join-Path $PSScriptRoot "mobile-common.ps1")
 
-$root = Get-JarvisRepoRoot
-$python = Test-JarvisVenv -Root $root
+$root = Get-AETHERRepoRoot
+$python = Test-AETHERVenv -Root $root
 
 if (-not (Test-Path (Join-Path $root ".env"))) {
-    throw ".env missing at $root. Run INSTALL_JARVIS.bat or scripts\setup-windows.ps1 first."
+    throw ".env missing at $root. Run INSTALL_AETHER.bat or scripts\setup-windows.ps1 first."
 }
 
 function Get-FreeTcpPort {
@@ -96,14 +96,14 @@ function Write-Tail {
 }
 
 Write-Host ""
-Write-Host "JARVIS HTTPS smoke test (uvicorn + TLS + /health)" -ForegroundColor Cyan
+Write-Host "AETHER HTTPS smoke test (uvicorn + TLS + /health)" -ForegroundColor Cyan
 Write-Host "=================================================" -ForegroundColor Cyan
 
 # ----------------------------------------------------------- 1. network + cert
-$lanIp = Get-JarvisLanIPv4
+$lanIp = Get-AETHERLanIPv4
 Write-Host "[PASS] LAN IP: $lanIp" -ForegroundColor Green
 
-$certInfo = New-JarvisHttpsCert -LanIp $lanIp -Force:$ForceCert
+$certInfo = New-AETHERHttpsCert -LanIp $lanIp -Force:$ForceCert
 Write-Host "[PASS] Certificate: $($certInfo.Cert)" -ForegroundColor Green
 
 # ------------------------------------------------------------------ 2. port
@@ -111,10 +111,10 @@ $testPort = Get-FreeTcpPort -Start $Port -BindAddress $lanIp
 if ($testPort -ne $Port) {
     Write-Host "[WARN] Port $Port is busy; smoke-testing on $testPort instead." -ForegroundColor Yellow
 }
-$baseUrl = Get-JarvisMobileUrl -LanIp $lanIp -Port $testPort
+$baseUrl = Get-AETHERMobileUrl -LanIp $lanIp -Port $testPort
 
 # ------------------------------------------------------------------ 3. logs
-$logDir = Join-Path $env:TEMP "jarvis-https-smoke"
+$logDir = Join-Path $env:TEMP "aether-https-smoke"
 New-Item -ItemType Directory -Force -Path $logDir | Out-Null
 $outLog = Join-Path $logDir "uvicorn-$testPort.out.log"
 $errLog = Join-Path $logDir "uvicorn-$testPort.err.log"
@@ -155,7 +155,7 @@ try {
     $healthy = $false
     while ($stopwatch.Elapsed.TotalSeconds -lt $StartupTimeoutSeconds) {
         if ($server.HasExited) { break }
-        if (Test-JarvisBackendHealth -Url $baseUrl -TimeoutSeconds 2) {
+        if (Test-AETHERBackendHealth -Url $baseUrl -TimeoutSeconds 2) {
             $healthy = $true
             break
         }
@@ -170,7 +170,7 @@ try {
         throw "Backend did not become healthy within $StartupTimeoutSeconds s at $baseUrl."
     }
     $elapsed = [math]::Round($stopwatch.Elapsed.TotalSeconds, 1)
-    Write-Host "[PASS] Test-JarvisBackendHealth: $baseUrl/health -> 200 (${elapsed}s)" -ForegroundColor Green
+    Write-Host "[PASS] Test-AETHERBackendHealth: $baseUrl/health -> 200 (${elapsed}s)" -ForegroundColor Green
 
     # ------------------------------------------- 6. TLS + JSON verification
     $verifier = Join-Path $root "scripts\verify_tls.py"

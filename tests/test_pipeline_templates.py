@@ -3,7 +3,7 @@ import asyncio
 import pytest
 import yaml
 
-from jarvis.devops.pipeline_templates import STAGES, generate_pipeline_scaffold
+from aether.devops.pipeline_templates import STAGES, generate_pipeline_scaffold
 
 
 @pytest.mark.parametrize('platform',['jenkins','github_actions'])
@@ -67,9 +67,9 @@ def test_fixed_stage_coverage_not_actual_implementation(platform):
 
 
 def test_registry_is_safe_and_available_after_stop(tmp_path,monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_SECURITY_DB',str(tmp_path/'security.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_SECURITY_DB',str(tmp_path/'security.db'))
     registry=build_registry(force=True);SecurityStore().set_stop(True)
     result=asyncio.run(registry.execute('generate_pipeline_review_scaffold',{'platform':'jenkins'}))
     assert result.ok and not result.data['executed']

@@ -22,7 +22,7 @@ The signed-in CI Windows runner compiles this launcher and tests only a harmless
 
 ## Android
 
-Download `jarvis-android-debug-apk` from the **same successful run** and extract `app-debug.apk`. The artifact keeps this legacy name; the user-facing project is AETHER. This is a debug/test APK, not a Play Store release or a signed production release with an update guarantee.
+Download `aether-android-debug-apk` from the **same successful run** and extract `app-debug.apk`. This is a debug/test APK, not a Play Store release or a signed production release with an update guarantee.
 
 1. Transfer the extracted APK to your Android phone through a route you trust. Inspect Android's install prompts and package details. Installation is your action, not something performed remotely here.
 2. Do not uninstall an existing app or erase data to force an update. If Android reports a signing/package conflict, stop and report the exact message. Existing device data/signing identity needs review first.

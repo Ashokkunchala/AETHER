@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from datetime import datetime
 
-from jarvis.terminal import robot
+from aether.terminal import robot
 
 _ANSI = re.compile(r"\x1b\[[0-9;?]*[A-Za-z]")
 

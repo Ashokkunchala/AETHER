@@ -39,7 +39,7 @@ This is open-book objective practice, not free-text automated grading, a secure 
 
 ## 4. Typed cloud execution adapters and approval gates
 
-`jarvis.devops.lifecycle_runtime` adds a durable local execution protocol beyond the earlier pure design graph. It is disabled by default and is not exposed through HTTP, Android, model tools or a remote approval endpoint. The existing proposal generator remains design-only and cannot grant permission.
+`aether.devops.lifecycle_runtime` adds a durable local execution protocol beyond the earlier pure design graph. It is disabled by default and is not exposed through HTTP, Android, model tools or a remote approval endpoint. The existing proposal generator remains design-only and cannot grant permission.
 
 The production entry refuses all work unless the owner has separately approved real-target setup, a local opt-in is configured, a connection generation is supplied, the exact canonical scope digest is allowlisted and a local interactive terminal is used. An allowlist entry authorizes neither a write nor free spending. Preflight queries can access private account metadata and incur request charges; approve that access before enabling them. No real credentials or provider calls were used during development.
 

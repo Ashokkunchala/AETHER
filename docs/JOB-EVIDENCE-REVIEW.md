@@ -13,7 +13,7 @@ Output contains no match percentage, hire/reject recommendation, inferred years 
 Review [example JSON](examples/job-evidence.json), then from the installed source folder:
 
 ```powershell
-.\.venv\Scripts\python.exe -B -m jarvis.owner_console job-review --spec docs/examples/job-evidence.json
+.\.venv\Scripts\python.exe -B -m aether.owner_console job-review --spec docs/examples/job-evidence.json
 ```
 
 The owner console displays exact supplied text/requirements and the privacy scope, then requires `APPROVE review_job_evidence`. It performs the comparison locally, prints output and saves nothing. No provider/key/backend/listener is needed. Console spec reads are bounded to256KiB. Use a private terminal because resume/JD text and excerpts may be sensitive and terminal capture/history can retain them.

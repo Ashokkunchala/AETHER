@@ -14,9 +14,9 @@ AUTH = {'Authorization': 'Bearer ' + TOKEN}
 
 @pytest.fixture
 def client(monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_API_TOKEN', TOKEN)
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'contacts.db'))
-    monkeypatch.setattr(integrations.settings, 'jarvis_db_path', str(tmp_path / 'contacts.db'))
+    monkeypatch.setenv('AETHER_API_TOKEN', TOKEN)
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'contacts.db'))
+    monkeypatch.setattr(integrations.settings, 'aether_db_path', str(tmp_path / 'contacts.db'))
     monkeypatch.setattr(integrations.settings, 'secret_key', TOKEN)
     monkeypatch.setattr(integrations.settings, 'google_oauth_client_id', 'mock-client')
     monkeypatch.setattr(integrations.settings, 'google_oauth_client_secret', 'mock-secret')

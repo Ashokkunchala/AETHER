@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from jarvis.mentor_shell_review import review_shell
+from aether.mentor_shell_review import review_shell
 
 
 @pytest.mark.parametrize(
@@ -106,11 +106,11 @@ def test_truncation_and_utf8_columns():
 
 
 def test_registry_preserves_existing_mentor_and_progress(tmp_path, monkeypatch):
-    from jarvis.mentor import MentorStore
-    from jarvis.tools.builtin_tools import build_registry
+    from aether.mentor import MentorStore
+    from aether.tools.builtin_tools import build_registry
 
-    monkeypatch.setenv("JARVIS_MENTOR_DB", str(tmp_path / "mentor.db"))
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "security.db"))
+    monkeypatch.setenv("AETHER_MENTOR_DB", str(tmp_path / "mentor.db"))
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "security.db"))
     registry = build_registry(force=True)
     before = MentorStore().progress()
     result = asyncio.run(registry.execute("mentor_review_shell", {"command": "echo $(date)"}))

@@ -3,9 +3,9 @@ import json
 
 import pytest
 
-from jarvis.mentor import MentorStore
-from jarvis.mentor_deep import DeepMentor
-from jarvis.mentor_rubric import evaluate_reasoning
+from aether.mentor import MentorStore
+from aether.mentor_deep import DeepMentor
+from aether.mentor_rubric import evaluate_reasoning
 
 
 GOOD = (
@@ -84,9 +84,9 @@ def test_deep_submit_returns_signal_review_without_claiming_grade(tmp_path):
 
 
 def test_registered_safe_rubric_tool(monkeypatch, tmp_path):
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "security.db"))
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "security.db"))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
 
     registry = build_registry(force=True)
     SecurityStore().set_stop(True)

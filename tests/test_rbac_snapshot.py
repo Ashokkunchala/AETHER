@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from jarvis.devops.rbac_snapshot import review_rbac_json
+from aether.devops.rbac_snapshot import review_rbac_json
 
 API = "rbac.authorization.k8s.io/v1"
 
@@ -292,9 +292,9 @@ def test_cluster_namespace_and_mixed_resource_rules_refused():
 
 
 def test_registry_preserves_old_heuristic_and_has_no_cluster_execution(tmp_path, monkeypatch):
-    from jarvis.tools.builtin_tools import build_registry
+    from aether.tools.builtin_tools import build_registry
 
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "security.db"))
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "security.db"))
     registry = build_registry(force=True)
     assert "review_k8s" in registry.tools
     data = json.dumps(role())

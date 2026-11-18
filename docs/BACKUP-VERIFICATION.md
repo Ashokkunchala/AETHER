@@ -26,7 +26,7 @@ Do not invent a hash or substitute a newly computed hash merely to clear a misma
   value, before member decompression.
 - Small ordinary single-disk, non-ZIP64 directory; at most 51 members and
   256 KB directory metadata, checked before central-entry allocation.
-- Existing `jarvis-selected-documents-v1` manifest, numbered document members,
+- Existing `aether-selected-documents-v1` manifest, numbered document members,
   no duplicate/unlisted/missing members, no directory/symlink/encrypted members,
   and only stored/deflated compression. This format identifier is preserved for
   compatibility; the display name is AETHER.

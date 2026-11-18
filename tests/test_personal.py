@@ -6,8 +6,8 @@ from datetime import date, timedelta
 
 import pytest
 
-from jarvis.personal import PersonalStore
-from jarvis.tools.builtin_tools import build_registry, reset_controllers
+from aether.personal import PersonalStore
+from aether.tools.builtin_tools import build_registry, reset_controllers
 
 
 @pytest.fixture()
@@ -70,7 +70,7 @@ def test_briefing(store):
 
 
 def test_personal_tools_registered(monkeypatch, tmp_path):
-    from jarvis import personal
+    from aether import personal
 
     monkeypatch.setattr(personal, "_default", PersonalStore(tmp_path / "p.db"))
     reset_controllers()

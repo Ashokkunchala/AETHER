@@ -2,12 +2,12 @@
 import pytest
 import yaml
 
-from jarvis.devops.verification_pipeline import (
+from aether.devops.verification_pipeline import (
     CHECKOUT_SHA,
     PYTHON_SHA,
     generate_python_verification_pipeline,
 )
-from jarvis.tools.builtin_tools import build_registry
+from aether.tools.builtin_tools import build_registry
 
 
 @pytest.mark.parametrize('version',['3.11','3.14'])

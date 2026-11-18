@@ -10,8 +10,8 @@ import urllib.parse
 
 import pytest
 
-from jarvis.tools.net import web_tools
-from jarvis.tools.net.web_tools import _SearchParser, _TextExtractor, _unwrap_duck_link
+from aether.tools.net import web_tools
+from aether.tools.net.web_tools import _SearchParser, _TextExtractor, _unwrap_duck_link
 
 DDG_HTML = """
 <html><body>
@@ -135,7 +135,7 @@ class TestSearchWeb:
 
 class TestRegistryIntegration:
     def test_web_tools_registered(self):
-        from jarvis.tools.builtin_tools import build_registry
+        from aether.tools.builtin_tools import build_registry
 
         registry = build_registry()
         for name in ("web_search", "web_read_page"):

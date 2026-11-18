@@ -12,10 +12,10 @@ from typing import Any
 
 from app.config import Settings
 from app.personal_data import _connect, _now, _record_schedule_history
-from jarvis.telemetry import record_runtime_event
-from jarvis.tools.builtin_tools import build_registry
-from jarvis.tools.orchestrator import ToolTask, ToolTaskOrchestrator
-from jarvis.tools.registry import Risk, ToolRegistry
+from aether.telemetry import record_runtime_event
+from aether.tools.builtin_tools import build_registry
+from aether.tools.orchestrator import ToolTask, ToolTaskOrchestrator
+from aether.tools.registry import Risk, ToolRegistry
 
 ALLOWED_SCHEDULE_TOOLS = frozenset({
     "system_status", "cpu_usage", "memory_usage", "disk_usage", "battery_status",
@@ -32,8 +32,8 @@ class ScheduleRunner:
         self.registry: ToolRegistry | None = None
         self._loop_task: asyncio.Task | None = None
         self._active: dict[int, asyncio.Task] = {}
-        from jarvis.proactive import ProactiveRunner
-        from jarvis.triggers import TriggerRunner
+        from aether.proactive import ProactiveRunner
+        from aether.triggers import TriggerRunner
 
         self.proactive = ProactiveRunner()
         self.triggers = TriggerRunner(registry_factory=self.registry_factory)
@@ -41,9 +41,9 @@ class ScheduleRunner:
     async def start(self) -> None:
         if self._loop_task is not None:
             return
-        if Path(Settings().jarvis_db_path).exists():
+        if Path(Settings().aether_db_path).exists():
             self._recover_interrupted()
-        self._loop_task = asyncio.create_task(self._run_loop(), name="jarvis-schedule-runner")
+        self._loop_task = asyncio.create_task(self._run_loop(), name="aether-schedule-runner")
 
     async def stop(self) -> None:
         loop_task, self._loop_task = self._loop_task, None
@@ -65,7 +65,7 @@ class ScheduleRunner:
 
     async def run_due_once(self) -> list[asyncio.Task]:
         """Claim currently due entries and return tasks, primarily for tests/operations."""
-        if not Path(Settings().jarvis_db_path).exists():
+        if not Path(Settings().aether_db_path).exists():
             return []
         capacity = MAX_CONCURRENT_SCHEDULES - len(self._active)
         if capacity <= 0:
@@ -90,7 +90,7 @@ class ScheduleRunner:
         tasks = []
         for schedule in claimed:
             schedule_id = int(schedule["id"])
-            task = asyncio.create_task(self._execute(schedule), name=f"jarvis-schedule-{schedule_id}")
+            task = asyncio.create_task(self._execute(schedule), name=f"aether-schedule-{schedule_id}")
             self._active[schedule_id] = task
             task.add_done_callback(lambda done, key=schedule_id: self._active.pop(key, None))
             tasks.append(task)

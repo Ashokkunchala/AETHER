@@ -1,10 +1,10 @@
-# JARVIS Personal AI - Project Overview
+# AETHER Personal AI - Project Overview
 
 ## Executive Summary
 
-**JARVIS Personal AI** is a multi-provider personal assistant prototype designed for Indian English and Telugu speakers. The project delivers a voice-first, secure, cost-conscious assistant across Windows and Android platforms with adaptive personality, contextual memory, and comprehensive tool orchestration.
+**AETHER Personal AI** is a multi-provider personal assistant prototype designed for Indian English and Telugu speakers. The project delivers a voice-first, secure, cost-conscious assistant across Windows and Android platforms with adaptive personality, contextual memory, and comprehensive tool orchestration.
 
-> **Status**: Multi-component prototype, not a complete JARVIS yet
+> **Status**: Multi-component prototype, not a complete AETHER yet
 
 ## Core Architecture
 
@@ -110,8 +110,8 @@ All core local components and persistent data APIs are operational:
 ### Quick Start (Windows PowerShell)
 
 ```powershell
-git clone https://github.com/Ashokkunchala/Jarvis-Personal-AI.git
-cd Jarvis-Personal-AI
+git clone https://github.com/Ashokkunchala/AETHER.git
+cd AETHER
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\scripts\setup-windows.ps1
 notepad .env
@@ -119,8 +119,8 @@ notepad .env
 
 **Environment Variables Required:**
 - `GEMINI_API_KEY` (at least one provider)
-- `JARVIS_API_TOKEN` (random secret, 32+ chars)
-- `JARVIS_AI_PROVIDER` (auto/gemini/openrouter/groq)
+- `AETHER_API_TOKEN` (random secret, 32+ chars)
+- `AETHER_AI_PROVIDER` (auto/gemini/openrouter/groq)
 - Keep `HOST=127.0.0.1` for local development
 
 ### Testing
@@ -128,7 +128,7 @@ notepad .env
 ```powershell
 .\venv\Scripts\python.exe -m pytest -q
 .\venv\Scripts\python.exe -m ruff check .
-.\venv\Scripts\python.exe -m compileall -q app jarvis windows_agent jarvis_cli.py
+.\venv\Scripts\python.exe -m compileall -q app aether windows_agent aether_cli.py
 ```
 
 ## Security Rules & Guidelines
@@ -165,7 +165,7 @@ notepad .env
 
 **Authentication:**
 ```http
-Authorization: Bearer YOUR_JARVIS_API_TOKEN
+Authorization: Bearer YOUR_AETHER_API_TOKEN
 Content-Type: application/json
 ```
 
@@ -236,7 +236,7 @@ Content-Type: application/json
 
 ## Final Deliverable
 
-**Objective**: A reliable personal JARVIS that can:
+**Objective**: A reliable personal AETHER that can:
 - ✅ **Listen, understand, remember** user context
 - ✅ **Plan and act** within configured permissions
 - ✅ **Verify outcomes** of executed actions

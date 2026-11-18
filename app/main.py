@@ -1,6 +1,6 @@
 """Minimal FastAPI application.
 
-The production entry points -- ``jarvis serve``, ``scripts/start-windows.ps1`` and
+The production entry points -- ``aether serve``, ``scripts/start-windows.ps1`` and
 ``run_enhanced.py`` -- serve ``app.main_enhanced:app``,
 which adds the WebSocket brain bridge, device pairing/revocation and
 ``/api/health/detailed``. This smaller app is kept for lightweight deployments
@@ -45,10 +45,10 @@ from app.personal_data import router as personal_data_router
 from app.personality import SYSTEM_INSTRUCTIONS, language_instruction, mode_instruction
 from app.scheduler import ScheduleRunner
 from app.schemas import ChatRequest, ChatResponse
-from jarvis.telemetry import provider_health_summary, runtime_events
+from aether.telemetry import provider_health_summary, runtime_events
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("jarvis")
+logger = logging.getLogger("aether")
 settings = get_settings()
 STATIC_DIR = Path(__file__).parent / "static"
 
@@ -127,7 +127,7 @@ def life_manager():
 def health() -> dict:
     return {
         "status": "ok",
-        "service": "jarvis-personal-ai",
+        "service": "aether",
         "providers": configured_provider_order(settings),
     }
 

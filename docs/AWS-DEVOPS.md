@@ -27,7 +27,7 @@ read-only does not mean free or non-sensitive.
 This is an exact allowlist, not permission for every operation whose name starts
 with describe, list or get. Unknown/repeated flags, global endpoint overrides,
 local-file argument loading, flag abbreviations and malformed pagination values
-are refused on the read path. See `jarvis/devops/awscli.py` for each operation's
+are refused on the read path. See `aether/devops/awscli.py` for each operation's
 flag contract. No new AWS read is enabled by the offline reviewers below.
 
 `aws_read` is a LOW registry action: the persistent emergency stop blocks it.

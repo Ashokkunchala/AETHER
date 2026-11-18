@@ -11,8 +11,8 @@ from windows_agent.agent import app
 
 @pytest.fixture
 def setup(tmp_path, monkeypatch):
-    monkeypatch.setenv("JARVIS_AGENT_APPROVAL_DB", str(tmp_path / "approvals.db"))
-    monkeypatch.setenv("JARVIS_AGENT_TOKEN", "legacy-token-" + "a" * 48)
+    monkeypatch.setenv("AETHER_AGENT_APPROVAL_DB", str(tmp_path / "approvals.db"))
+    monkeypatch.setenv("AETHER_AGENT_TOKEN", "legacy-token-" + "a" * 48)
     store = mod.RemoteReadStore()
     device, token = store.provision_local()
     monkeypatch.setattr(

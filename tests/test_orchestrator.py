@@ -4,8 +4,8 @@ import asyncio
 
 import pytest
 
-from jarvis.tools.orchestrator import ToolTask, ToolTaskOrchestrator
-from jarvis.tools.registry import Risk, Tool, ToolRegistry
+from aether.tools.orchestrator import ToolTask, ToolTaskOrchestrator
+from aether.tools.registry import Risk, Tool, ToolRegistry
 
 
 def _register(registry: ToolRegistry, name, handler, risk=Risk.SAFE):
@@ -142,7 +142,7 @@ def test_retries_are_limited_to_transient_safe_actions():
 
 def test_brain_executes_safe_model_tool_batch_through_orchestrator():
     async def scenario():
-        from jarvis.core.brain import JarvisBrain, TurnStats
+        from aether.core.brain import AETHERBrain, TurnStats
 
         registry = ToolRegistry()
         active = 0
@@ -160,7 +160,7 @@ def test_brain_executes_safe_model_tool_batch_through_orchestrator():
             return {"success": True, "value": value}
 
         _register(registry, "read", read)
-        brain = JarvisBrain(api_key="schema-only")
+        brain = AETHERBrain(api_key="schema-only")
         brain.registry = registry
         output = []
         results = []

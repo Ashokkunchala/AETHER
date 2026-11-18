@@ -1,8 +1,8 @@
 """Coverage for source-linked added tracks, not a claim of teaching efficacy."""
 import pytest
 
-from jarvis.mentor_deep import DeepMentor, TRACKS, _lesson
-from jarvis.mentor_tracks import EXTRA_TRACKS
+from aether.mentor_deep import DeepMentor, TRACKS, _lesson
+from aether.mentor_tracks import EXTRA_TRACKS
 
 
 def test_all_tracks_have_three_complete_distinct_scenarios():

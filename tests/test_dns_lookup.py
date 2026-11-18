@@ -4,7 +4,7 @@ import threading
 
 import pytest
 
-from jarvis.control import dns_lookup as mod
+from aether.control import dns_lookup as mod
 
 
 def record(address="192.0.2.1", family=socket.AF_INET, scope=0):
@@ -195,10 +195,10 @@ def test_worker_start_failure_releases_gate(monkeypatch):
 
 
 def test_registry_fresh_review_and_stop(tmp_path, monkeypatch):
-    from jarvis.tools.builtin_tools import build_registry
-    from jarvis.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    from aether.security import SecurityStore
 
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "security.db"))
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "security.db"))
     calls = []
     monkeypatch.setattr(mod.socket, "getaddrinfo", lambda *a: calls.append(a) or [record()])
     registry = build_registry(force=True)

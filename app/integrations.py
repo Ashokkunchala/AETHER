@@ -42,7 +42,7 @@ GOOGLE_SCOPES = (
 
 @contextmanager
 def _connect():
-    path = Path(settings.jarvis_db_path)
+    path = Path(settings.aether_db_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     db = sqlite3.connect(path, timeout=10)
     db.row_factory = sqlite3.Row
@@ -78,7 +78,7 @@ def _connect():
 
 
 def _fernet() -> Fernet:
-    key_material = settings.secret_key or settings.jarvis_api_token
+    key_material = settings.secret_key or settings.aether_api_token
     if len(key_material) < 32:
         raise HTTPException(503, "Configure a 32-character SECRET_KEY to enable integrations.")
     key = __import__("base64").urlsafe_b64encode(hashlib.sha256(key_material.encode()).digest())
@@ -201,7 +201,7 @@ class WhatsAppDraft(BaseModel):
 def google_connect(include_contacts: bool = False, _=Depends(require_device_token)):
     client_id, _, redirect_uri = _google_credentials()
     nonce = secrets.token_urlsafe(32)
-    serializer = URLSafeTimedSerializer(settings.secret_key or settings.jarvis_api_token, salt="aether-google-oauth")
+    serializer = URLSafeTimedSerializer(settings.secret_key or settings.aether_api_token, salt="aether-google-oauth")
     state = serializer.dumps(nonce)
     with _connect() as db:
         db.execute("DELETE FROM integration_states WHERE created_at<?", ((datetime.now(UTC)-timedelta(minutes=15)).isoformat(),))
@@ -218,7 +218,7 @@ async def google_callback(code: str, state: str, error: str | None = None):
     if error:
         raise HTTPException(400, "Google authorization was not completed.")
     try:
-        nonce = URLSafeTimedSerializer(settings.secret_key or settings.jarvis_api_token,
+        nonce = URLSafeTimedSerializer(settings.secret_key or settings.aether_api_token,
                                        salt="aether-google-oauth").loads(state, max_age=600)
     except BadSignature as exc:
         raise HTTPException(400, "Invalid or expired OAuth state.") from exc

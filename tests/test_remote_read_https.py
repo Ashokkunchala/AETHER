@@ -45,7 +45,7 @@ def certificates(tmp_path):
 
 @pytest.fixture
 def client(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_AGENT_APPROVAL_DB', str(tmp_path / 'approval.db'))
+    monkeypatch.setenv('AETHER_AGENT_APPROVAL_DB', str(tmp_path / 'approval.db'))
     store = RemoteReadStore();device, token = store.provision_local()
     return TestClient(mod.make_app('aether.example'), base_url='https://aether.example'), store, device, token
 
@@ -193,7 +193,7 @@ def test_real_loopback_https_trust_hostname_and_no_plaintext(tmp_path, certifica
     import httpx
     import uvicorn
     cert,key=certificates('127.0.0.1')
-    monkeypatch.setenv('JARVIS_AGENT_APPROVAL_DB',str(tmp_path/'tls-store.db'))
+    monkeypatch.setenv('AETHER_AGENT_APPROVAL_DB',str(tmp_path/'tls-store.db'))
     store=RemoteReadStore();_,token=store.provision_local()
     sock=socket.socket();sock.bind(('127.0.0.1',0));port=sock.getsockname()[1]
     config=uvicorn.Config(mod.make_app('127.0.0.1'),host='127.0.0.1',port=port,ssl_certfile=str(cert),ssl_keyfile=str(key),ssl_version=ssl.PROTOCOL_TLS_SERVER,proxy_headers=False,access_log=False,log_level='critical')

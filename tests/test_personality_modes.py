@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from jarvis import personality_modes
-from jarvis.personality_modes import MODES, ModeStore, overlay_for, prepare_song
+from aether import personality_modes
+from aether.personality_modes import MODES, ModeStore, overlay_for, prepare_song
 
 
 class TestModes:
@@ -65,7 +65,7 @@ class TestModeStore:
 
 
 class TestPrepareSong:
-    LYRICS = "Boot sequence hums at dawn\nCoffee joins the silicon song\nLights awake on every screen\nJarvis tends his humble dream"
+    LYRICS = "Boot sequence hums at dawn\nCoffee joins the silicon song\nLights awake on every screen\nAether tends his humble dream"
 
     def test_success_shape(self):
         result = prepare_song(self.LYRICS, mood="playful")
@@ -91,7 +91,7 @@ class TestPrepareSong:
 
 class TestRegistryIntegration:
     def test_personality_tools_registered(self):
-        from jarvis.tools.builtin_tools import build_registry
+        from aether.tools.builtin_tools import build_registry
 
         registry = build_registry()
         for name in ("list_personality_modes", "get_personality_mode", "set_personality_mode", "perform_song"):
@@ -100,7 +100,7 @@ class TestRegistryIntegration:
     def test_set_mode_tool_roundtrip(self, tmp_path, monkeypatch):
         store = ModeStore(tmp_path / "mode.json")
         monkeypatch.setattr(personality_modes, "_default_store", store)
-        from jarvis.tools.builtin_tools import build_registry
+        from aether.tools.builtin_tools import build_registry
 
         registry = build_registry()
         result = registry.get("set_personality_mode").handler("friend")

@@ -18,14 +18,14 @@ def test_native_manifest_permission_baseline_no_broad_access():
 
 
 def test_visible_voice_stops_on_activity_stop_and_dispose():
-    source=(ANDROID/'src/main/java/com/ashok/jarvis/MainActivity.kt').read_text()
+    source=(ANDROID/'src/main/java/com/ashok/aether/MainActivity.kt').read_text()
     assert 'if (event == Lifecycle.Event.ON_STOP) liveVoiceController.stop()' in source
     assert 'lifecycleOwner.lifecycle.removeObserver(observer)\n            liveVoiceController.stop()' in source
     assert 'Voice captured. Review the transcript, then tap Send.' in source
 
 
 def test_notifications_user_tap_no_background_voice_activation():
-    source=(ANDROID/'src/main/java/com/ashok/jarvis/ReminderWorker.kt').read_text()
+    source=(ANDROID/'src/main/java/com/ashok/aether/ReminderWorker.kt').read_text()
     assert 'private const val POLL_MINUTES = 15L' in source
     assert 'setRequiredNetworkType(NetworkType.CONNECTED)' in source
     assert 'PendingIntent.getActivity(' in source and 'FLAG_IMMUTABLE' in source

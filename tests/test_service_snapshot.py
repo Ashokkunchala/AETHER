@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from jarvis.devops.service_snapshot import review_service_endpoints
+from aether.devops.service_snapshot import review_service_endpoints
 
 
 def sample():
@@ -210,9 +210,9 @@ def test_duplicate_and_count_limits():
 
 
 def test_registry_keeps_existing_snapshot_reviewers(tmp_path, monkeypatch):
-    from jarvis.tools.builtin_tools import build_registry
+    from aether.tools.builtin_tools import build_registry
 
-    monkeypatch.setenv("JARVIS_SECURITY_DB", str(tmp_path / "security.db"))
+    monkeypatch.setenv("AETHER_SECURITY_DB", str(tmp_path / "security.db"))
     registry = build_registry(force=True)
     assert "review_k8s_rbac_json" in registry.tools and "review_k8s" in registry.tools
     result = asyncio.run(

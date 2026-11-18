@@ -16,8 +16,8 @@ MASTER = 'mock-master-token-for-websocket-tests-only-123456'
 
 @pytest.fixture(autouse=True)
 def isolated_auth(monkeypatch, tmp_path):
-    monkeypatch.setenv('JARVIS_API_TOKEN', MASTER)
-    monkeypatch.setenv('JARVIS_DB_PATH', str(tmp_path / 'auth.sqlite3'))
+    monkeypatch.setenv('AETHER_API_TOKEN', MASTER)
+    monkeypatch.setenv('AETHER_DB_PATH', str(tmp_path / 'auth.sqlite3'))
     from app.core.config import get_settings
     get_settings.cache_clear()
     token_auth._init_device_table()
@@ -56,7 +56,7 @@ def fake_brain(monkeypatch):
                                      {'value': message})
             yield {'type': 'done', 'approved': approved}
 
-    monkeypatch.setattr(ws, 'JarvisBrain', Brain)
+    monkeypatch.setattr(ws, 'AETHERBrain', Brain)
 
 
 def test_ticket_expiry_and_capacity(monkeypatch):
@@ -89,7 +89,7 @@ def test_ticket_is_bound_to_revocable_device():
 def test_master_rotation_invalidates_issued_ticket(monkeypatch):
     store = TicketStore()
     issued = store.issue(identity())
-    monkeypatch.setenv('JARVIS_API_TOKEN', 'rotated-master-token-for-websocket-tests-123456')
+    monkeypatch.setenv('AETHER_API_TOKEN', 'rotated-master-token-for-websocket-tests-123456')
     assert store.consume(issued) is None
 
 

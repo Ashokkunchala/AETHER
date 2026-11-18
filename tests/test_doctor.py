@@ -1,10 +1,10 @@
-"""Tests for `jarvis doctor` health checks."""
+"""Tests for `aether doctor` health checks."""
 
 from __future__ import annotations
 
 import pytest
 
-from jarvis.doctor import _redact_environment, run_checks
+from aether.doctor import _redact_environment, run_checks
 
 
 def test_doctor_runs_everywhere_without_raising():

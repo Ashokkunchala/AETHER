@@ -4,9 +4,9 @@ from unittest.mock import Mock
 
 import pytest
 
-from jarvis.control.command_preview import command_preview, process_start_preview
-from jarvis.tools.builtin_tools import build_registry
-from jarvis.tools.registry import Risk
+from aether.control.command_preview import command_preview, process_start_preview
+from aether.tools.builtin_tools import build_registry
+from aether.tools.registry import Risk
 
 
 @pytest.mark.parametrize('command', ['', '   ', 'x\x00y', 'x'*8001, None, 'diskpart'])
@@ -28,7 +28,7 @@ def test_preview_preserves_exact_syntax_and_cwd():
 
 @pytest.mark.parametrize('elevated', [True, 'false', 1, None])
 def test_elevation_refused_in_preview_and_primitive(monkeypatch, elevated):
-    from jarvis.control.process import start_process
+    from aether.control.process import start_process
     popen = Mock(side_effect=AssertionError('Must not execute'))
     monkeypatch.setattr('subprocess.Popen', popen)
     assert process_start_preview('editor', elevated)['success'] is False
@@ -37,7 +37,7 @@ def test_elevation_refused_in_preview_and_primitive(monkeypatch, elevated):
 
 
 def test_registry_fresh_exact_approval_and_stop(tmp_path, monkeypatch):
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path/'security.db'))
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path/'security.db'))
     registry = build_registry(force=True)
     for name in ['run_shell', 'start_process']:
         tool = registry.get(name)
@@ -58,7 +58,7 @@ def test_registry_fresh_exact_approval_and_stop(tmp_path, monkeypatch):
         result = asyncio.run(registry.execute(name, {'command':'echo approved'}, confirm=approve, auto_approve=True))
         assert result.ok and calls == [{'command':'echo approved'}]
         calls.clear()
-        from jarvis.security import SecurityStore
+        from aether.security import SecurityStore
         async def stop(tool, args):
             SecurityStore().set_stop(True)
             return True

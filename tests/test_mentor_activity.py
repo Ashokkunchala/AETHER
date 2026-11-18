@@ -5,7 +5,7 @@ from datetime import datetime
 
 import pytest
 
-from jarvis.mentor import MentorStore
+from aether.mentor import MentorStore
 
 
 @pytest.fixture
@@ -66,7 +66,7 @@ def test_submit_appends_while_latest_result_remains_compatible(store):
 
 
 def test_ledger_failure_rolls_back_latest_result(store, monkeypatch):
-    import jarvis.mentor as mentor
+    import aether.mentor as mentor
     store.submit('linux', 1)
     before = store.progress()
     def fail(*args):
@@ -108,7 +108,7 @@ def test_range_and_timezone_validation(store, start, end, tz):
 
 
 def test_limit_and_invalid_rows_are_explicit(store, monkeypatch):
-    from jarvis import mentor_activity
+    from aether import mentor_activity
     monkeypatch.setattr(mentor_activity, 'MAX_ROWS', 2)
     insert(store, '2026-11-01T00:00:00.000000+00:00')
     insert(store, '2026-11-01T01:00:00.000000+00:00', topic='unknown')
@@ -131,10 +131,10 @@ def test_additive_schema_does_not_replace_existing_records(tmp_path):
 
 
 def test_report_safe_after_stop_and_attempts_do_not_bypass_stop(store, tmp_path, monkeypatch):
-    from jarvis.security import SecurityStore
-    from jarvis.tools.builtin_tools import build_registry
-    monkeypatch.setenv('JARVIS_MENTOR_DB', store.path)
-    monkeypatch.setenv('JARVIS_SECURITY_DB', str(tmp_path / 'security.db'))
+    from aether.security import SecurityStore
+    from aether.tools.builtin_tools import build_registry
+    monkeypatch.setenv('AETHER_MENTOR_DB', store.path)
+    monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     registry = build_registry(force=True)
     SecurityStore().set_stop(True)
     assert not asyncio.run(registry.execute('mentor_submit', {'lesson_id': 'linux', 'choice': 1})).ok

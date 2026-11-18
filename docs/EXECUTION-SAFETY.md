@@ -26,15 +26,15 @@ not an operating-system sandbox and does not cover code that bypasses the regist
 Run these locally from the installed project environment:
 
 ```console
-python -m jarvis.security status
-python -m jarvis.security stop
-python -m jarvis.security audit
-python -m jarvis.security resume
+python -m aether.security status
+python -m aether.security stop
+python -m aether.security audit
+python -m aether.security resume
 ```
 
 `resume` is deliberately not a model-callable tool. It is an operator recovery
-command. The database defaults to `~/.jarvis/security.db`; set
-`JARVIS_SECURITY_DB` to use another local path. New database files are created
+command. The database defaults to `~/.aether/security.db`; set
+`AETHER_SECURITY_DB` to use another local path. New database files are created
 with owner-only permissions on POSIX; Windows inherits the user's directory ACLs.
 Keep that directory private and writable only by the operating user.
 
