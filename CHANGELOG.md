@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-11-18 - dashboard recorded alert history
+
+- The Command Center dashboard resource-warnings panel now records opt-in threshold crossings in a browser-local history: the 50 most recent crossings render under "Recorded alert history" with timestamps, survive page reloads and can be cleared with one click. Everything renders through `textContent`, corrupt stored data falls back to the empty state, and the record is labelled browser-local - not a system or audit log.
+- Monitoring still happens only while the dashboard is open; no background monitoring, server writes or OS notification changes were added. Real-Chromium tests cover recording on crossing, reload persistence, clearing, the 50-entry bound and markup-safe rendering.
+
 ## 2026-11-18 - resumable read-only plans
 
 - Added `plan_save_readonly`, `plan_run_readonly`, `plan_status_readonly`, `plan_list_readonly` and `plan_forget_readonly`: multi-step plans of SAFE read-only tools with dependencies now checkpoint every settled step in the shared local SQLite store, so a failure or process restart resumes from the last incomplete step without re-executing successful steps.
