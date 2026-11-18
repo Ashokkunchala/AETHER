@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-18 - literal shell teaching review
+
+- Added `mentor_review_shell`, a no-effect mentor tool that checks one redacted shell command for five literal teaching patterns: command substitution, recursive force delete, output overwrite, `sudo` and download-to-shell pipelines. It rejects credential-shaped input and returns location-only findings without command text.
+- Added focused tests for exact/uncovered patterns, input limits, secret-shaped rejection, no file side effects, ordering, UTF-8 columns, truncation, independent results and preservation of existing mentor tools/progress.
+- This does not execute or approve commands, parse every shell, resolve paths/variables or claim security, correctness or mastery.
+
 ## 2026-11-18 - reviewed mentor review prompts
 
 - Added `mentor_deep_schedule_review_prompt`, a fresh-approved local write that creates one exact non-recurring deep-lesson reminder in the existing initialized backend reminder store. It deduplicates identical requests, reports current progress context without rewriting it and does not create a calendar event or send a notification.
