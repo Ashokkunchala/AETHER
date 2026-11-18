@@ -236,3 +236,12 @@ def test_security_alerts_master_only_cursor_redacted():
         assert client.get('/api/security/alerts', params={'after_id': cursor}, headers=AUTH).json()['alerts'] == []
         assert client.get('/api/security/alerts', params={'limit': 10000}, headers=AUTH).status_code == 422
         assert client.get('/api/security/alerts', params={'after_id': -1}, headers=AUTH).status_code == 422
+
+
+def test_enhanced_provider_health_endpoint_is_authenticated():
+    with TestClient(app) as client:
+        denied = client.get("/api/provider/health")
+        allowed = client.get("/api/provider/health", headers=AUTH)
+    assert denied.status_code == 401
+    assert allowed.status_code == 200
+    assert allowed.json()["measured_only"] is True
