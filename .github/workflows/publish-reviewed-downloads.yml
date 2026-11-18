@@ -29,14 +29,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: aether-windows-setup
-          run-id: 44257494656
+          run-id: 44259360589
           github-token: ${{ github.token }}
           path: staging/windows
       - name: Download exact successful Android artifact
         uses: actions/download-artifact@v4
         with:
           name: jarvis-android-debug-apk
-          run-id: 44257494656
+          run-id: 44259360589
           github-token: ${{ github.token }}
           path: staging/android
       - name: Verify exact bytes and prepare only the requested direct downloads
@@ -47,8 +47,8 @@ jobs:
           import shutil
           import urllib.request
           import json
-          source = '42f11e6fe24ddb4776aa660362c7e0d30bbd957e'
-          url = 'https://api.github.com/repos/Ashokkunchala/AETHER/actions/runs/44257494656'
+          source = '80fd2054bce5381e7e04771b0c149e5f70dc6ab5'
+          url = 'https://api.github.com/repos/Ashokkunchala/AETHER/actions/runs/44259360589'
           request = urllib.request.Request(url, headers={
               'Accept': 'application/vnd.github+json',
               'Authorization': 'Bearer ${{ github.token }}',
@@ -80,8 +80,8 @@ jobs:
           (root / 'SOURCE-COMMIT.txt').write_text(source + '\n')
           (root / 'README.md').write_text('''# AETHER direct setup files
 
-          Built from source commit `42f11e6fe24ddb4776aa660362c7e0d30bbd957e`.
-          Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44257494656
+          Built from source commit `80fd2054bce5381e7e04771b0c149e5f70dc6ab5`.
+          Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44259360589
 
           - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
           - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
