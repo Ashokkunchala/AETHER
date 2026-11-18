@@ -245,6 +245,9 @@ def build_registry(force: bool = False) -> ToolRegistry:
     from jarvis.proactive import register_proactive_tools
 
     register_proactive_tools(registry)
+    from jarvis.triggers import register_trigger_tools
+
+    register_trigger_tools(registry)
     from jarvis.memory.controls import register_memory_controls
 
     register_memory_controls(registry)
