@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-11-18 - literal JavaScript teaching review
+
+- Added `mentor_review_javascript`, a no-effect mentor tool that checks one redacted JavaScript snippet for five literal teaching markers: `eval`, the `Function` constructor, `innerHTML` assignment, `document.write`/`writeln` and string timer callbacks. It rejects credential-shaped input and returns location-only findings without source text.
+- Added focused tests for exact/uncovered patterns, comments and quoted/template strings, input limits, secret-shaped rejection, no file side effects, ordering, UTF-8 columns, truncation, independent results and preservation of existing mentor tools/progress.
+- This does not execute code, parse every JavaScript/TypeScript dialect, resolve aliases/control flow or claim security, correctness or mastery.
+
 ## 2026-11-18 - literal shell teaching review
 
 - Added `mentor_review_shell`, a no-effect mentor tool that checks one redacted shell command for five literal teaching patterns: command substitution, recursive force delete, output overwrite, `sudo` and download-to-shell pipelines. It rejects credential-shaped input and returns location-only findings without command text.
