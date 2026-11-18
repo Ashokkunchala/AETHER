@@ -307,6 +307,20 @@ reachable backend plus their separate token/TLS/permission setup. It does not
 mark review complete, change mastery evidence, create recurrence, execute a lab
 or schedule follow-up prompts.
 
+## Literal shell teaching review
+
+`mentor_review_shell(command)` reviews one supplied redacted shell command for
+five literal patterns outside single quotes: command substitution, recursive
+force delete, output overwrite, `sudo`, and a download piped to a shell. It
+returns fixed teaching explanations with line/UTF-8-column locations and source
+links while omitting the command text and values. Credential-shaped input is
+rejected for redaction.
+
+This reviewer does not execute the command, resolve variables/aliases/paths,
+contact a URL, write progress, approve execution or sandbox later effects.
+Findings may be false positives and unreported risks remain; a zero finding
+count is not a pass, correctness grade or mastery evidence.
+
 ## Operating modes in the shared brain and web chat
 
 The requested ten modes are available: Personal, Friend, Mentor, DevOps,
