@@ -1,7 +1,7 @@
 # AETHER direct setup files
 
-Built from source commit `42f11e6fe24ddb4776aa660362c7e0d30bbd957e`.
-Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44257494656
+Built from source commit `80fd2054bce5381e7e04771b0c149e5f70dc6ab5`.
+Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44259360589
 
 - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
 - `AETHER-Android.apk`: debug/test Android APK. Installing/updating is an owner action. Do not uninstall/erase an existing app to force a signature-conflicting update. Secure same-backend HTTPS, pairing and reviewed permissions still need setup and actual device acceptance.
