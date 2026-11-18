@@ -34,6 +34,19 @@ not route traffic, change provider configuration, estimate cost, predict
 availability, guarantee privacy properties or prove that a configured provider
 will work on the next request.
 
+## Dashboard panel
+
+The Command Center dashboard (`/dashboard`) shows the same summary behind a
+"Refresh recorded summary" button in its AI providers panel. The button sends
+the session token to `/api/provider/health` and renders the response with
+`textContent`, so provider or model names cannot inject markup. Changing the
+token invalidates in-flight responses, so values fetched under a previous
+token are never displayed.
+
+The panel repeats the recorded-only boundary: no live provider, quota or
+billing call is made, and the latest retained result is not current account
+health.
+
 ## Verification
 
 Focused automated tests cover SQLite isolation, aggregation, provider/tool
