@@ -40,6 +40,7 @@ from app.integrations import router as integrations_router
 from app.middleware.rate_limit import ApiRateLimitMiddleware
 from app.middleware.request_size import DEFAULT_API_BODY_LIMIT, RequestBodyLimitMiddleware
 from app.middleware.security import SecurityHeadersMiddleware
+from app.personal_dashboard import router as personal_dashboard_router
 from app.personal_data import get_memory_context, require_device_token
 from app.personal_data import router as personal_data_router
 from app.personality import SYSTEM_INSTRUCTIONS, language_instruction, mode_instruction
@@ -80,6 +81,7 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.include_router(personal_data_router)
 app.include_router(life_manager_router)
+app.include_router(personal_dashboard_router)
 app.include_router(contacts_router)
 app.include_router(research_router)
 app.include_router(documents_router)
