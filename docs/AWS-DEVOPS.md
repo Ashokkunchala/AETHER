@@ -19,10 +19,34 @@ read-only does not mean free or non-sensitive.
 | Service | Operation |
 | --- | --- |
 | `ec2` | `describe-instances` |
+| `ec2` | `describe-vpcs` |
+| `ec2` | `describe-subnets` |
+| `ec2` | `describe-route-tables` |
+| `ec2` | `describe-security-groups` |
 | `ecs` | `list-clusters` |
 | `ecs` | `describe-clusters` |
-| `sts` | `get-caller-identity` |
+| `eks` | `list-clusters` |
+| `eks` | `describe-cluster` |
+| `rds` | `describe-db-instances` |
+| `lambda` | `list-functions` |
+| `cloudwatch` | `list-metrics` |
+| `logs` | `describe-log-groups` |
+| `logs` | `describe-log-streams` |
+| `cloudformation` | `describe-stacks` |
+| `cloudformation` | `list-stacks` |
 | `s3` | `ls` |
+| `s3api` | `list-buckets` |
+| `iam` | `list-users` |
+| `iam` | `list-roles` |
+| `iam` | `list-policies` |
+| `iam` | `get-policy` |
+| `iam` | `get-policy-version` |
+| `secretsmanager` | `list-secrets` |
+| `securityhub` | `get-findings` |
+| `guardduty` | `list-detectors` |
+| `guardduty` | `list-findings` |
+| `guardduty` | `get-findings` |
+| `sts` | `get-caller-identity` |
 
 This is an exact allowlist, not permission for every operation whose name starts
 with describe, list or get. Unknown/repeated flags, global endpoint overrides,
@@ -66,6 +90,10 @@ scope, freshness, completeness or actual resource health.
 | `review_cost_explorer` | Native supplied cost/usage periods, metrics, units and estimated flags kept separate. No billed request, implicit grand total or final-invoice/savings claim. |
 | `review_aws_backup_jobs` | Supplied job states and category status, including completed-with-issues and unknown categories. No protected-resource coverage, backup integrity or restore-readiness claim. |
 | `analyze_daily_costs` | Caller-normalized complete-day same-currency totals against a short baseline. Not native export parsing, monthly billing, forecasting or learned anomaly detection. |
+| `review_rds_instances` | Supplied describe-db-instances fields and public-access/encryption/backup-retention/deletion-protection signals. No live monitoring, metrics, health verdict or change. |
+| `review_lambda_functions` | Supplied list-functions runtime/package/memory/timeout/code-size fields. No invocation evidence, troubleshooting, deprecation verdict or change. |
+| `review_security_hub_findings` | Supplied get-findings severity/workflow/record/compliance tallies. No posture, coverage, suppression or remediation. |
+| `review_guardduty_findings` | Supplied get-findings types and numeric severities banded by the documented ranges. No threat posture, archive or remediation. |
 
 Detailed input bounds and acceptance limits:
 [cloud evidence scope](ABILITIES.md), [EBS review](AWS-EBS-REVIEW.md),
@@ -90,10 +118,15 @@ Detailed input bounds and acceptance limits:
   infrastructure. [Local backup verification](BACKUP-VERIFICATION.md) checks a
   selected ZIP snapshot against a caller's trusted hash, not AWS Backup recovery.
 
-No dedicated validated Git/Docker/Jenkins lifecycle adapters, general Linux
-administrator, coding sandbox or complete ECS/EKS/RDS/Lambda/CloudWatch/S3/VPC/
-Secrets Manager/Security Hub/GuardDuty/CloudFormation operational suite is
-established here. Generated code or a generic command wrapper is not execution
+Read-path coverage now includes reviewed VPC/subnet/route-table/security-group,
+EKS, RDS, Lambda, CloudWatch metadata, CloudFormation stack, Secrets Manager
+metadata (never secret values), Security Hub and GuardDuty inventory reads, plus
+offline snapshot reviewers for RDS instances, Lambda functions and Security
+Hub/GuardDuty findings. EBS volume and AWS Backup job listing deliberately stay
+on the approval path and are reviewed from local exports instead. No dedicated
+validated Git/Docker/Jenkins lifecycle adapters, general Linux administrator,
+coding sandbox or complete ECS/EKS/RDS/Lambda/CloudWatch/S3/VPC/Secrets Manager/
+Security Hub/GuardDuty/CloudFormation operational suite is established here. Generated code or a generic command wrapper is not execution
 acceptance. Live credentials, hardware/provider checks and separate action
 approval remain prerequisites for work that needs them. Never expose this local
 prototype directly to the public internet.

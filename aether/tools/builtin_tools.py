@@ -1181,8 +1181,9 @@ def _register_devops(r: ToolRegistry) -> None:
     r.register(Tool(
         name="aws_read",
         description=(
-            "Run an exact allowlisted AWS CLI read: ec2 describe-instances; ecs list-clusters or describe-clusters; "
-            "sts get-caller-identity; s3 ls. Only reviewed flags are accepted. Other calls need aws_change approval. "
+            "Run an exact allowlisted AWS CLI read from the reviewed inventory set documented in docs/AWS-DEVOPS.md "
+            "(EC2/ECS/EKS/RDS/Lambda/VPC/S3/IAM/CloudWatch metadata/CloudFormation/Secrets Manager metadata/Security Hub/GuardDuty). "
+            "Only reviewed flags are accepted. Other calls need aws_change approval. "
             "Uses configured credentials; AWS request charges may apply. Resource metadata can contain private data."
         ),
         parameters=_obj(
