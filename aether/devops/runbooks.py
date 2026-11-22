@@ -61,6 +61,47 @@ RUNBOOKS: dict[str, dict[str, Any]] = {
         ],
         "fixes": ["Fix health check", "Match keep-alive and idle timeouts", "Scale targets"],
     },
+    "api-5xx-investigation": {
+        "title": "API returns 500/502/503 errors",
+        "checks": [
+            "Normalize authorized log windows with triage_log; read the peak error minute first",
+            "Check for a deploy_event in the same scope shortly before the first error (review_incident_evidence)",
+            "Correlate metric and trace windows with compare_telemetry_windows before blaming a layer",
+            "502/503: check endpoints and targets (review_kubernetes_endpoints, review_k8s_service_endpoints_json); 500 with tracebacks: application errors",
+            "review_incident_evidence for a timeline and correlation-only candidates; never restart or roll back without approval",
+        ],
+        "fixes": ["Roll back a correlated change only with explicit approval", "Scale or restart only with explicit approval", "Add the missing evidence first when candidates are weak"],
+    },
+    "deploy-rollback-decision": {
+        "title": "Decide whether to roll back a deployment",
+        "checks": [
+            "Confirm errors started after the deploy and share its scope (review_kubernetes_deployments on a supplied snapshot)",
+            "Rule out a separate cause: dependency outage, config change, traffic spike",
+            "Confirm the previous revision is still available and its own health was clean",
+            "Rollback is a change: build the exact command, show it, and get explicit approval before running",
+        ],
+        "fixes": ["kubectl rollout undo / previous task-definition update only after approval", "Record the decision and evidence in the incident summary"],
+    },
+    "node-high-memory": {
+        "title": "Abnormal CPU or memory on a node or workload",
+        "checks": [
+            "review_kubernetes_nodes on a supplied node snapshot for pressure conditions",
+            "Identify the top consumers before acting; a pressure condition is not a culprit",
+            "Check for a recent deploy or traffic change that raised baseline usage",
+            "OOMKilled in a container: compare its limit with real usage before raising it",
+        ],
+        "fixes": ["Raise limits/requests after reviewing usage", "Cordon/drain a node only with explicit approval", "Fix the leak rather than growing the box forever"],
+    },
+    "ci-publish-checklist": {
+        "title": "Publish artifacts or deploy from CI safely",
+        "checks": [
+            "Immutable inputs: pinned action/image digests, exact revision, no floating tags",
+            "Secrets: never echoed to logs; masked or short-lived OIDC, no static AWS keys (review_cicd flags these)",
+            "Artifacts: build once, promote the same digest; never rebuild per environment",
+            "Publish and deploy steps stay approval-gated; verify the published digest afterwards",
+        ],
+        "fixes": ["Pin digests and revisions", "Move credentials to short-lived assumed roles", "Separate build, publish and deploy into separately approved stages"],
+    },
     "iam-access-denied": {
         "title": "AccessDenied or UnauthorizedOperation",
         "checks": [
