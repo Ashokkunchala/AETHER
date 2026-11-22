@@ -272,6 +272,10 @@ def list_memories(query: str = '', category: str = '', include_expired: bool = T
 
 @router.post("/memories", status_code=201, dependencies=[Depends(require_device_token)])
 def create_memory(item: MemoryCreate):
+    from aether.memory.intelligence import sensitive_text_reasons
+    reasons = sensitive_text_reasons(item.text)
+    if reasons:
+        raise HTTPException(status_code=422, detail='Refused: this text looks secret-shaped (' + ', '.join(reasons) + '). Passwords, API keys and tokens belong in the native credential vault, never in ordinary memory.')
     with _connect() as db:
         cur = db.execute("INSERT INTO memories(text,category,created_at,expires_at) VALUES(?,?,?,?)",
                          (item.text.strip(), item.category.strip(), _now(), item.expires_at.isoformat() if item.expires_at else None))
@@ -281,6 +285,10 @@ def create_memory(item: MemoryCreate):
 
 @router.put("/memories/{memory_id}", dependencies=[Depends(require_device_token)])
 def update_memory(memory_id: int, item: MemoryCreate):
+    from aether.memory.intelligence import sensitive_text_reasons
+    reasons = sensitive_text_reasons(item.text)
+    if reasons:
+        raise HTTPException(status_code=422, detail='Refused: this text looks secret-shaped (' + ', '.join(reasons) + '). Passwords, API keys and tokens belong in the native credential vault, never in ordinary memory.')
     with _connect() as db:
         cur = db.execute(
             "UPDATE memories SET text=?, category=? WHERE id=?",

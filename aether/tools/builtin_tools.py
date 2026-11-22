@@ -251,6 +251,9 @@ def build_registry(force: bool = False) -> ToolRegistry:
     from aether.memory.controls import register_memory_controls
 
     register_memory_controls(registry)
+    from aether.memory.intelligence import register_memory_intelligence
+
+    register_memory_intelligence(registry)
     from aether.backup import register_backup_tools
 
     register_backup_tools(registry)
