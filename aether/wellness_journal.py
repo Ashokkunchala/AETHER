@@ -188,6 +188,19 @@ class WellnessJournal:
         result = self.report(start.isoformat(), end.isoformat(), timezone)
         return {**result, "requested_week_end": (start + timedelta(days=6)).isoformat(), "partial_week": end < start + timedelta(days=6)}
 
+    def export(self):
+        """Full local copy of this journal only; nothing is uploaded anywhere."""
+        with self.connect() as db:
+            daily = [dict(row) for row in db.execute("SELECT * FROM wellness_daily ORDER BY day")]
+            sleep = [dict(row) for row in db.execute("SELECT * FROM wellness_sleep ORDER BY wake_day")]
+            plans = [dict(row) for row in db.execute("SELECT * FROM wellness_plans ORDER BY day")]
+        for row in daily:
+            row["habits"] = json.loads(row["habits"])
+        for row in plans:
+            row["meals"] = json.loads(row["meals"])
+        return {"activity_days": daily, "sleep_intervals": sleep, "plans": plans,
+                "notice": "A complete local copy of this wellness journal only. It stays on this machine unless you share it yourself; nothing is uploaded or sent to any provider. Legacy habit/workout stores and scheduled reminders are separate stores. " + NOTICE}
+
     def erase_day(self, day, confirmation):
         _day(day)
         if confirmation != "ERASE WELLNESS DAY " + day: raise ValueError("Exact date-bound erase confirmation required.")
@@ -233,6 +246,7 @@ def register_wellness_journal(registry):
         ("wellness_progress", "Read1-31days of descriptive manual metrics/goal comparisons, not a fitness or health score.", {key: string for key in ("start_day", "end_day", "timezone")}, ["start_day", "end_day", "timezone"], lambda **kw: WellnessJournal().report(**kw), Risk.SAFE),
         ("wellness_weekly_summary", "Seven-calendar-day journal summary clipped at today; unknown/unlogged stays unknown. Separate from legacy weekly_wellness_review.", {"start_day": string, "timezone": string}, ["start_day", "timezone"], lambda **kw: WellnessJournal().weekly(**kw), Risk.SAFE),
         ("wellness_schedule_prompt", "After exact review, create one hydration/meditation prompt in existing backend reminders. Not sent/exact delivery, no auto recurrence. Requires your title and future offset timestamp.", {"kind": {"type": "string", "enum": ["hydration", "meditation"]}, "due_at": string, "title": string}, ["kind", "due_at", "title"], schedule_wellness_prompt, Risk.MEDIUM),
+        ("wellness_export", "Read the complete local wellness journal (activity, sleep, plans) for your own backup/portability. Local read only; nothing uploaded.", {}, [], lambda **kw: WellnessJournal().export(), Risk.SAFE),
         ("wellness_erase_day", "Delete only one explicitly dated journal day's activity/sleep/plan after exact confirmation. No backup erasure or reminder cancellation.", {"day": string, "confirmation": string}, ["day", "confirmation"], lambda **kw: WellnessJournal().erase_day(**kw), Risk.HIGH),
     ]
     for name, description, props, required, handler, risk in definitions:

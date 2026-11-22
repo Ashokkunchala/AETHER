@@ -126,7 +126,7 @@ def test_registry_confirmation_stop_and_existing_review_preserved(journal):
     from aether.security import SecurityStore
     registry = build_registry(force=True)
     assert "weekly_wellness_review" in registry.tools
-    assert len(registry.names("wellness")) == 10
+    assert len(registry.names("wellness")) == 11
     async def run():
         assert (await registry.execute("wellness_log_day", {"day": today(), "timezone": "UTC", "steps": 42})).ok
         due = (datetime.now(UTC) + timedelta(hours=1)).isoformat()
@@ -145,3 +145,16 @@ def test_prompt_does_not_initialize_or_migrate_an_unrelated_backend(journal, mon
     due = (datetime.now(UTC) + timedelta(hours=1)).isoformat()
     with pytest.raises(ValueError): schedule_wellness_prompt("hydration", due, "Optional drink")
     assert not path.exists()
+
+
+def test_export_returns_full_local_journal(tmp_path, monkeypatch):
+    monkeypatch.setenv("AETHER_WELLNESS_DB", str(tmp_path / "wellness.db"))
+    journal = WellnessJournal()
+    journal.log_day("2026-11-20", "Asia/Kolkata", walk_minutes=30, habits=["stretch"])
+    journal.log_sleep("2026-11-19T22:30:00+05:30", "2026-11-20T06:30:00+05:30", "Asia/Kolkata")
+    journal.plan("2026-11-22", "Asia/Kolkata", "Easy walk", ["dal and rice"], "no nuts", walk_goal_minutes=30)
+    out = journal.export()
+    assert out["activity_days"][0]["habits"] == ["stretch"]
+    assert out["sleep_intervals"][0]["wake_day"] == "2026-11-20"
+    assert out["plans"][0]["meals"] == ["dal and rice"]
+    assert "nothing is uploaded" in out["notice"]
