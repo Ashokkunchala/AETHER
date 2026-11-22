@@ -1045,6 +1045,23 @@ def _register_shell(r: ToolRegistry) -> None:
         confirmation_preview=lambda **args: __import__("aether.control.command_preview", fromlist=["command_preview"]).command_preview(**args),
         risk=Risk.HIGH, category="shell", requires_confirmation=True, never_auto_approve=True, allow_always=False, allow_auto_approve=False,
     ))
+    r.register(Tool(
+        name="execution_audit",
+        description=(
+            "Read the local execution audit log: which tools ran, when, and their outcome "
+            "(started/succeeded/failed/blocked). Arguments, outputs and credentials are "
+            "deliberately never recorded. Read-only."
+        ),
+        parameters=_obj({"limit": _int("Maximum events to return, 1-500 (default 50).")}, []),
+        handler=lambda limit=50: {"success": True, "data": _execution_audit(int(limit))},
+        risk=Risk.SAFE, category="shell",
+    ))
+
+
+def _execution_audit(limit: int):
+    from aether.security import SecurityStore
+    return {"events": SecurityStore().events(limit),
+            "notice": "Local audit of tool executions only: tool name, timestamp and outcome. No arguments, outputs or credentials are stored."}
 
 
 # ------------------------------------------------------------------- devops
@@ -1053,6 +1070,24 @@ def _register_devops(r: ToolRegistry) -> None:
     from aether.control.dns_lookup import register_dns_lookup
     from aether.devops import awscli, review, runbooks
     register_dns_lookup(r)
+
+    from aether.devops.command_plan import plan_commands
+    r.register(Tool(
+        name="plan_commands",
+        description=(
+            "Plan-only preview of up to 25 candidate shell commands: shows the guarded-shell "
+            "classification (safe/confirm/blocked) and the exact next step for each. Never "
+            "executes anything. Use this first, then run approved commands one at a time "
+            "with run_shell, which always asks for fresh approval."
+        ),
+        parameters=_obj(
+            {"commands": {"type": "array", "items": {"type": "string"},
+                          "description": "Candidate commands to classify, max 25, 500 chars each."}},
+            ["commands"],
+        ),
+        handler=lambda commands: {"success": True, "data": plan_commands(commands)},
+        risk=Risk.SAFE, category="devops",
+    ))
 
     from aether.devops.python_wheel import register_python_wheel
     register_python_wheel(r)

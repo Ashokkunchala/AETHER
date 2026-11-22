@@ -37,6 +37,7 @@ from app.personal_contacts import router as contacts_router
 from app.personal_research import router as research_router
 from app.personal_documents import router as documents_router
 from app.companion import router as companion_router
+from app.devops_api import router as devops_router
 from app.integrations import router as integrations_router
 from app.mentor_api import router as mentor_router
 from app.middleware.rate_limit import ApiRateLimitMiddleware
@@ -91,6 +92,7 @@ app.include_router(integrations_router)
 app.include_router(live_voice_router)
 app.include_router(companion_router)
 app.include_router(mentor_router)
+app.include_router(devops_router)
 # Add first so security headers and CORS still wrap early 413 responses.
 app.add_middleware(RequestBodyLimitMiddleware, max_bytes=DEFAULT_API_BODY_LIMIT)
 app.add_middleware(
