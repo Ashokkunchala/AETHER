@@ -47,6 +47,9 @@ def _connect():
         id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT NOT NULL,
         category TEXT NOT NULL DEFAULT 'general', created_at TEXT NOT NULL
       );
+      CREATE TABLE IF NOT EXISTS companion_settings (
+        key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL
+      );
       CREATE TABLE IF NOT EXISTS reminders (
         id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL,
         due_at TEXT NOT NULL, completed INTEGER NOT NULL DEFAULT 0,
@@ -123,8 +126,27 @@ def require_device_token(authorization: str | None = Header(default=None)):
     return require_api_token(authorization)
 
 
+def memory_enabled() -> bool:
+    """Whether companion memory is on. Defaults to on when no setting was saved."""
+    with _connect() as db:
+        row = db.execute("SELECT value FROM companion_settings WHERE key='memory_enabled'").fetchone()
+    return row is None or str(row["value"]) != "0"
+
+
+def set_memory_enabled(enabled: bool) -> None:
+    """Persist the user's memory on/off choice."""
+    with _connect() as db:
+        db.execute(
+            "INSERT INTO companion_settings(key,value,updated_at) VALUES('memory_enabled',?,?) "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at",
+            ("1" if enabled else "0", _now()),
+        )
+
+
 def get_memory_context() -> str:
     """Return a bounded set of explicitly saved user memories for chat personalization."""
+    if not memory_enabled():
+        return ""
     with _connect() as db:
         rows = db.execute(
             "SELECT text, category FROM memories WHERE expires_at IS NULL OR julianday(expires_at)>julianday(?) ORDER BY id DESC LIMIT 20",
@@ -170,6 +192,10 @@ class MemoryCreate(BaseModel):
         if value is not None and value.tzinfo is None:
             raise ValueError('expires_at requires a timezone.')
         return value.astimezone(UTC) if value is not None else None
+
+
+class MemorySettingsUpdate(BaseModel):
+    enabled: bool
 
 
 class ReminderCreate(BaseModel):
@@ -270,8 +296,40 @@ def list_memories(query: str = '', category: str = '', include_expired: bool = T
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
+@router.get("/memory/settings", dependencies=[Depends(require_device_token)])
+def get_memory_settings():
+    """Current memory controls: on/off state plus how to view and clear saved memories."""
+    return {
+        "memory_enabled": memory_enabled(),
+        "controls": {
+            "view": "GET /api/memories lists every saved memory; GET /api/memories/export downloads them.",
+            "clear": "DELETE /api/memories removes all saved memories; DELETE /api/memories/{id} removes one.",
+            "off": "PUT /api/memory/settings with enabled=false stops new saves and chat personalization.",
+        },
+    }
+
+
+@router.put("/memory/settings", dependencies=[Depends(require_device_token)])
+def put_memory_settings(update: MemorySettingsUpdate):
+    """Turn companion memory on or off. Off blocks new saves and chat context; existing data stays until cleared."""
+    set_memory_enabled(update.enabled)
+    state = "on" if update.enabled else "off"
+    note = (
+        "Memory is on: new saves are allowed and saved memories personalize chat."
+        if update.enabled
+        else "Memory is off: saved memories stay stored but are not used in chat and new saves are blocked. "
+        "DELETE /api/memories clears them."
+    )
+    return {"memory_enabled": update.enabled, "state": state, "note": note}
+
+
 @router.post("/memories", status_code=201, dependencies=[Depends(require_device_token)])
 def create_memory(item: MemoryCreate):
+    if not memory_enabled():
+        raise HTTPException(
+            status_code=409,
+            detail="Memory is off. Enable it with PUT /api/memory/settings before saving memories.",
+        )
     with _connect() as db:
         cur = db.execute("INSERT INTO memories(text,category,created_at,expires_at) VALUES(?,?,?,?)",
                          (item.text.strip(), item.category.strip(), _now(), item.expires_at.isoformat() if item.expires_at else None))
