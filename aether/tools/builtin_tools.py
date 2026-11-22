@@ -239,6 +239,9 @@ def build_registry(force: bool = False) -> ToolRegistry:
     from aether.mentor_projects import register_project_tools
 
     register_project_tools(registry)
+    from aether.mentor_certs import register_cert_tools
+
+    register_cert_tools(registry)
     from aether.devops.evidence import register_evidence_tools
 
     register_evidence_tools(registry)

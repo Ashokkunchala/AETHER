@@ -30,6 +30,7 @@ from app.personal_research import router as research_router
 from app.personal_documents import router as documents_router
 from app.companion import router as companion_router
 from app.integrations import router as integrations_router
+from app.mentor_api import router as mentor_router
 from app.middleware.rate_limit import ApiRateLimitMiddleware
 from app.middleware.request_size import DEFAULT_API_BODY_LIMIT, RequestBodyLimitMiddleware
 from app.middleware.security import SecurityHeadersMiddleware
@@ -111,6 +112,7 @@ app.include_router(documents_router)
 app.include_router(integrations_router)
 app.include_router(live_voice_router)
 app.include_router(companion_router)
+app.include_router(mentor_router)
 
 # Realtime brain + tool loop for the browser (see app/ws.py for the protocol).
 try:

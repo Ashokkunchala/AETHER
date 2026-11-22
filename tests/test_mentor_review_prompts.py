@@ -91,7 +91,7 @@ def test_registry_requires_fresh_confirmation_and_stop(stores):
     from aether.security import SecurityStore
     from aether.tools.builtin_tools import build_registry
     registry = build_registry(force=True)
-    assert len(registry.names("mentor")) == 26
+    assert len(registry.names("mentor")) == 28
     async def run():
         due = future()
         assert not (await registry.execute("mentor_deep_schedule_review_prompt", {"lesson_id": "python-1", "due_at": due}, auto_approve=True)).ok
