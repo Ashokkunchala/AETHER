@@ -279,6 +279,12 @@ def build_registry(force: bool = False) -> ToolRegistry:
     register_offline_workflows(registry)
     from aether.job_evidence import register_job_evidence
     register_job_evidence(registry)
+    from aether.site_watch import register_site_watch
+    register_site_watch(registry)
+    from aether.youtube_summary import register_youtube_summary
+    register_youtube_summary(registry)
+    from aether.draft_workspace import register_draft_workspace
+    register_draft_workspace(registry)
 
     from aether.control.windows_inspection import register_windows_inspection_tools
 
