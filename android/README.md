@@ -31,6 +31,9 @@ AETHER backend over HTTPS on your private network.
 - Reminders: create, list, complete and recurring reminders through the
   backend; opt-in WorkManager reminder polling with Android notifications
   (best-effort, may be delayed at least 15 minutes; not an alarm service).
+  Due reminders carry a "Talk now" action that opens the app with one explicit
+  Live Voice offer; the microphone still starts only from your in-app tap.
+  See docs/ANDROID.md for the full ability map and limits.
 - Explicit memories: save, review and delete only the facts you choose.
 - Phone controls: quick links to Android device, Wi-Fi, Bluetooth and AETHER
   app-permission settings; supported voice transcripts open the matching system
