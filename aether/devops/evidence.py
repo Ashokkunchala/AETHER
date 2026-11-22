@@ -176,13 +176,20 @@ def register_evidence_tools(registry):
     from aether.devops.deployment_snapshot import register_deployment_tools
     from aether.devops.ebs_snapshot import register_ebs_tools
     from aether.devops.endpoint_snapshot import register_endpoint_tools
+    from aether.devops.incident_durations import register_incident_duration_tools
     from aether.devops.kubernetes_snapshot import review_pods_export
+    from aether.devops.lambda_snapshot import register_lambda_tools
     from aether.devops.node_snapshot import register_node_tools
+    from aether.devops.pipeline_templates import register_pipeline_tools
+    from aether.devops.rds_snapshot import register_rds_tools
+    from aether.devops.security_findings import register_security_findings_tools
     from aether.devops.slo import register_slo_tools
     from aether.devops.storage_snapshot import register_storage_tools
     from aether.devops.telemetry_windows import register_telemetry_window_tools
-    from aether.devops.incident_durations import register_incident_duration_tools
-    from aether.devops.pipeline_templates import register_pipeline_tools
+
+    register_security_findings_tools(registry)
+    register_rds_tools(registry)
+    register_lambda_tools(registry)
 
     register_telemetry_window_tools(registry)
     register_incident_duration_tools(registry)

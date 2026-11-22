@@ -24,6 +24,39 @@ READ_OPERATIONS = {
     ("ecs", "describe-clusters"): {"--clusters": "many", "--include": "many"},
     ("sts", "get-caller-identity"): {},
     ("s3", "ls"): {"--recursive": "switch", "--human-readable": "switch", "--summarize": "switch", "--page-size": "positive"},
+    # EC2 network inventory. These describe calls do not paginate, so only id/filter
+    # flags are reviewed. describe-volumes deliberately stays on the approval path.
+    ("ec2", "describe-vpcs"): {"--vpc-ids": "many", "--filters": "many"},
+    ("ec2", "describe-subnets"): {"--subnet-ids": "many", "--filters": "many"},
+    ("ec2", "describe-route-tables"): {"--route-table-ids": "many", "--filters": "many"},
+    ("ec2", "describe-security-groups"): {"--group-ids": "many", "--filters": "many"},
+    # S3 and IAM inventory. Policy documents are configuration metadata, not secret material.
+    ("s3api", "list-buckets"): {},
+    ("iam", "list-users"): {**PAGINATION, "--path-prefix": "one"},
+    ("iam", "list-roles"): {**PAGINATION, "--path-prefix": "one"},
+    ("iam", "list-policies"): {**PAGINATION, "--path-prefix": "one", "--scope": "one"},
+    ("iam", "get-policy"): {"--policy-arn": "one"},
+    ("iam", "get-policy-version"): {"--policy-arn": "one", "--version-id": "one"},
+    # EKS/RDS/Lambda metadata. get-token, generate-db-auth-token and get-function stay
+    # on the approval path as secret-returning operations.
+    ("eks", "list-clusters"): dict(PAGINATION),
+    ("eks", "describe-cluster"): {"--name": "one"},
+    ("rds", "describe-db-instances"): {**PAGINATION, "--db-instance-identifier": "one", "--filters": "many"},
+    ("lambda", "list-functions"): dict(PAGINATION),
+    # CloudWatch metadata only; metric/log data reads stay on the approval path.
+    ("cloudwatch", "list-metrics"): {**PAGINATION, "--metric-name": "one", "--namespace": "one", "--dimensions": "many"},
+    ("logs", "describe-log-groups"): {**PAGINATION, "--log-group-name-prefix": "one"},
+    ("logs", "describe-log-streams"): {**PAGINATION, "--log-group-name": "one", "--order-by": "one", "--descending": "switch"},
+    # CloudFormation stack inventory; template/deploy operations stay on the approval path.
+    ("cloudformation", "describe-stacks"): {"--stack-name": "one"},
+    ("cloudformation", "list-stacks"): {**PAGINATION, "--stack-status-filter": "many"},
+    # Secrets Manager metadata only; get-secret-value stays on the approval path.
+    ("secretsmanager", "list-secrets"): dict(PAGINATION),
+    # Security finding reads. Findings data only; no suppression, archive or remediation.
+    ("securityhub", "get-findings"): {**PAGINATION, "--filters": "one", "--sort-criteria": "one"},
+    ("guardduty", "list-detectors"): dict(PAGINATION),
+    ("guardduty", "list-findings"): {**PAGINATION, "--detector-id": "one", "--finding-criteria": "one"},
+    ("guardduty", "get-findings"): {"--detector-id": "one", "--finding-ids": "many"},
 }
 COMMON_READ_FLAGS = {"--query": "one", "--output": "json", "--no-paginate": "switch",
                      "--no-cli-pager": "switch", "--no-cli-auto-prompt": "switch"}

@@ -27,7 +27,9 @@ def test_offline_tool_table_names_exist_and_links_resolve():
     text = DOC.read_text()
     registry = build_registry(force=True)
     for name in re.findall(r'^\| `(\w+)` \|', text, re.M):
-        if name not in {'ec2', 'ecs', 'sts', 's3'}:
+        # The read-policy table's first column names AWS services, not registry tools.
+        if name not in {'ec2', 'ecs', 'eks', 'rds', 'lambda', 'cloudwatch', 'logs', 'cloudformation',
+                        'sts', 's3', 's3api', 'iam', 'secretsmanager', 'securityhub', 'guardduty'}:
             assert registry.get(name) is not None
     for target in re.findall(r'\]\(([^)]+\.md)\)', text):
         assert (DOC.parent / target).is_file()
