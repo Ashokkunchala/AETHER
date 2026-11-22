@@ -50,3 +50,37 @@ metric. `proactive_switches` shows the current state.
   signal that does not exist yet, and each is documented instead of faked.
 - Any proactive mutation: cleanup, deletion, process termination, message
   sending or remediation.
+
+## User-defined schedules, thresholds and triggers
+
+Every threshold, schedule and trigger is user-defined; there are no hidden
+watchers. Sensible defaults means: rules start disabled, battery defaults to
+"below", other metrics to "at or above", and nothing samples or records until
+the user opts in.
+
+- Thresholds. Built-in metrics (cpu, memory, disk, battery) take a percentage
+  the user chooses via `proactive_configure` and are sampled about once a
+  minute once enabled. Any other threshold - the requested cost limit is the
+  example - is a custom metric: `proactive_configure_custom` names it, sets
+  the number and the direction (above/below), and
+  `proactive_record_sample` evaluates the crossing the moment the user
+  supplies a figure. Custom metrics are never fetched from any provider
+  automatically; AWS Cost Explorer stays read-only and approval-gated, so a
+  cost figure reaches AETHER only when the user (or an approved read-only
+  snapshot they ran) supplies it. Crossings use the same hysteresis (2% of
+  threshold), throttle, quiet-hours and pause rules as built-in metrics;
+  supplied figures stay listed (bounded) via `proactive_samples`.
+- Schedules. `aether/briefing_schedule.py` already stores named daily
+  briefing jobs at a chosen local time and IANA timezone, with per-job
+  catchup/skip policy for missed runs, dedup per day, and full run history.
+  Jobs can be listed, enabled, disabled and cancelled.
+- Triggers. `aether/triggers.py` stores user-defined rules: when a runtime
+  event matches a chosen category (and optional action/tool), a saved
+  read-only plan runs once, bounded by a per-rule cooldown (300s-86400s).
+  Rules start disabled; only read-only plans can be referenced, so a trigger
+  can never start a mutating or confirmation-gated action, and approvals
+  never carry into a triggered run.
+
+The detect/notify/recommend-only rule applies to all three: no schedule,
+threshold or trigger can clean up, delete, kill, spend or send anything by
+itself.

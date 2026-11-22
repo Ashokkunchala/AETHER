@@ -6,9 +6,14 @@ from __future__ import annotations
 
 import math
 import os
+import re
 import sqlite3
 import time
 from pathlib import Path
+
+_BUILTIN_METRICS = ('cpu', 'memory', 'disk', 'battery')
+_CUSTOM_METRIC = re.compile(r'[a-z][a-z0-9_]{0,31}\Z')
+_DIRECTIONS = ('above', 'below')
 
 
 class ProactiveStore:
@@ -36,6 +41,14 @@ class ProactiveStore:
                 db.execute('ALTER TABLE resource_alerts ADD COLUMN quiet INTEGER NOT NULL DEFAULT 0')
             if 'details' not in cols:
                 db.execute('ALTER TABLE resource_alerts ADD COLUMN details TEXT')
+            rule_cols = {row[1] for row in db.execute('PRAGMA table_info(alert_rules)')}
+            if 'kind' not in rule_cols:
+                db.execute("ALTER TABLE alert_rules ADD COLUMN kind TEXT NOT NULL DEFAULT 'builtin'")
+            if 'direction' not in rule_cols:
+                db.execute("ALTER TABLE alert_rules ADD COLUMN direction TEXT NOT NULL DEFAULT ''")
+            db.execute(
+                'CREATE TABLE IF NOT EXISTS custom_samples ('
+                'id INTEGER PRIMARY KEY, created REAL NOT NULL, metric TEXT NOT NULL, value REAL NOT NULL)')
 
     def connect(self):
         db = sqlite3.connect(self.path, timeout=10)
@@ -102,20 +115,66 @@ class ProactiveStore:
             db.execute('UPDATE resource_alerts SET details=? WHERE id=?', (details, alert_id))
 
     def configure(self, metric: str, threshold: float, enabled: bool = False):
-        if metric not in ('cpu', 'memory', 'disk', 'battery'):
+        if metric not in _BUILTIN_METRICS:
             raise ValueError('Metric must be cpu, memory, disk or battery.')
         if type(threshold) not in (int, float) or not math.isfinite(threshold) or not 1 <= threshold <= 100:
             raise ValueError('Threshold must be a finite percentage from 1 to 100.')
         if type(enabled) is not bool:
             raise ValueError('enabled must be a boolean.')
+        direction = 'below' if metric == 'battery' else 'above'
         with self.connect() as db:
-            db.execute('INSERT INTO alert_rules(metric,threshold,enabled) VALUES (?,?,?) ON CONFLICT(metric) DO UPDATE SET threshold=excluded.threshold,enabled=excluded.enabled,active=0', (metric, threshold, int(enabled)))
+            db.execute("INSERT INTO alert_rules(metric,threshold,enabled,kind,direction) VALUES (?,?,?,'builtin',?) ON CONFLICT(metric) DO UPDATE SET threshold=excluded.threshold,enabled=excluded.enabled,active=0,kind='builtin',direction=excluded.direction", (metric, threshold, int(enabled), direction))
         return {'metric': metric, 'threshold': threshold, 'enabled': enabled,
                 'notice': 'Local alerts while the backend is running, roughly once a minute. Battery alerts below threshold; other metrics at or above. No desktop or phone notification delivery.'}
+
+    def configure_custom(self, metric: str, threshold: float, direction: str = 'above', enabled: bool = False):
+        """A user-defined threshold rule over figures the user supplies, e.g. a cost limit."""
+        if not isinstance(metric, str) or not _CUSTOM_METRIC.fullmatch(metric) or metric in _BUILTIN_METRICS:
+            raise ValueError('Custom metric names must be 1-32 chars of lowercase letters, digits or underscores, start with a letter, and not reuse a built-in metric name.')
+        if type(threshold) not in (int, float) or isinstance(threshold, bool) or not math.isfinite(threshold) or not 0 < threshold <= 1e12:
+            raise ValueError('Threshold must be a finite positive number up to 1e12.')
+        if direction not in _DIRECTIONS:
+            raise ValueError("Direction must be 'above' (trigger at or above the threshold) or 'below' (trigger below it).")
+        if type(enabled) is not bool:
+            raise ValueError('enabled must be a boolean.')
+        with self.connect() as db:
+            db.execute("INSERT INTO alert_rules(metric,threshold,enabled,kind,direction) VALUES (?,?,?,'custom',?) ON CONFLICT(metric) DO UPDATE SET threshold=excluded.threshold,enabled=excluded.enabled,active=0,kind='custom',direction=excluded.direction", (metric, threshold, int(enabled), direction))
+        return {'metric': metric, 'threshold': threshold, 'direction': direction, 'enabled': enabled,
+                'notice': 'Custom metrics are never sampled automatically and nothing is fetched from any provider. Supply a figure with proactive_record_sample whenever you have one (for example a cost total you read from your provider console); the crossing is evaluated at that moment with the same hysteresis, throttle, quiet-hours and pause rules as built-in metrics.'}
 
     def rules(self):
         with self.connect() as db:
             return [dict(row) for row in db.execute('SELECT * FROM alert_rules ORDER BY metric')]
+
+    def _apply_rule(self, db, rule, value, now, quiet, throttle):
+        """Crossing evaluation shared by sampled and user-supplied metrics. Returns the event or None."""
+        threshold = rule['threshold']
+        direction = rule['direction'] or ('below' if rule['metric'] == 'battery' else 'above')
+        # Built-ins keep the original two-point hysteresis; custom metrics use 2% of the threshold.
+        hysteresis = 2 if rule['kind'] == 'builtin' else max(abs(threshold) * 0.02, 1e-9)
+        if direction == 'below':
+            triggered = value < threshold
+            recovered = value >= (min(100, threshold + hysteresis) if rule['metric'] == 'battery' else threshold + hysteresis)
+        else:
+            triggered = value >= threshold
+            recovered = value <= max(0, threshold - hysteresis)
+        if not rule['active'] and triggered:
+            state, active = 'triggered', 1
+        elif rule['active'] and recovered:
+            state, active = 'recovered', 0
+        else:
+            return None
+        db.execute('UPDATE alert_rules SET active=? WHERE metric=?', (active, rule['metric']))
+        if state == 'triggered' and throttle > 0:
+            recent = db.execute(
+                "SELECT created FROM resource_alerts WHERE metric=? AND state='triggered' AND created>? ORDER BY id DESC LIMIT 1",
+                (rule['metric'], now - throttle),
+            ).fetchone()
+            if recent:
+                # State tracked; recording suppressed as spam. Not shown later.
+                return None
+        cur = db.execute('INSERT INTO resource_alerts(created,metric,value,threshold,state,quiet) VALUES (?,?,?,?,?,?)', (now, rule['metric'], value, threshold, state, int(quiet and state == 'triggered')))
+        return {'id': cur.lastrowid, 'metric': rule['metric'], 'value': value, 'threshold': threshold, 'state': state, 'quiet': bool(quiet and state == 'triggered')}
 
     def evaluate(self, samples: dict[str, float], now: float | None = None):
         """Atomically record crossings, not repeats. Missing metrics stay unknown."""
@@ -127,33 +186,51 @@ class ProactiveStore:
         events = []
         with self.connect() as db:
             db.execute('BEGIN IMMEDIATE')
-            for rule in db.execute('SELECT * FROM alert_rules WHERE enabled=1').fetchall():
+            for rule in db.execute("SELECT * FROM alert_rules WHERE enabled=1 AND kind='builtin'").fetchall():
                 value = samples.get(rule['metric'])
                 if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value) or not 0 <= value <= 100:
                     continue
-                threshold = rule['threshold']
-                triggered = value < threshold if rule['metric'] == 'battery' else value >= threshold
-                # Two percentage points of hysteresis reduce repeated boundary noise.
-                recovered = value >= min(100, threshold + 2) if rule['metric'] == 'battery' else value <= max(0, threshold - 2)
-                if not rule['active'] and triggered:
-                    state, active = 'triggered', 1
-                elif rule['active'] and recovered:
-                    state, active = 'recovered', 0
-                else:
-                    continue
-                db.execute('UPDATE alert_rules SET active=? WHERE metric=?', (active, rule['metric']))
-                if state == 'triggered' and throttle > 0:
-                    recent = db.execute(
-                        "SELECT created FROM resource_alerts WHERE metric=? AND state='triggered' AND created>? ORDER BY id DESC LIMIT 1",
-                        (rule['metric'], now - throttle),
-                    ).fetchone()
-                    if recent:
-                        # State tracked; recording suppressed as spam. Not shown later.
-                        continue
-                cur = db.execute('INSERT INTO resource_alerts(created,metric,value,threshold,state,quiet) VALUES (?,?,?,?,?,?)', (now, rule['metric'], value, threshold, state, int(quiet and state == 'triggered')))
-                events.append({'id': cur.lastrowid, 'metric': rule['metric'], 'value': value, 'threshold': threshold, 'state': state, 'quiet': bool(quiet and state == 'triggered')})
+                event = self._apply_rule(db, rule, value, now, quiet, throttle)
+                if event:
+                    events.append(event)
             db.execute('DELETE FROM resource_alerts WHERE id NOT IN (SELECT id FROM resource_alerts ORDER BY id DESC LIMIT 500)')
         return events
+
+    def record_sample(self, metric: str, value: float, now: float | None = None):
+        """Supply the current figure for a user-defined custom metric; evaluate the crossing now."""
+        now = time.time() if now is None else now
+        if type(value) not in (int, float) or isinstance(value, bool) or not math.isfinite(value) or not 0 <= value <= 1e15:
+            raise ValueError('Sample value must be a finite number from 0 to 1e15.')
+        if self._setting('paused', '0') == '1':
+            return {'recorded': False, 'paused': True,
+                    'notice': 'Proactive checks are paused, so nothing was recorded. Resume with proactive_set_paused first.'}
+        quiet = self._quiet_now(now)
+        throttle = int(self._setting('throttle_seconds', '0'))
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            rule = db.execute("SELECT * FROM alert_rules WHERE metric=? AND kind='custom'", (metric,)).fetchone()
+            if rule is None:
+                raise ValueError('No custom metric with that name. Create one with proactive_configure_custom first.')
+            db.execute('INSERT INTO custom_samples(created,metric,value) VALUES (?,?,?)', (now, metric, value))
+            db.execute('DELETE FROM custom_samples WHERE id NOT IN (SELECT id FROM custom_samples ORDER BY id DESC LIMIT 500)')
+            event = self._apply_rule(db, rule, value, now, quiet, throttle) if rule['enabled'] else None
+            enabled = bool(rule['enabled'])
+        result = {'recorded': True, 'metric': metric, 'value': value}
+        if event:
+            result['alert'] = event
+        elif enabled:
+            result['notice'] = 'No crossing; the rule state is unchanged.'
+        else:
+            result['notice'] = 'Sample recorded; the rule is disabled, so no alert is evaluated.'
+        return result
+
+    def samples(self, metric: str | None = None):
+        with self.connect() as db:
+            if metric is None:
+                rows = db.execute('SELECT * FROM custom_samples ORDER BY id DESC LIMIT 100').fetchall()
+            else:
+                rows = db.execute('SELECT * FROM custom_samples WHERE metric=? ORDER BY id DESC LIMIT 100', (metric,)).fetchall()
+        return [dict(row) for row in rows]
 
     def alerts(self, unacknowledged_only: bool = False):
         if type(unacknowledged_only) is not bool:
@@ -244,6 +321,11 @@ def register_proactive_tools(registry):
         ('proactive_quiet_hours', 'Set or clear quiet hours (HH:MM local). Alerts triggered inside the window are recorded flagged quiet; nothing is hidden or deleted.', 'set_quiet_hours', Risk.LOW, {'start': {'type': 'string', 'description': 'HH:MM 24-hour local, or omit both to clear'}, 'end': {'type': 'string'}}, []),
         ('proactive_set_throttle', 'Set the minimum seconds (0-3600, 0 disables) between recorded trigger alerts for the same metric. Recovery events always record.', 'set_throttle', Risk.LOW, {'seconds': {'type': 'integer'}}, ['seconds']),
         ('proactive_switches', 'Show the pause switch, quiet hours and throttle currently in effect.', 'switches', Risk.SAFE, {}, []),
+        ('proactive_configure_custom', 'Create or update a user-defined threshold rule over figures you supply yourself (for example a cost limit). Never sampled automatically; nothing is fetched from any provider. Disabled unless enabled=true.', 'configure_custom', Risk.LOW,
+         {'metric': {'type': 'string', 'description': 'Lowercase letters, digits, underscores; not a built-in metric name'}, 'threshold': {'type': 'number'}, 'direction': {'type': 'string', 'enum': ['above', 'below']}, 'enabled': {'type': 'boolean'}}, ['metric', 'threshold']),
+        ('proactive_record_sample', 'Supply the current figure for a custom metric you defined. The crossing is evaluated immediately with the same throttle, quiet-hours and pause rules as built-in metrics.', 'record_sample', Risk.LOW,
+         {'metric': {'type': 'string'}, 'value': {'type': 'number'}}, ['metric', 'value']),
+        ('proactive_samples', 'List recent figures you supplied for custom metrics, newest first.', 'samples', Risk.SAFE, {'metric': {'type': 'string'}}, []),
     ]
     for name, description, method, risk, properties, required in definitions:
         registry.register(Tool(name=name, description=description, parameters={'type': 'object', 'properties': properties, 'required': required}, handler=handler_for(method), risk=risk, category='proactive'))

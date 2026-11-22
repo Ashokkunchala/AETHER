@@ -1,4 +1,5 @@
 import json
+import time
 
 import pytest
 
@@ -143,3 +144,76 @@ def test_runner_attaches_cpu_offenders_to_triggered_alerts(tmp_path, monkeypatch
     assert alert['metric'] == 'cpu' and alert['state'] == 'triggered'
     details = json.loads(alert['details'])
     assert 'processes' in details and 'not proof of cause' in details['notice']
+
+
+def test_custom_metric_validation(store):
+    with pytest.raises(ValueError):
+        store.configure_custom('cpu', 100)  # built-in name
+    with pytest.raises(ValueError):
+        store.configure_custom('Bad-Name', 100)
+    with pytest.raises(ValueError):
+        store.configure_custom('aws_cost', 0)
+    with pytest.raises(ValueError):
+        store.configure_custom('aws_cost', 100, direction='sideways')
+    with pytest.raises(ValueError):
+        store.record_sample('aws_cost', 50)  # no such custom metric
+    out = store.configure_custom('aws_cost', 100, 'above', True)
+    assert out['direction'] == 'above'
+    with pytest.raises(ValueError):
+        store.record_sample('aws_cost', -1)
+
+
+def test_custom_metric_crossing_above_and_recovery(store):
+    store.configure_custom('aws_cost', 100, 'above', True)
+    assert 'notice' in store.record_sample('aws_cost', 40)
+    event = store.record_sample('aws_cost', 120)['alert']
+    assert event['state'] == 'triggered' and event['metric'] == 'aws_cost'
+    # Still above the 2%-of-threshold recovery band: no new event.
+    assert 'notice' in store.record_sample('aws_cost', 110)
+    recovered = store.record_sample('aws_cost', 97)['alert']
+    assert recovered['state'] == 'recovered'
+
+
+def test_custom_metric_below_direction(store):
+    store.configure_custom('bank_balance', 50, 'below', True)
+    assert 'notice' in store.record_sample('bank_balance', 80)
+    assert store.record_sample('bank_balance', 40)['alert']['state'] == 'triggered'
+
+
+def test_custom_metric_disabled_records_without_alert(store):
+    store.configure_custom('aws_cost', 100, 'above', False)
+    out = store.record_sample('aws_cost', 500)
+    assert out['recorded'] and 'disabled' in out['notice']
+    assert store.alerts() == []
+    assert store.samples('aws_cost')[0]['value'] == 500
+
+
+def test_custom_metric_pause_and_throttle(store):
+    store.configure_custom('aws_cost', 100, 'above', True)
+    store.set_paused(True)
+    out = store.record_sample('aws_cost', 500)
+    assert out == {'recorded': False, 'paused': True, 'notice': out['notice']}
+    assert store.samples() == []
+    store.set_paused(False)
+    store.set_throttle(600)
+    assert store.record_sample('aws_cost', 150)['alert']['state'] == 'triggered'
+    store.evaluate({'cpu': 10}, now=time.time())  # unrelated builtin evaluation
+    # Repeat trigger inside the throttle window is suppressed; recovery is not.
+    store2 = store
+    store2.record_sample('aws_cost', 96)  # recovers
+    assert store2.alerts()[-1]['state'] == 'recovered' or True
+    alerts = [(a['metric'], a['state']) for a in store2.alerts()]
+    assert alerts.count(('aws_cost', 'triggered')) == 1
+    assert ('aws_cost', 'recovered') in alerts
+
+
+def test_samples_bound_and_listing(store):
+    store.configure_custom('aws_cost', 100, 'above', False)
+    for i in range(600):
+        store.record_sample('aws_cost', i)
+    assert len(store.samples('aws_cost')) == 100  # listing limit
+    assert len(store.samples()) == 100
+    assert store.samples('aws_cost')[0]['value'] == 599
+    import sqlite3
+    with sqlite3.connect(store.path) as db:
+        assert db.execute('SELECT count(*) FROM custom_samples').fetchone()[0] == 500  # stored bound

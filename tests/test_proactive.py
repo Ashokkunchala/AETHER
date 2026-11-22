@@ -125,7 +125,7 @@ def test_tools_are_executable_and_stop_blocks_config(tmp_path, monkeypatch):
     monkeypatch.setenv('AETHER_PROACTIVE_DB', str(tmp_path / 'proactive.db'))
     monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     registry = build_registry(force=True)
-    assert len(registry.names('proactive')) == 12
+    assert len(registry.names('proactive')) == 15
     assert asyncio.run(registry.execute('proactive_configure', {'metric': 'cpu', 'threshold': 90})).ok
     assert asyncio.run(registry.execute('proactive_rules')).data['data'][0]['enabled'] == 0
     SecurityStore().set_stop(True)
