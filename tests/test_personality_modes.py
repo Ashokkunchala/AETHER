@@ -109,3 +109,26 @@ class TestRegistryIntegration:
         assert store.get() == "friend"
         bad = registry.get("set_personality_mode").handler("wizard")
         assert bad["success"] is False
+
+
+class TestSwitchPhrases:
+    @pytest.mark.parametrize("phrase,expected", [
+        ("activate DevOps mode", "devops"),
+        ("switch to friend mode", "friend"),
+        ("become my Python mentor", "mentor"),
+        ("activate laptop management", "system_admin"),
+        ("enter emergency troubleshooting mode", "emergency"),
+        ("Aether, activate Security mode", "security"),
+        ("fitness coach", "fitness"),
+    ])
+    def test_spoken_switch_phrases_resolve(self, phrase, expected):
+        assert personality_modes.get_mode(phrase).name == expected
+
+    def test_unknown_phrase_still_raises(self):
+        with pytest.raises(ValueError, match="Unknown personality mode"):
+            personality_modes.get_mode("activate wizard mode")
+
+    def test_store_set_accepts_phrase(self, tmp_path):
+        store = ModeStore(tmp_path / "mode.json")
+        assert store.set("switch to friend mode").name == "friend"
+        assert store.get() == "friend"

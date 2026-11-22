@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -185,14 +186,38 @@ def list_modes() -> list[dict[str, str]]:
     return [{"name": m.name, "label": m.label, "description": m.description} for m in MODES.values()]
 
 
+# Words that carry no mode meaning in a spoken/typed switch request.
+_FILLER = frozenset({"aether", "activate", "switch", "to", "become", "my", "enter", "mode",
+                     "please", "the", "a", "into", "on"})
+
+# Normalized leftover tokens -> mode key, for requests like "activate laptop management".
+_ALIASES = {
+    "friend": "friend", "friendly": "friendly", "buddy": "friend",
+    "mentor": "mentor", "pythonmentor": "mentor", "teacher": "teacher",
+    "devops": "devops", "developer": "developer", "coding": "developer",
+    "research": "research", "personal": "personal",
+    "systemadmin": "system_admin", "sysadmin": "system_admin",
+    "laptopmanagement": "system_admin", "laptop": "system_admin",
+    "security": "security", "fitness": "fitness", "fitnesscoach": "fitness",
+    "emergency": "emergency", "emergencytroubleshooting": "emergency",
+    "calm": "calm", "funny": "funny", "professional": "professional",
+    "motivational": "motivational", "storyteller": "storyteller", "stories": "storyteller",
+    "doctor": "doctor", "health": "doctor", "assistant": "assistant",
+}
+
+
 def get_mode(name: str | None) -> PersonalityMode:
-    """Resolve a mode name, falling back to the default for empty input."""
+    """Resolve a mode name or a natural switch phrase; default mode for empty input."""
     if not name or not str(name).strip():
         return MODES[DEFAULT_MODE]
     key = str(name).strip().lower()
-    if key not in MODES:
-        raise ValueError(f"Unknown personality mode {name!r}. Available: {', '.join(sorted(MODES))}.")
-    return MODES[key]
+    if key in MODES:
+        return MODES[key]
+    tokens = [token for token in re.findall(r"[a-z0-9]+", key) if token not in _FILLER]
+    alias = _ALIASES.get("".join(tokens))
+    if alias is not None:
+        return MODES[alias]
+    raise ValueError(f"Unknown personality mode {name!r}. Available: {', '.join(sorted(MODES))}.")
 
 
 def overlay_for(name: str | None) -> str:
