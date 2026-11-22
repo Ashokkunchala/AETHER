@@ -77,3 +77,25 @@ The remote-read protocol also supports owner-bound cancellation/result clearing.
 It never approves or dispatches a read: pending requests cannot start, running
 reads may finish but cannot publish that result, completed results are cleared.
 Already returned copies are not recalled and OS cancellation is not guaranteed.
+
+## Per-device laptop status and guarded command protocols
+
+Two further native Android request/result paths now exist alongside the
+remote-read protocol, sharing its paired devices (pair/revoke with
+python -m windows_agent.remote_read pair|revoke):
+
+- remote_status: one fixed system_snapshot action (reported CPU, core count,
+  RAM, drive-letter capacity/free, battery, up-link count). Collected only
+  after laptop-local interactive review (SHARE STATUS); no GPU utilization or
+  temperature is claimed.
+- remote_shell: one exact guarded-shell command per request. The hard blocked
+  list is refused at queue time and can never be approved past; every other
+  command waits for laptop-local interactive review (RUN COMMAND), executes
+  synchronously with a fixed60second cap, and releases at most4000 characters
+  each of stdout/stderr to the requesting device token for120seconds.
+
+Neither protocol adds an HTTP approval or execution route; a caller-supplied
+confirmed boolean is rejected, never authority. Phone cancellation prevents a
+pending request from starting and suppresses unpublished results; it is not an
+OS kill. Screenshots are never captured or returned remotely. See
+[laptop control map](../docs/LAPTOP-CONTROL.md).

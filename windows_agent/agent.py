@@ -76,3 +76,11 @@ def open_url(request: ApprovedOpenUrlRequest, _=__import__("fastapi").Depends(au
 # This is a separate per-device read-only request/result protocol. No HTTP decision endpoint.
 from windows_agent.remote_read_api import router as remote_read_router
 app.include_router(remote_read_router)
+
+# Per-device read-only laptop status and guarded-shell request/result protocols.
+# Both are queue-only over HTTP; every approval/execution decision stays in the
+# laptop-local interactive review. No HTTP decision endpoint exists.
+from windows_agent.remote_shell_api import router as remote_shell_router
+from windows_agent.remote_status_api import router as remote_status_router
+app.include_router(remote_status_router)
+app.include_router(remote_shell_router)
