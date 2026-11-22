@@ -75,12 +75,19 @@ class ReminderWorker(context: Context, parameters: WorkerParameters) : Coroutine
                     Intent(context, MainActivity::class.java),
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
+                val talkNow = PendingIntent.getActivity(
+                    context,
+                    (200_000L + id).toInt(),
+                    liveVoiceLaunchIntent(context),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
                 val notification = Notification.Builder(context, CHANNEL_ID)
                     .setSmallIcon(android.R.drawable.ic_popup_reminder)
                     .setContentTitle(reminder.optString("title", "AETHER reminder"))
                     .setContentText("This reminder is due.")
                     .setVisibility(Notification.VISIBILITY_PRIVATE)
                     .setContentIntent(openApp)
+                    .addAction(Notification.Action.Builder(null, "Talk now", talkNow).build())
                     .setAutoCancel(true)
                     .build()
                 manager.notify(id, notification)

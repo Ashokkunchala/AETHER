@@ -108,8 +108,12 @@ private val QUICK_ACTIONS = listOf(
 )
 
 class MainActivity : ComponentActivity() {
+    // Counts notification "Talk now" taps; the Live Voice section offers one explicit start per tap.
+    internal val voiceLaunchRequests = mutableIntStateOf(0)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (isLiveVoiceLaunch(intent?.action)) voiceLaunchRequests.intValue++
         setContent {
             AETHERTheme {
                 Surface(
@@ -118,6 +122,11 @@ class MainActivity : ComponentActivity() {
                 ) { CommandCentreScreen() }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (isLiveVoiceLaunch(intent.action)) voiceLaunchRequests.intValue++
     }
 }
 
@@ -185,6 +194,7 @@ private fun CommandCentreScreen() {
     var runtimeCursor by remember { mutableStateOf(0) }
     var liveVoiceActive by remember { mutableStateOf(false) }
     var liveVoiceStatus by remember { mutableStateOf("Live Voice is off. Start it explicitly when ready.") }
+    var handledVoiceLaunches by remember { mutableIntStateOf(0) }
     val liveVoiceController = remember(context) {
         val mainThread = Handler(Looper.getMainLooper())
         LiveVoiceController { message, active ->
@@ -756,6 +766,30 @@ private fun CommandCentreScreen() {
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted,
             )
+            val voiceLaunchActivity = context as? MainActivity
+            val voiceLaunchOffered = (voiceLaunchActivity?.voiceLaunchRequests?.intValue ?: 0) > handledVoiceLaunches
+            if (voiceLaunchOffered && !liveVoiceActive) {
+                Text(
+                    "You tapped Talk now on a notification. Live Voice still starts only from your tap here.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextMuted,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(enabled = !busy, onClick = {
+                        handledVoiceLaunches = voiceLaunchActivity?.voiceLaunchRequests?.intValue ?: handledVoiceLaunches
+                        if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) ==
+                            android.content.pm.PackageManager.PERMISSION_GRANTED
+                        ) {
+                            startLiveVoice()
+                        } else {
+                            liveVoicePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                    }) { Text("Start Live Voice from notification") }
+                    TextButton(onClick = {
+                        handledVoiceLaunches = voiceLaunchActivity?.voiceLaunchRequests?.intValue ?: handledVoiceLaunches
+                    }) { Text("Dismiss") }
+                }
+            }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(enabled = !busy && !liveVoiceActive, onClick = {
                     if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) ==
