@@ -152,7 +152,9 @@ def test_export_returns_full_local_journal(tmp_path, monkeypatch):
     journal = WellnessJournal()
     journal.log_day("2026-11-20", "Asia/Kolkata", walk_minutes=30, habits=["stretch"])
     journal.log_sleep("2026-11-19T22:30:00+05:30", "2026-11-20T06:30:00+05:30", "Asia/Kolkata")
-    journal.plan("2026-11-22", "Asia/Kolkata", "Easy walk", ["dal and rice"], "no nuts", walk_goal_minutes=30)
+    from zoneinfo import ZoneInfo
+    plan_day = datetime.now(ZoneInfo("Asia/Kolkata")).date().isoformat()
+    journal.plan(plan_day, "Asia/Kolkata", "Easy walk", ["dal and rice"], "no nuts", walk_goal_minutes=30)
     out = journal.export()
     assert out["activity_days"][0]["habits"] == ["stretch"]
     assert out["sleep_intervals"][0]["wake_day"] == "2026-11-20"
