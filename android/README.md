@@ -114,9 +114,9 @@ does not prove the app runs on your phone or that your backend is reachable.
 
 ## Optional release signing
 
-`assembleRelease` works out of the box and falls back to the debug key, which
-is fine for local testing but not for distribution. To sign release builds with
-your own key, create `android/keystore.properties` (gitignored, along with
+`assembleRelease` produces an unsigned APK when no release key is configured.
+It never silently uses the debug key. Debug APKs are for local testing only.
+To sign release builds with your own key, create `android/keystore.properties` (gitignored, along with
 `*.keystore`/`*.jks`):
 
 ```properties
@@ -232,3 +232,21 @@ labels/Latin OCR, system camera thumbnail handling, optional background/notifica
 grants, a single-target best-effort15-minute local proximity worker, expiry and
 Disable behavior. No AETHER image/location upload. Models and runtime/native pixels,
 OEM permissions and actual background delivery still need device acceptance.
+
+## Direct Android launcher (0.3.0)
+
+Install the debug APK for personal testing, then tap the AETHER icon in your
+app drawer. Long-press it for **Talk to AETHER**; supported launchers let you drag
+that shortcut onto the home screen. It opens visible voice controls near the top
+of the app. Tap Talk to AETHER to grant microphone permission and start audio.
+Opening the icon or shortcut never starts the microphone automatically.
+
+This is an app launcher entry, not an Android HOME replacement. The laptop
+backend must still be running, trusted by the phone, and paired. No permission,
+provider key or working network connection is supplied by the APK itself.
+
+The debug APK is signed with the build machine's test key. If an older install
+uses another key, Android rejects the update. Do not uninstall without first
+noting your pairing/recovery details; uninstalling removes local settings.
+Production distribution needs an owner-controlled stable signing key and device
+acceptance. See ../docs/PRODUCTION-READINESS.md.

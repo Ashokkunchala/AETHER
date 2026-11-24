@@ -86,8 +86,16 @@ private fun inspectImage(context: Context, uri: Uri): String {
     } finally { bitmap.recycle() }
 }
 
-internal suspend fun readApproximateLocation(context: Context): Location? = withTimeout(20_000) {
+internal suspend fun readApproximateLocation(context: Context): Location? {
     require(Build.VERSION.SDK_INT >= 30) { "One-shot location requires Android 11+ in this version" }
+    require(context.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) ==
+        android.content.pm.PackageManager.PERMISSION_GRANTED) { "Allow approximate location first" }
+    return if (Build.VERSION.SDK_INT >= 30) readApproximateLocationApi30(context) else null
+}
+
+@androidx.annotation.RequiresApi(30)
+@android.annotation.SuppressLint("MissingPermission") // Checked by caller; revocation is caught in the callback setup.
+private suspend fun readApproximateLocationApi30(context: Context): Location? = withTimeout(20_000) {
     val manager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     require(manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
     suspendCancellableCoroutine { continuation ->

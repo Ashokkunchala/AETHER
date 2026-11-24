@@ -11,8 +11,7 @@ plugins {
 //   storePassword=...
 //   keyAlias=...
 //   keyPassword=...
-// Without it, release builds fall back to the debug key so assembleRelease stays
-// installable for local testing. Debug builds and CI are never affected.
+// Without it, release builds remain unsigned. Never distribute debug-key builds as production.
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties().apply {
     if (keystorePropertiesFile.exists()) {
@@ -27,8 +26,8 @@ android {
         applicationId = "com.ashok.aether"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.3.0"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -52,7 +51,7 @@ android {
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
             } else {
-                signingConfigs.getByName("debug")
+                null
             }
         }
     }

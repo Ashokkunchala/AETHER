@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 class LiveVoiceController(
     private val onStatus: (String, Boolean) -> Unit,
 ) {
-    private val client = OkHttpClient.Builder().readTimeout(0, TimeUnit.MILLISECONDS).build()
+    private val client = OkHttpClient.Builder().followRedirects(false).followSslRedirects(false).readTimeout(0, TimeUnit.MILLISECONDS).build()
     @Volatile private var active = false
     @Volatile private var webSocket: WebSocket? = null
     @Volatile private var recorder: AudioRecord? = null
@@ -36,7 +36,7 @@ class LiveVoiceController(
     private val playbackQueue = ArrayBlockingQueue<ByteArray>(MAX_QUEUED_AUDIO_FRAMES)
 
     suspend fun start(backendUrl: String, token: String, mode: String = "assistant", language: String = "auto") {
-        require(backendUrl.startsWith("https://")) { "Live Voice requires an HTTPS backend." }
+        backendOrigin(backendUrl)
         require(token.length >= 32 && !token.startsWith("replace_")) { "Connect with a valid device token first." }
         check(!active) { "A Live Voice session is already active." }
         active = true
@@ -59,6 +59,9 @@ class LiveVoiceController(
                 try {
                     startAudio(socket)
                     onStatus("Live Voice connected. Microphone and speaker are active.", true)
+                } catch (error: SecurityException) {
+                    onStatus("Microphone permission was revoked. Grant it again in app settings.", false)
+                    stop()
                 } catch (error: Exception) {
                     onStatus(error.message ?: "Could not start the audio devices.", false)
                     stop()
@@ -120,6 +123,7 @@ class LiveVoiceController(
     private fun requestTicket(backendUrl: String, token: String): String {
         val connection = URL("$backendUrl/api/live-voice-ticket").openConnection() as HttpURLConnection
         try {
+            connection.instanceFollowRedirects = false
             connection.connectTimeout = 8_000
             connection.readTimeout = 15_000
             connection.requestMethod = "POST"
@@ -137,6 +141,7 @@ class LiveVoiceController(
         }
     }
 
+    @android.annotation.SuppressLint("MissingPermission") // Caller grants permission; revocation is caught below.
     private fun startAudio(socket: WebSocket) {
         val inputMin = AudioRecord.getMinBufferSize(
             INPUT_RATE,

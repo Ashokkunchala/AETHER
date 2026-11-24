@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
@@ -113,7 +114,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (isLiveVoiceLaunch(intent?.action)) voiceLaunchRequests.intValue++
+        if (savedInstanceState == null && isLiveVoiceLaunch(intent?.action)) voiceLaunchRequests.intValue++
         setContent {
             AETHERTheme {
                 Surface(
@@ -398,7 +399,7 @@ private fun CommandCentreScreen() {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+        modifier = Modifier.fillMaxSize().safeDrawingPadding().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
         // Command-centre header: AI core orb + status bar.
@@ -434,6 +435,26 @@ private fun CommandCentreScreen() {
             }
         }
 
+        SectionCard(title = "QUICK START") {
+            val launchActivity = context as? MainActivity
+            val directOffer = (launchActivity?.voiceLaunchRequests?.intValue ?: 0) > handledVoiceLaunches
+            Text(if (directOffer) "Talk shortcut opened. Tap below to start the microphone." else
+                "Long-press the AETHER app icon for the Talk to AETHER shortcut.")
+            Text("Requires your running HTTPS backend and device pairing. No always-on microphone.",
+                style = MaterialTheme.typography.bodySmall, color = TextMuted)
+            Button(enabled = connected && !busy && !liveVoiceActive, onClick = {
+                handledVoiceLaunches = launchActivity?.voiceLaunchRequests?.intValue ?: handledVoiceLaunches
+                if (context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) ==
+                    android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                    startLiveVoice()
+                } else {
+                    liveVoicePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
+            }) { Text("Talk to AETHER") }
+            if (!connected) Text("Pair or connect below first. The app does not run the laptop backend itself.",
+                style = MaterialTheme.typography.bodySmall, color = TextMuted)
+        }
+
         SectionCard(title = "CONNECTION") {
             OutlinedTextField(
                 value = endpoint,
@@ -458,7 +479,7 @@ private fun CommandCentreScreen() {
                         status = "Checking HTTPS backend…"
                         try {
                             val base = endpoint.trim().trimEnd('/')
-                            require(base.startsWith("https://") && URL(base).host.isNotBlank()) { "Enter a valid HTTPS backend URL." }
+                            backendOrigin(base)
                             require(token.length >= 32 && !token.startsWith("replace_")) { "Enter the real device token (at least 32 characters)." }
                             val code = withContext(Dispatchers.IO) { request(base + "/health", null, null) }
                             require(code.first == 200) { "Backend health check returned HTTP ${code.first}." }
@@ -505,7 +526,7 @@ private fun CommandCentreScreen() {
                     try {
                         val base = endpoint.trim().trimEnd('/')
                         val bootstrapToken = masterToken.trim()
-                        require(base.startsWith("https://") && URL(base).host.isNotBlank()) { "Enter a valid HTTPS backend URL." }
+                        backendOrigin(base)
                         require(bootstrapToken.length >= 32 && !bootstrapToken.startsWith("replace_")) { "Enter the configured master API token." }
                         require(deviceName.isNotBlank()) { "Enter a name for this device." }
                         val payload = JSONObject().put("name", deviceName.trim()).toString()
@@ -551,7 +572,7 @@ private fun CommandCentreScreen() {
                                 try {
                                     val base = TokenVault.readBackendUrl(context) ?: endpoint.trim().trimEnd('/')
                                     val bootstrapToken = masterToken.trim()
-                                    require(base.startsWith("https://") && URL(base).host.isNotBlank()) { "Reconnect to the HTTPS backend first." }
+                                    backendOrigin(base)
                                     require(bootstrapToken.length >= 32 && !bootstrapToken.startsWith("replace_")) { "Enter the configured master API token before revoking." }
                                     val deviceId = TokenVault.readDeviceId(context) ?: pairedDeviceId
                                     require(deviceId.isNotBlank()) { "No paired device ID is stored on this phone." }
@@ -1092,6 +1113,7 @@ private fun launchSpeech(
 private fun request(url: String, body: String?, token: String?, method: String? = null): Pair<Int, String> {
     val connection = URL(url).openConnection() as HttpURLConnection
     try {
+        connection.instanceFollowRedirects = false
         connection.connectTimeout = 8000
         connection.readTimeout = 15000
         connection.requestMethod = method ?: if (body == null) "GET" else "POST"

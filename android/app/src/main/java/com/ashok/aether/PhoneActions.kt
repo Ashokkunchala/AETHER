@@ -196,7 +196,9 @@ private fun localDeviceStatus(context: Context): String {
         val manager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         "Device credential configured: ${manager.isDeviceSecure}; currently locked: ${manager.isDeviceLocked}. Not a security/malware audit."
     } catch (_: Exception) { "Lock state unknown." }
-    val permissions = listOf(android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.POST_NOTIFICATIONS).joinToString { permission ->
+    val permissionNames = mutableListOf(android.Manifest.permission.RECORD_AUDIO)
+    if (android.os.Build.VERSION.SDK_INT >= 33) permissionNames.add(android.Manifest.permission.POST_NOTIFICATIONS)
+    val permissions = permissionNames.joinToString { permission ->
         val granted = if (permission == android.Manifest.permission.POST_NOTIFICATIONS && android.os.Build.VERSION.SDK_INT < 33) "not applicable before API33" else if (context.checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED) "granted" else "not granted"
         "${permission.substringAfterLast('.')}: $granted"
     }

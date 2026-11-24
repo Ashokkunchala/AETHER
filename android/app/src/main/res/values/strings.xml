@@ -1,0 +1,5 @@
+<resources>
+    <string name="shortcut_talk">Talk to AETHER</string>
+    <string name="shortcut_talk_long">Open AETHER voice controls</string>
+    <color name="launcher_background">#071322</color>
+</resources>
