@@ -283,6 +283,8 @@ def build_registry(force: bool = False) -> ToolRegistry:
     register_site_watch(registry)
     from aether.youtube_summary import register_youtube_summary
     register_youtube_summary(registry)
+    from aether.youtube_search import register_youtube_search
+    register_youtube_search(registry)
     from aether.draft_workspace import register_draft_workspace
     register_draft_workspace(registry)
 
