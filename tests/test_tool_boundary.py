@@ -41,7 +41,7 @@ def test_every_mutating_medium_tool_asks_first(registry):
 
 def test_local_file_mutations_always_show_an_exact_preview(registry):
     """Write/copy/move/delete/organize must preview the exact change first."""
-    mutation_tools = {"write_file", "copy_file", "move_file", "delete_file", "organize_folder"}
+    mutation_tools = {"write_file", "copy_file", "move_file", "delete_file", "organize_folder", "create_file"}
     for name in mutation_tools:
         tool = registry.get(name)
         assert tool is not None
