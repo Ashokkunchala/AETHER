@@ -17,13 +17,25 @@ class AudioIO:
     asyncio event loop is never blocked while AETHER is speaking.
     """
 
-    def __init__(self, sample_rate=16000, channels=1, chunk_size=512):
+    def __init__(
+        self,
+        sample_rate=16000,
+        channels=1,
+        chunk_size=512,
+        input_device=None,
+        output_device=None,
+    ):
         self.sample_rate = sample_rate
         self.channels = channels
         self.chunk_size = chunk_size
+        # None selects the system default endpoint (sounddevice behaviour).
+        self.input_device = input_device
+        self.output_device = output_device
         self.input_stream = None
         self.output_stream = None
-        self.input_queue = queue.Queue()
+        # Bounded: nothing in the voice path consumes this queue (read_chunk is
+        # an optional API). Left unbounded it grew ~230 MB/hour while listening.
+        self.input_queue: queue.Queue = queue.Queue(maxsize=400)
         self.is_recording = False
         self.is_playing = False
 
@@ -40,20 +52,48 @@ class AudioIO:
             if status:
                 logger.warning(f"Audio input status: {status}")
             audio_data = indata.copy()
-            self.input_queue.put(audio_data)
+            # Never block the PortAudio callback: drop the oldest frame instead.
+            try:
+                self.input_queue.put_nowait(audio_data)
+            except queue.Full:
+                try:
+                    self.input_queue.get_nowait()
+                except queue.Empty:
+                    pass
+                try:
+                    self.input_queue.put_nowait(audio_data)
+                except queue.Full:
+                    pass
             if callback:
                 callback(audio_data)
 
-        self.input_stream = sd.InputStream(
-            channels=self.channels,
-            samplerate=self.sample_rate,
-            blocksize=self.chunk_size,
-            callback=audio_callback,
-            dtype='float32'
-        )
-        self.input_stream.start()
+        try:
+            self.input_stream = sd.InputStream(
+                device=self.input_device,
+                channels=self.channels,
+                samplerate=self.sample_rate,
+                blocksize=self.chunk_size,
+                callback=audio_callback,
+                dtype='float32'
+            )
+            self.input_stream.start()
+        except Exception as exc:  # noqa: BLE001
+            # A failed mic open must not surface as a raw traceback from a
+            # headless service; report it with the available endpoints.
+            available = self._input_device_names()
+            logger.error(
+                "Could not open microphone (device=%s, rate=%d, ch=%d): %s | inputs: %s",
+                self.input_device, self.sample_rate, self.channels, exc, available,
+            )
+            raise RuntimeError(
+                f"microphone unavailable: {exc}. Set AETHER_AUDIO_INPUT_DEVICE "
+                f"to one of: {available}"
+            ) from exc
         self.is_recording = True
-        logger.info("Audio input started")
+        logger.info(
+            "Audio input started: %s",
+            self._device_name(self.input_device) or "default device",
+        )
 
     def stop_input(self):
         if self.input_stream:

@@ -24,6 +24,7 @@ class WakeWordDetector:
         self._audio_buffer = np.empty(0, dtype=np.int16)
         self._prediction_count = 0
         self.last_confidence = 0.0
+        self.last_input_rms = 0.0
 
         if self.available:
             self._load_model()
@@ -62,6 +63,9 @@ class WakeWordDetector:
             while self._audio_buffer.size >= 1280:
                 frame = self._audio_buffer[:1280]
                 self._audio_buffer = self._audio_buffer[1280:]
+                self.last_input_rms = float(
+                    np.sqrt(np.mean(np.square(frame, dtype=np.float64)))
+                ) / 32767.0
                 prediction = self.model.predict(frame)
                 self._prediction_count += 1
                 matches = [
@@ -74,8 +78,10 @@ class WakeWordDetector:
                     logger.info("Wake-word model outputs: %s", ", ".join(prediction))
                 if self._prediction_count % 20 == 0:
                     logger.info(
-                        "Hey AETHER confidence %.3f (activation threshold %.2f)",
+                        "%s confidence %.3f (input rms %.4f, activation threshold %.2f)",
+                        self.model_name.replace("_", " ").title(),
                         self.last_confidence,
+                        self.last_input_rms,
                         self.threshold,
                     )
                 for key, score in matches:

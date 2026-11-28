@@ -57,7 +57,11 @@ class AETHERAgent:
         self.vad = VADProcessor(
             aggressiveness=config.vad_aggressiveness, sample_rate=config.sample_rate
         )
-        self.wakeword = WakeWordDetector(threshold=config.wakeword_threshold)
+        self.wakeword = WakeWordDetector(
+            model_name=config.wakeword_model,
+            threshold=config.wakeword_threshold,
+            models_dir=config.wakeword_models_dir,
+        )
         self.live_client: GeminiLiveClient | None = None
         self._tool_executor = build_tool_executor(machine) if machine else None
 
@@ -128,7 +132,7 @@ class AETHERAgent:
             "ready",
             {
                 "wake_word": "call" if self.call_mode else (
-                    "hey aether" if config.wakeword_enabled else "voice start"
+                    config.wakeword_model.replace("_", " ") if config.wakeword_enabled else "voice start"
                 ),
                 "model": config.gemini_live_model,
                 "tools": len(TOOL_DECLARATIONS)
@@ -227,10 +231,21 @@ class AETHERAgent:
 
     async def _mic_pump(self) -> None:
         assert self._mic_queue is not None
+        reconnect_not_before = 0.0
         while True:
             payload = await self._mic_queue.get()
             if self.state != AWAKE or not self.live_client:
                 continue
+            if not self.live_client.connected:
+                # The session can die while awake (idle timeout, network blip).
+                # Without this, call mode stays "live" but goes permanently deaf.
+                now = time.monotonic()
+                if now < reconnect_not_before:
+                    continue
+                reconnect_not_before = now + 5.0
+                logger.warning("Gemini Live session dropped while awake; reconnecting")
+                if not await self.live_client.ensure_connected():
+                    continue
             await self.live_client.send_audio(payload)
 
     # ------------------------------------------------------------------
@@ -245,6 +260,15 @@ class AETHERAgent:
     async def _wake(self, confidence: float) -> None:
         if self.state != SLEEPING or not self.is_listening:
             return
+        if self.live_client and not self.live_client.connected:
+            logger.info("Gemini Live session is closed; reopening before wake")
+            if not await self.live_client.ensure_connected():
+                logger.error("Gemini Live could not be reopened; staying asleep")
+                self._emit(
+                    "error",
+                    {"message": "Gemini Live session could not be reopened"},
+                )
+                return
         self.state = AWAKE
         self._last_activity = time.monotonic()
         self.vad.reset()
@@ -297,10 +321,17 @@ class AETHERAgent:
 
     async def _on_text(self, text: str) -> None:
         self._last_activity = time.monotonic()
+        # Always log: the headless service/robot have no UI, and muted speakers
+        # must not make AETHER look silent when it did reply.
+        logger.info("AETHER \u203a %s", text)
         self._emit("text", {"text": text})
 
     async def _on_transcript(self, source: str, text: str) -> None:
         self._last_activity = time.monotonic()
+        if source == "user":
+            logger.info("You \u203a %s", text)
+        else:
+            logger.info("AETHER \u203a %s", text)
         self._emit("transcript", {"source": source, "text": text})
 
     async def _on_turn_complete(self) -> None:
@@ -312,6 +343,8 @@ class AETHERAgent:
         self._emit("interrupted", {})
 
     async def _on_error(self, message: str) -> None:
+        # Errors must be visible in every entry point, not just in UI callbacks.
+        logger.error("Gemini Live error: %s", message)
         self._emit("error", {"message": message})
 
     async def _on_tool_call(self, call) -> dict[str, Any]:

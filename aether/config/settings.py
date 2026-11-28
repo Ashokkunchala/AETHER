@@ -33,11 +33,13 @@ class AETHERConfig:
     voice_tools_enabled: bool = os.getenv("AETHER_VOICE_TOOLS", "true").lower() == "true"
 
 
-    # Wake word
-    wakeword_enabled: bool = True
-    wakeword_model: str = "aether"  # or path to custom model
-    wakeword_threshold: float = 0.5
-    wakeword_models_dir: Path = Path("aether/models/wakeword")
+    # Wake word. The model name must match a key exposed by the loaded
+    # openWakeWord model (for example "hey_jarvis", "alexa", "hey_mycroft").
+    # "aether" is not a bundled openWakeWord model, so it can never match.
+    wakeword_enabled: bool = os.getenv("AETHER_WAKEWORD_ENABLED", "true").lower() == "true"
+    wakeword_model: str = os.getenv("AETHER_WAKEWORD_MODEL", "hey_jarvis")
+    wakeword_threshold: float = float(os.getenv("AETHER_WAKEWORD_THRESHOLD", "0.5"))
+    wakeword_models_dir: Path = Path(os.getenv("AETHER_WAKEWORD_MODELS_DIR", "aether/models/wakeword"))
 
     # VAD
     vad_enabled: bool = True
