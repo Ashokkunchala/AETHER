@@ -80,6 +80,10 @@ class GeminiLiveClient:
         self._session: Any | None = None
         self._session_cm: Any | None = None
         self._receive_task: asyncio.Task | None = None
+        self._connect_lock = asyncio.Lock()
+        # True only while disconnect() runs, so a deliberate close is never
+        # reported as an unexpected "session inactive" failure.
+        self._closing = False
 
         # Callbacks (may be async); assigned by the agent.
         self.on_ready: Callable[[], Awaitable[None] | None] | None = None
@@ -98,6 +102,7 @@ class GeminiLiveClient:
         if not self.api_key:
             logger.error("Gemini API key is not configured")
             return False
+        self._closing = False
         base_config: dict[str, Any] = {
             "response_modalities": ["AUDIO"],
             "system_instruction": self.system_instruction,
@@ -158,7 +163,27 @@ class GeminiLiveClient:
         await self._emit(self.on_error, f"Gemini Live connect failed: {last_error}")
         return False
 
+    async def ensure_connected(self) -> bool:
+        """Reopen the Live session if Google closed it while AETHER slept.
+
+        Live sessions are closed for inactivity. A sleeping assistant holds no
+        audio stream, so the session must be re-established on the next wake.
+        """
+        async with self._connect_lock:
+            if (
+                self.connected
+                and self._session is not None
+                and self._receive_task is not None
+                and not self._receive_task.done()
+            ):
+                return True
+            if self.connected or self._session is not None or self._session_cm is not None:
+                logger.info("Gemini Live session was stale; reopening before wake")
+                await self.disconnect()
+            return await self.connect()
+
     async def disconnect(self) -> None:
+        self._closing = True
         task = self._receive_task
         self._receive_task = None
         if task:
@@ -250,7 +275,12 @@ class GeminiLiveClient:
             logger.error("Gemini Live receive loop ended: %s", exc)
             await self._emit(self.on_error, f"Live session ended: {exc}")
         finally:
+            was_connected = self.connected
             self.connected = False
+            if was_connected and not self._closing:
+                logger.warning(
+                    "Gemini Live session is inactive; it will reopen on the next wake"
+                )
 
     async def _handle_message(self, message: types.LiveServerMessage) -> None:
         if message.setup_complete:
