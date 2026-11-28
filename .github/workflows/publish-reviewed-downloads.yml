@@ -2,7 +2,7 @@ name: Publish reviewed setup files to repository
 
 on:
   push:
-    branches: [aether-cinematic-local-voice]
+    branches: [main]
     paths: [.github/workflows/publish-reviewed-downloads.yml]
   workflow_dispatch:
 
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   publish-exact-reviewed-files:
-    if: github.repository == 'Ashokkunchala/AETHER' && github.ref == 'refs/heads/aether-cinematic-local-voice'
+    if: github.repository == 'Ashokkunchala/AETHER' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: aether-cinematic-local-voice
+          ref: main
       - name: Download exact successful Windows artifact
         uses: actions/download-artifact@v4
         with:
@@ -134,4 +134,4 @@ jobs:
             exit 0
           fi
           git commit -m 'Add owner-requested verified Windows EXE and Android APK downloads'
-          git push origin HEAD:refs/heads/aether-cinematic-local-voice
+          git push origin HEAD:refs/heads/main
