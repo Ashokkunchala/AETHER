@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [main, "improve/**", "feature/**", "chore/**", "aether-cinematic-local-voice"]
+    branches: [main, "improve/**", "feature/**", "chore/**"]
   pull_request:
-    branches: [main, "aether-cinematic-local-voice"]
+    branches: [main]
 
 permissions:
   contents: read

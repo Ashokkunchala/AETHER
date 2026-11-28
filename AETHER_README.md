@@ -2,7 +2,7 @@
 
 The assistant is named AETHER. This is the original entry-point guide.
 The active repository is https://github.com/Ashokkunchala/AETHER and the current
-feature branch is `aether-cinematic-local-voice`.
+feature branch is `main`.
 
 ## Start here
 

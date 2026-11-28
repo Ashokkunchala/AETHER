@@ -124,7 +124,7 @@ Laptop control, Mobile control, Automation, Memory, Security, Settings.
 - Deployment: hybrid - local agents + cloud AI
 - Autonomy: automatic safe tasks; approval for sensitive actions
 - Voice: Indian English + Telugu
-- Scope: complete AETHER platform on branch `aether-cinematic-local-voice`
+- Scope: complete AETHER platform on branch `main`
 - Milestones: P0 stabilise -> P1 security/approval -> P2 orchestrator ->
   P3 personal + friend -> P4 mentor -> P5 DevOps agent ->
   P6 Windows + Android integration -> P7 hybrid hardening

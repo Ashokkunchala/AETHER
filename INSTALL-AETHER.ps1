@@ -126,7 +126,7 @@ try {
 
     Write-Host "Downloading current AETHER branch..."
     $zipPath = Join-Path $tempRoot "aether.zip"
-    Invoke-WebRequest -Uri "https://codeload.github.com/Ashokkunchala/AETHER/zip/refs/heads/aether-cinematic-local-voice" -OutFile $zipPath
+    Invoke-WebRequest -Uri "https://codeload.github.com/Ashokkunchala/AETHER/zip/refs/heads/main" -OutFile $zipPath
     Expand-Archive -Path $zipPath -DestinationPath $tempRoot -Force
 
     $sourceRoot = Get-ChildItem $tempRoot -Directory |
