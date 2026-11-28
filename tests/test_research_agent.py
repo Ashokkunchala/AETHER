@@ -133,7 +133,7 @@ def test_tools_registered_and_executable(tmp_path, monkeypatch):
     monkeypatch.setenv('AETHER_DRAFTS_DB', str(tmp_path / 'drafts.db'))
     monkeypatch.setenv('AETHER_SECURITY_DB', str(tmp_path / 'security.db'))
     registry = build_registry(force=True)
-    assert len(registry.names('research')) == 13
+    assert len(registry.names('research')) == 14  # 13 site-watch/draft tools + youtube_search
     assert asyncio.run(registry.execute('site_watch_add', {'url': 'https://example.com'})).ok
     assert asyncio.run(registry.execute('site_watch_list')).data['data'][0]['enabled'] == 0
     assert asyncio.run(registry.execute('draft_create', {'kind': 'report', 'title': 'T', 'body': 'B'})).ok
