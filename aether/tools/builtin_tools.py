@@ -420,6 +420,30 @@ def _register_system(r: ToolRegistry) -> None:
     ))
 
 
+def _open_website_visible(url: str) -> dict[str, Any]:
+    """Open one http(s) website visibly in the default browser.
+
+    No shell, no allowlist bypass: a single URL handoff to the OS browser,
+    the same mechanism the voice path uses for YouTube. What the site does
+    after it loads belongs to the browser and the site.
+    """
+    url = (url or "").strip()
+    if not url or len(url) > 2048 or any(ord(c) < 32 for c in url):
+        return {"success": False, "error": "A website domain or http(s) URL is required."}
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
+    host = url.split("/", 3)[2] if "://" in url else ""
+    if not host or " " in host:
+        return {"success": False, "error": "The URL has no valid host."}
+    import webbrowser
+    try:
+        opened = webbrowser.open(url, new=2)
+    except Exception as exc:  # noqa: BLE001 - browser failures surface honestly
+        return {"success": False, "error": f"Could not open the browser: {exc}"}
+    if not opened:
+        return {"success": False, "error": "The default browser did not accept the URL; no usable browser is available on this machine."}
+    return {"success": True, "url": url,
+            "note": "The URL was handed to the default browser visibly. What the site does next is owned by the browser and the site, not verified by AETHER."}
 # -------------------------------------------------------------------- apps
 def _register_apps(r: ToolRegistry) -> None:
     from aether.control.approved_apps import launch_approved_app, preview_approved_app
@@ -440,7 +464,7 @@ def _register_apps(r: ToolRegistry) -> None:
         name="open_website",
         description="Open a website visibly in the user's default browser. Use for requests such as 'open YouTube', 'open Google', or a supplied URL. Do not merely say it is opening; call this tool and report its actual result.",
         parameters=_obj({"url": _str("Website domain or HTTP(S) URL, e.g. 'youtube.com' or 'https://web.whatsapp.com'.")}, ["url"]),
-        handler=lambda url: get_laptop().open_app(url if url.startswith(("http://", "https://")) else "https://" + url),
+        handler=_open_website_visible,
         risk=Risk.LOW, category="apps",
     ))
     r.register(Tool(
@@ -1456,11 +1480,31 @@ def _register_ownership(r: ToolRegistry) -> None:
         handler=_guard(lambda: {"habits": _personal().habits()}),
         risk=Risk.SAFE, category="personal",
     ))
+    def _briefing() -> dict[str, Any]:
+        data = _personal().briefing(_store().list())
+        try:
+            from datetime import date as _date
+
+            from aether.job_tracker import JobTracker
+            tracker = JobTracker()
+            if tracker.path.is_file():
+                with tracker.connect() as db:
+                    rows = db.execute(
+                        "SELECT * FROM applications WHERE follow_up_day IS NOT NULL AND follow_up_day<=? AND status IN ('saved','applied','interview') ORDER BY follow_up_day",
+                        (_date.today().isoformat(),)).fetchall()
+                if rows:
+                    data["job_followups_due"] = [tracker._row(r) for r in rows]
+                    data["summary"] = (data.get("summary", "")
+                                       + f" {len(rows)} job application follow-up(s) due; ask job_followups_due for details.").strip()
+        except Exception:  # noqa: BLE001 - the briefing must never fail over this optional section
+            logger.debug("job follow-up briefing section skipped", exc_info=True)
+        return data
+
     r.register(Tool(
         name="daily_briefing",
-        description="Morning summary: overdue and open commitments, habits not done yet, spending today and this month. Local data only.",
+        description="Morning summary: overdue and open commitments, habits not done yet, spending today and this month, plus job application follow-ups due when you track applications. Local data only.",
         parameters=_obj({}),
-        handler=_guard(lambda: _personal().briefing(_store().list())),
+        handler=_guard(_briefing),
         risk=Risk.SAFE, category="personal",
     ))
     r.register(Tool(
