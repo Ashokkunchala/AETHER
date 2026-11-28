@@ -1,6 +1,6 @@
 # Windows Installation and Live Terminal Guide
 
-This guide is for AETHER on the `aether-cinematic-local-voice` branch. It covers setup, the realtime terminal, and the optional one-shot microphone input. Do not paste API keys or tokens into chat, issues, screenshots, or Git.
+This guide is for AETHER on the `main` branch. It covers setup, the realtime terminal, and the optional one-shot microphone input. Do not paste API keys or tokens into chat, issues, screenshots, or Git.
 
 ## 1. Update the local checkout
 
@@ -10,8 +10,8 @@ Open PowerShell in your existing repository folder:
 # Open your existing checkout folder first. Keep its current folder name.
 # For example, if cloned with the new repository name:
 cd "$env:USERPROFILE\Desktop\AETHER"
-git switch aether-cinematic-local-voice
-git pull origin aether-cinematic-local-voice
+git switch main
+git pull origin main
 ```
 
 If Git reports local changes or a merge conflict, stop and resolve those changes before proceeding. Do not run `git reset --hard`.
@@ -20,7 +20,7 @@ For a new checkout:
 
 ```powershell
 cd "$env:USERPROFILE\Desktop"
-git clone --branch aether-cinematic-local-voice https://github.com/Ashokkunchala/AETHER.git
+git clone --branch main https://github.com/Ashokkunchala/AETHER.git
 cd AETHER
 ```
 
@@ -57,7 +57,7 @@ This installs the project in editable mode and its Windows extras, including its
 .\.venv\Scripts\python.exe -m pip install "SpeechRecognition[audio]"
 ```
 
-If installation reports a TOML parsing error, first confirm that `git pull origin aether-cinematic-local-voice` succeeded and that `pyproject.toml` does not contain a literal `\n` inside a dependency line. Then retry the installation command. Do not manually paste escaped newline characters into TOML.
+If installation reports a TOML parsing error, first confirm that `git pull origin main` succeeded and that `pyproject.toml` does not contain a literal `\n` inside a dependency line. Then retry the installation command. Do not manually paste escaped newline characters into TOML.
 
 ## 4. Configure an AI provider key
 
