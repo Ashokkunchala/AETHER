@@ -133,9 +133,6 @@ def register_youtube_search(registry) -> None:
         parameters={'type': 'object', 'properties': {
             'video': {'type': 'string', 'description': 'Exact YouTube video URL or 11-character video ID.'},
         }, 'required': ['video'], 'additionalProperties': False},
-        handler=lambda video: play_youtube(
-            video,
-            opener=lambda url: __import__('aether.tools.builtin_tools', fromlist=['get_laptop']).get_laptop().open_app(url),
-        ),
+        handler=lambda video: play_youtube(video),
         risk=Risk.LOW, category='media',
     ))
