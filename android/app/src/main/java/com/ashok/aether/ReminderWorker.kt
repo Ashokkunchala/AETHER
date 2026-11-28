@@ -41,6 +41,7 @@ class ReminderWorker(context: Context, parameters: WorkerParameters) : Coroutine
             val connection = URL("${backendUrl.trimEnd('/')}/api/reminders/due")
                 .openConnection() as HttpURLConnection
             val (statusCode, body) = try {
+                connection.instanceFollowRedirects = false
                 connection.connectTimeout = 8_000
                 connection.readTimeout = 15_000
                 connection.requestMethod = "GET"
@@ -97,6 +98,7 @@ class ReminderWorker(context: Context, parameters: WorkerParameters) : Coroutine
             val inboxConnection = URL("${backendUrl.trimEnd('/')}/api/integrations/notifications?after_id=$cursor")
                 .openConnection() as HttpURLConnection
             val inboxBody = try {
+                inboxConnection.instanceFollowRedirects = false
                 inboxConnection.connectTimeout = 8_000
                 inboxConnection.readTimeout = 15_000
                 inboxConnection.requestMethod = "GET"

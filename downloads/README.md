@@ -1,6 +1,22 @@
 # AETHER direct setup files
 
-Built from source commit `b44b4ea28612abe7edf7f3efe4a5230cfa948e49`.
+## Android 0.3.0 test launcher, November 24, 2026
+
+The Android APK is now built from source commit
+`6118fa83ce17ccc79836145ca8cd273e880df1a6` by the successful
+[Android launcher build](https://github.com/Ashokkunchala/AETHER/actions/runs/45353111929).
+Its SHA256 is recorded in SHA256SUMS.txt and ANDROID-SHA256.txt.
+This is a debug-signed personal test APK, not a production release. It adds the
+AETHER app icon and explicit Talk to AETHER shortcut. Long-press the installed
+icon for the shortcut; microphone still starts only after an in-app tap.
+Native Android visual/device acceptance is outstanding. The app still requires
+its running HTTPS backend and device pairing. See ../docs/PRODUCTION-READINESS.md.
+
+## Windows download (unchanged)
+
+The Windows setup and PowerShell payload remain built from source commit
+`b44b4ea28612abe7edf7f3efe4a5230cfa948e49`. SOURCE-COMMIT.txt refers only to these
+unchanged Windows files, not the refreshed Android APK.
 Verified successful build: https://github.com/Ashokkunchala/AETHER/actions/runs/44309153096
 
 - `AETHER-Setup.exe`: unsigned Windows setup launcher, not an offline/standalone assistant. Requires Windows10/11, Python3.11+ and internet. Inspect the included PowerShell payload and checksums before running. It asks separately to download the exact source and install packages into a NEW folder. No old installation overwrite, startup registration, provider launch or phone effects.
