@@ -289,6 +289,8 @@ def build_registry(force: bool = False) -> ToolRegistry:
     register_youtube_search(registry)
     from aether.job_tracker import register_job_tracker
     register_job_tracker(registry)
+    from aether.interview_practice import register_interview_practice
+    register_interview_practice(registry)
     from aether.draft_workspace import register_draft_workspace
     register_draft_workspace(registry)
 
