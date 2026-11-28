@@ -23,7 +23,7 @@ Use a NEW folder, not the older working copy that previously had merge conflicts
 1. Open a normal, non-administrator PowerShell window in a parent folder you choose. Confirm no `AETHER-device-test` folder already exists there. Run one command at a time and stop if one fails:
 
 ```powershell
-git clone --branch aether-cinematic-local-voice --single-branch https://github.com/Ashokkunchala/AETHER.git AETHER-device-test
+git clone --branch main --single-branch https://github.com/Ashokkunchala/AETHER.git AETHER-device-test
 Set-Location .\AETHER-device-test
 git status --short
 git rev-parse HEAD
