@@ -22,6 +22,8 @@ def test_installer_displays_aether_but_keeps_existing_paths_and_task():
     assert 'AETHER_AI_PROVIDER' in text
     assert 'aether-cinematic-local-voice' not in text
     assert 'https://codeload.github.com/Ashokkunchala/AETHER/zip/refs/heads/main' in text
+    assert '--no-cache-dir' in text
+    assert 'PIP_NO_CACHE_DIR' in text
     assert 'Starting AETHER' in text
     assert (ROOT / 'scripts/uninstall-aether.ps1').is_file()
     assert (ROOT / 'scripts/install-aether-startup.ps1').is_file()

@@ -5,6 +5,10 @@ $ProgressPreference = "SilentlyContinue"
 Write-Host ""
 Write-Host "AETHER Personal AI - Windows installer" -ForegroundColor Cyan
 
+# The per-user pip wheel cache can be locked or owned by another context
+# (Errno 13 Permission denied); this installer never reads or writes it.
+$env:PIP_NO_CACHE_DIR = "1"
+
 $installRoot = Join-Path $env:LOCALAPPDATA "Programs\AETHER"
 $tempRoot = Join-Path $env:TEMP ("aether-install-" + [guid]::NewGuid().ToString("N"))
 New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
@@ -155,11 +159,11 @@ try {
     }
 
     Write-Host "Installing dependencies; this may take a few minutes..."
-    & $venvPython -m pip install --upgrade pip
-    if ($LASTEXITCODE -ne 0) { throw "pip upgrade failed." }
+    & $venvPython -m pip install --upgrade pip --no-cache-dir
+    if ($LASTEXITCODE -ne 0) { throw "pip upgrade failed. Retry in a new PowerShell window; if it persists, run `py -m pip --version` and send the error." }
 
-    & $venvPython -m pip install -r (Join-Path $installRoot "requirements-dev.txt")
-    if ($LASTEXITCODE -ne 0) { throw "Dependency installation failed." }
+    & $venvPython -m pip install --no-cache-dir -r (Join-Path $installRoot "requirements-dev.txt")
+    if ($LASTEXITCODE -ne 0) { throw "Dependency installation failed. The pip cache is bypassed, so close other Python processes and retry; send the last pip error line if it persists." }
 
     # Realtime voice stack (sounddevice/webrtcvad/openwakeword/scipy). Separate
     # from requirements.txt so CI stays audio-free; without it the robot's `v`
@@ -168,8 +172,8 @@ try {
     $voiceRequirements = Join-Path $installRoot "requirements-voice.txt"
     if (Test-Path -LiteralPath $voiceRequirements) {
         Write-Host "Installing the realtime voice stack (sounddevice, webrtcvad, openwakeword, scipy)..."
-        & $venvPython -m pip install -r $voiceRequirements
-        if ($LASTEXITCODE -ne 0) { throw "Voice stack installation failed (pip exit ${LASTEXITCODE})." }
+        & $venvPython -m pip install --no-cache-dir -r $voiceRequirements
+        if ($LASTEXITCODE -ne 0) { throw "Voice stack installation failed (pip exit ${LASTEXITCODE}). The pip cache is bypassed; retry once and send the last pip error line if it persists." }
     } else {
         throw "requirements-voice.txt is missing from the downloaded package; refusing an incomplete installation."
     }
